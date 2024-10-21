@@ -12,10 +12,6 @@ class MyApp extends StatelessWidget {
       title: 'Eventify',
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Login'),
-          centerTitle: true,
-        ),
         body: LoginScreen()
       ),
     );
