@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:eventify/config/app_colors.dart';
 
 class LoginScreen extends StatelessWidget {
-  LoginScreen({super.key});
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -87,38 +87,18 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
 
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.darkOrange,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
-                ),
-                onPressed: () {},
-                child: const Text(
-                  'Login',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
+              const LoginButton(),
 
               const SizedBox(height: 90,),
 
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Don\'t have an account yet?'),
+                  Text('Don\'t have an account yet?'),
 
-                  const SizedBox(width: 10,),
+                  SizedBox(width: 10,),
 
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.darkOrange,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
-                    ),
-                    onPressed: () {},
-                    child: const Text(
-                      'Sign up',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
+                  SignUpButton(),
                 ],
               ),
 
@@ -126,6 +106,48 @@ class LoginScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class SignUpButton extends StatelessWidget {
+  const SignUpButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+      style: FilledButton.styleFrom(
+        backgroundColor: AppColors.darkOrange,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
+      ),
+      onPressed: () {},
+      child: const Text(
+        'Sign up',
+        style: TextStyle(fontSize: 12),
+      ),
+    );
+  }
+}
+
+class LoginButton extends StatelessWidget {
+  const LoginButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+      style: FilledButton.styleFrom(
+        backgroundColor: AppColors.darkOrange,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
+      ),
+      onPressed: () {},
+      child: const Text(
+        'Login',
+        style: TextStyle(fontSize: 18),
       ),
     );
   }
