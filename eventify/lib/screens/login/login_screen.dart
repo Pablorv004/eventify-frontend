@@ -25,84 +25,105 @@ class LoginScreen extends StatelessWidget {
 
     return Scaffold(
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min, // Cambiado a min
-              children: [
-                const SizedBox(height: 60), // Reducción del espacio superior
-
-                Image.asset(
-                  'assets/images/eventify-logo.png',
-                  width: 220,
-                  height: 220,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 120),
+        
+              Image.asset(
+                'assets/images/eventify-logo.png',
+                width: 220,
+                height: 220,
+              ),
+        
+              const SizedBox(height: 30),
+        
+              Container(
+                padding: const EdgeInsets.all(20),
+                width: 350,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    
+                    const Align(
+                      alignment: AlignmentDirectional.bottomStart,
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 10),
+                        child: Text(
+                          'User',
+                          style: TextStyle(
+                            color: AppColors.burntOrange,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+        
+                    TextField(
+                      decoration: inputDecoration,
+                    ),
+        
+                    const SizedBox(height: 20),
+        
+                    const Align(
+                      alignment: AlignmentDirectional.bottomStart,
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 10),
+                        child: Text(
+                          'Password',
+                          style: TextStyle(
+                            color: AppColors.burntOrange,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+        
+                    TextField(
+                      decoration: inputDecoration,
+                    ),
+                  ],
                 ),
+              ),
 
-                const SizedBox(height: 30),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.darkOrange,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
+                ),
+                onPressed: () {},
+                child: const Text(
+                  'Login',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
 
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  width: 350,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      
-                      const Align(
-                        alignment: AlignmentDirectional.bottomStart,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 10),
-                          child: Text(
-                            'User',
-                            style: TextStyle(
-                              color: AppColors.burntOrange,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ),
-                      ),
+              const SizedBox(height: 90,),
 
-                      TextField(
-                        decoration: inputDecoration,
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Don\'t have an account yet?'),
 
-                      const SizedBox(height: 25),
+                  const SizedBox(width: 10,),
 
-                      const Align(
-                        alignment: AlignmentDirectional.bottomStart,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 10),
-                          child: Text(
-                            'Password',
-                            style: TextStyle(
-                              color: AppColors.burntOrange,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      TextField(
-                        decoration: inputDecoration,
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      FilledButton(
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.darkOrange,
-                        ),
-                        onPressed: () {},
-                        child: const Text('Login'),
-                      ),
-                    ],
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.darkOrange,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
+                    ),
+                    onPressed: () {},
+                    child: const Text(
+                      'Sign up',
+                      style: TextStyle(fontSize: 12),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20), // Añadir espacio inferior
-              ],
-            ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+            ],
           ),
         ),
       ),
