@@ -4,28 +4,25 @@ import 'package:eventify/config/app_colors.dart';
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
-  
-
   @override
   Widget build(BuildContext context) {
-
     InputDecoration inputDecoration = InputDecoration(
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              width: 2,
-                              color: AppColors.darkOrange,
-                            ),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              width: 2,
-                              color: AppColors.softOrange,
-                            ),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                        );
-    
+      enabledBorder: OutlineInputBorder(
+        borderSide: const BorderSide(
+          width: 2,
+          color: AppColors.darkOrange,
+        ),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: const BorderSide(
+          width: 2,
+          color: AppColors.softOrange,
+        ),
+        borderRadius: BorderRadius.circular(18),
+      ),
+    );
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -34,10 +31,9 @@ class LoginScreen extends StatelessWidget {
           ),
           child: Center(
             child: Column(
+              mainAxisSize: MainAxisSize.min, // Cambiado a min
               children: [
-                const SizedBox(
-                  height: 180,
-                ),
+                const SizedBox(height: 60), // Reducción del espacio superior
 
                 Image.asset(
                   'assets/images/eventify-logo.png',
@@ -45,15 +41,15 @@ class LoginScreen extends StatelessWidget {
                   height: 220,
                 ),
 
-                const SizedBox(
-                  height: 30,
-                ),
+                const SizedBox(height: 30),
 
                 Container(
                   padding: const EdgeInsets.all(20),
                   width: 350,
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
+                      
                       const Align(
                         alignment: AlignmentDirectional.bottomStart,
                         child: Padding(
@@ -69,12 +65,10 @@ class LoginScreen extends StatelessWidget {
                       ),
 
                       TextField(
-                        decoration: inputDecoration
+                        decoration: inputDecoration,
                       ),
 
-                      const SizedBox(
-                        height: 25,
-                      ),
+                      const SizedBox(height: 25),
 
                       const Align(
                         alignment: AlignmentDirectional.bottomStart,
@@ -91,16 +85,22 @@ class LoginScreen extends StatelessWidget {
                       ),
 
                       TextField(
-                        decoration: inputDecoration
+                        decoration: inputDecoration,
                       ),
 
+                      const SizedBox(height: 20),
+
                       FilledButton(
-                        onPressed: (){},
-                        child: Text('Login')
-                      )
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.darkOrange,
+                        ),
+                        onPressed: () {},
+                        child: const Text('Login'),
+                      ),
                     ],
                   ),
-                )
+                ),
+                const SizedBox(height: 20), // Añadir espacio inferior
               ],
             ),
           ),
