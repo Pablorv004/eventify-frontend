@@ -1,11 +1,17 @@
+import 'package:eventify/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:eventify/config/app_colors.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+
+    TextEditingController usernameController = TextEditingController();
+    UserProvider userProvider = context.watch<UserProvider>();
+
     InputDecoration inputDecoration = InputDecoration(
       enabledBorder: OutlineInputBorder(
         borderSide: const BorderSide(
@@ -82,6 +88,7 @@ class LoginScreen extends StatelessWidget {
         
                     TextField(
                       decoration: inputDecoration,
+                      controller: usernameController,
                     ),
                   ],
                 ),
