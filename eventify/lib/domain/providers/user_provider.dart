@@ -1,4 +1,4 @@
-import 'package:eventify/models/User.dart';
+import 'package:eventify/domain/models/User.dart';
 import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier{
@@ -10,7 +10,7 @@ class UserProvider extends ChangeNotifier{
   Future<void> getUsers() async {
 
     // TODO: IMPLEMENT USER LOADING FROM API
-
+    
     notifyListeners();
   }
 }

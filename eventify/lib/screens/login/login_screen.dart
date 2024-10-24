@@ -1,4 +1,4 @@
-import 'package:eventify/providers/user_provider.dart';
+import 'package:eventify/domain/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:eventify/config/app_colors.dart';
 import 'package:provider/provider.dart';
