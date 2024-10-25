@@ -51,6 +51,9 @@ class _LoginFormState extends State<LoginForm> {
             ),
             keyboardType: TextInputType.text,
             controller: emailController,
+            onTapOutside: (event) {
+              FocusScope.of(context).unfocus();
+            },
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter an email';
@@ -100,6 +103,9 @@ class _LoginFormState extends State<LoginForm> {
             ),
             obscureText: _isPasswordVisible,
             controller: passwordController,
+            onTapOutside: (event) {
+              FocusScope.of(context).unfocus();
+            },
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter a password';

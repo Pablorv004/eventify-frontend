@@ -35,5 +35,6 @@ class UserProvider extends ChangeNotifier {
 
     notifyListeners();
   }
-  
+
+  userLogout() => currentUser = null;
 }

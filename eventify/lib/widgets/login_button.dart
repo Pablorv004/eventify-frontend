@@ -3,7 +3,6 @@
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/admin/admin_screen.dart';
-import 'package:eventify/screens/login/admin_view_placeholder.dart';
 import 'package:flutter/material.dart';
 
 class LoginButton extends StatelessWidget {
@@ -51,10 +50,9 @@ class LoginButton extends StatelessWidget {
         SnackBar(content: Text(userProvider.loginErrorMessage!)),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login Successful!')),
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const AdminScreen()),
       );
-      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> const AdminScreen()));
     }
   }
 }

@@ -1,5 +1,8 @@
+import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/admin/manage_users_screen.dart';
+import 'package:eventify/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AdminScreen extends StatelessWidget {
   const AdminScreen({super.key});
@@ -38,9 +41,18 @@ class AdminScreen extends StatelessWidget {
         ],
       ),
     );
+
     return Scaffold(
       appBar: AppBar(
         title: Image.asset('assets/images/eventify-text.png', height: 40),
+        actions: [
+          IconButton(
+            onPressed: () {
+                _showLogoutConfirmationDialog(context);
+              },
+            icon: const Icon(Icons.logout)
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 14.0),
@@ -48,6 +60,38 @@ class AdminScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+// Dialog asking the user to logout
+void _showLogoutConfirmationDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Do you really want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<UserProvider>().userLogout();
+              // We use pushAndRemoveUntil to clean the routes of the application
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                (Route<dynamic> route) => false,
+              );
+            },
+            child: const Text('Sí'),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 class CardWidget extends StatelessWidget {
