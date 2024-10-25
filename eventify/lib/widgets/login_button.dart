@@ -23,7 +23,11 @@ class LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FilledButton(
-      style: FilledButton.styleFrom(backgroundColor: AppColors.darkOrange, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+      style: FilledButton.styleFrom(
+        backgroundColor: AppColors.darkOrange,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 4
+      ),
       onPressed: () async {
         if(loginFormKey.currentState!.validate()){
           await tryLogin(context);
