@@ -81,8 +81,8 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
 
                     const Padding(
                       padding: EdgeInsets.only(top: 80),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
                         children: [
                           Text('Don\'t have an account yet?', style: TextStyle(fontSize: 16)),
                           SizedBox(width: 10),
