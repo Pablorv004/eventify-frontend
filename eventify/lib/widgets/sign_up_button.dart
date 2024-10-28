@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:eventify/config/app_colors.dart';
+import 'package:eventify/screens/login/register_screen.dart';
 import 'package:flutter/material.dart';
 
 class SignUpButton extends StatelessWidget {
@@ -17,7 +18,10 @@ class SignUpButton extends StatelessWidget {
         elevation: 4
       ),
       onPressed: () {
-        // TODO: IMPLEMENT NAVIGATION TO REGISTER SCREEN
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => RegisterScreen()),
+        );
       },
       child: const Text(
         'Sign up',
