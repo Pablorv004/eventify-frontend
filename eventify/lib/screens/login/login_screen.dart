@@ -1,8 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/admin/admin_screen.dart';
-import 'package:eventify/screens/login/admin_view_placeholder.dart';
+import 'package:eventify/screens/forms/login_form.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
