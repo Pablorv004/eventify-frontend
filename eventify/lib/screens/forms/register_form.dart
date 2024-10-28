@@ -115,7 +115,7 @@ class _RegisterFormState extends State<RegisterForm> {
               hintText: 'Enter your password',
               hintStyle: const TextStyle(color: Colors.grey),
               suffixIcon: IconButton(
-                padding: EdgeInsets.only(right: 18),
+                padding: const EdgeInsets.only(right: 18),
                 icon: Icon(
                   _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                 ),

@@ -1,19 +1,23 @@
+import 'package:eventify/domain/models/fetch_response.dart';
 import 'package:eventify/domain/models/login_response.dart';
-import 'package:eventify/domain/models/register_response.dart'; // Add this line
+import 'package:eventify/domain/models/register_response.dart';
 import 'package:eventify/domain/models/user.dart';
+import 'package:eventify/services/fetch_service.dart';
 import 'package:eventify/services/login_service.dart';
-import 'package:eventify/services/register_service.dart'; // Add this line
+import 'package:eventify/services/register_service.dart';
 import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier {
   final LoginService loginService;
-  final RegisterService registerService; // Add this line
+  final RegisterService registerService; 
+  final FetchService fetchService;
   List<User> userList = [];
   User? currentUser;
   String? loginErrorMessage;
-  String? registerErrorMessage; // Add this line
+  String? registerErrorMessage; 
+  String? fetchErrorMessage;
 
-  UserProvider(this.loginService, this.registerService); // Update constructor
+  UserProvider(this.loginService, this.registerService, this.fetchService);
 
   Future<void> loginUser(String email, String password) async {
     try {
@@ -48,9 +52,22 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchAllUsers() async {
-    // TODO: IMPLEMENT USER LOADING FROM API
-    notifyListeners();
+  Future<void> fetchAllUsers(String token) async {
+    try {
+      FetchResponse fetchResponse = await fetchService.fetchUsers(token);
+
+      if (fetchResponse.success) {
+        userList = fetchResponse.data
+            .map((userJson) => User.fromFetchUsersJson(userJson)).toList();
+        fetchErrorMessage = null;
+      } else {
+        fetchErrorMessage = fetchResponse.message;
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
   }
 
   userLogout() => currentUser = null;

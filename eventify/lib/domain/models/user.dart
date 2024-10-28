@@ -49,20 +49,4 @@ class User {
       deleted: json['deleted'] == 1,
     );
   }
-
-  // ENDPOINT /REGISTER
-  factory User.fromRegisterJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      role: json['role'],
-      emailVerifiedAt: json['email_verified_at'] != null
-          ? DateTime.parse(json['email_verified_at'])
-          : null,
-      actived: json['actived'] == 1,
-      emailConfirmed: json['email_confirmed'] == 1,
-      deleted: json['deleted'] == 1,
-    );
-  }
 }

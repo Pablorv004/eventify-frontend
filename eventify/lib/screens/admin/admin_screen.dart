@@ -55,7 +55,7 @@ class AdminScreen extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.only(left: 14.0),
+        padding: const EdgeInsets.symmetric(horizontal: 14.0),
         child: containerTop,
       ),
     );

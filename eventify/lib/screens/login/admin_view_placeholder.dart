@@ -13,7 +13,7 @@ class AdminViewPlaceholder extends StatelessWidget {
       appBar: AppBar(
         title: const Text('ListView of Users'),
         actions: [
-          Text(userProvider.currentUser?.name.toUpperCase() ?? 'User', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+          Text(userProvider.currentUser?.name.toUpperCase() ?? 'User', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
         ],
       ),
       body: ListView.builder(

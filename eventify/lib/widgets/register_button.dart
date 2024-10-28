@@ -58,6 +58,9 @@ class RegisterButton extends StatelessWidget {
     } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginScreen()),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please confirm your email to complete registration.')),
       );
     }
   }
