@@ -3,6 +3,8 @@
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/admin/admin_screen.dart';
+import 'package:eventify/screens/organizer/organizer_screen.dart';
+import 'package:eventify/screens/user/user_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginButton extends StatelessWidget {
@@ -50,9 +52,19 @@ class LoginButton extends StatelessWidget {
         SnackBar(content: Text(userProvider.loginErrorMessage!)),
       );
     } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const AdminScreen()),
-      );
+      if(userProvider.currentUser!.role == 'a'){
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const AdminScreen()),
+        );
+      } else if(userProvider.currentUser!.role == 'u'){
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const UserScreen()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const OrganizerScreen()),
+        );
+      }
     }
   }
 }
