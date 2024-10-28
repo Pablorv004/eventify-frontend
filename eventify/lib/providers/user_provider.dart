@@ -11,7 +11,6 @@ class UserProvider extends ChangeNotifier {
 
   UserProvider(this.loginService);
 
-  get errorMessage => null;
 
   Future<void> loginUser(String email, String password) async {
     try {
@@ -36,4 +35,6 @@ class UserProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  userLogout() => currentUser = null;
 }

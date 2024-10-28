@@ -19,10 +19,8 @@ class LoginService {
       }),
     );
 
-    if (response.statusCode == 200) {
-      return LoginResponse.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to login: ${response.reasonPhrase}');
-    }
+    
+    return LoginResponse.fromJson(json.decode(response.body));
+    
   }
 }

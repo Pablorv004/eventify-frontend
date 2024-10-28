@@ -4,112 +4,99 @@ import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/admin/admin_screen.dart';
 import 'package:eventify/screens/login/admin_view_placeholder.dart';
 import 'package:flutter/material.dart';
-import 'package:eventify/config/app_colors.dart';
-import 'package:provider/provider.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    TextEditingController emailController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
-    UserProvider userProvider = context.watch<UserProvider>();
+  LoginScreenState createState() => LoginScreenState();
+}
 
-    InputDecoration inputDecoration = InputDecoration(
-      enabledBorder: OutlineInputBorder(
-        borderSide: const BorderSide(
-          width: 2,
-          color: AppColors.darkOrange,
-        ),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(
-          width: 2,
-          color: AppColors.softOrange,
-        ),
-        borderRadius: BorderRadius.circular(18),
-      ),
+class LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
     );
 
+    
+    _animation = Tween<double>(begin: 800, end: 0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+
+    
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 120),
-              Image.asset(
-                'assets/images/eventify-logo.png',
-                width: 220,
-                height: 220,
-              ),
-              const SizedBox(height: 30),
-              Container(
-                padding: const EdgeInsets.all(20),
-                width: 350,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Align(
-                      alignment: AlignmentDirectional.bottomStart,
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 10),
-                        child: Text(
-                          'Email',
-                          style: TextStyle(
-                            color: AppColors.burntOrange,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                    TextField(
-                      decoration: inputDecoration,
-                      controller: emailController,
-                    ),
-                    const SizedBox(height: 20),
-                    const Align(
-                      alignment: AlignmentDirectional.bottomStart,
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 10),
-                        child: Text(
-                          'Password',
-                          style: TextStyle(
-                            color: AppColors.burntOrange,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                    TextField(
-                      decoration: inputDecoration,
-                      controller: passwordController,
+      backgroundColor: const Color.fromARGB(255, 153, 79, 0),
+      resizeToAvoidBottomInset: true,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 80),
+          child: AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return Container(
+                transform: Matrix4.translationValues(0, _animation.value, 0),
+                padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.4),
+                      spreadRadius: 5,
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
-              ),
-              LoginButton(
-                userProvider: userProvider,
-                emailController: emailController,
-                passwordController: passwordController,
-              ),
-              const SizedBox(
-                height: 90,
-              ),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Don\'t have an account yet?'),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  SignUpButton(),
-                ],
-              ),
-              const SizedBox(height: 10),
-            ],
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/images/eventify-logo.png',
+                      width: 200,
+                      height: 200,
+                    ),
+                    const SizedBox(height: 60),
+
+                    // Login form
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: LoginForm(),
+                    ),
+
+                    const Padding(
+                      padding: EdgeInsets.only(top: 80),
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        children: [
+                          Text('Don\'t have an account yet?', style: TextStyle(fontSize: 16)),
+                          SizedBox(width: 10),
+                          SignUpButton(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
