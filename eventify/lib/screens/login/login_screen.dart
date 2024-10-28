@@ -1,5 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:eventify/config/app_colors.dart';
+import 'package:eventify/providers/user_provider.dart';
+import 'package:eventify/screens/admin/admin_screen.dart';
 import 'package:eventify/screens/forms/login_form.dart';
-import 'package:eventify/widgets/sign_up_button.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -96,6 +100,65 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
             },
           ),
         ),
+      ),
+    );
+  }
+}
+
+class SignUpButton extends StatelessWidget {
+  const SignUpButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+      style: FilledButton.styleFrom(backgroundColor: AppColors.darkOrange, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+      onPressed: () {},
+      child: const Text(
+        'Sign up',
+        style: TextStyle(fontSize: 12),
+      ),
+    );
+  }
+}
+
+class LoginButton extends StatelessWidget {
+  final UserProvider userProvider;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+
+  const LoginButton({
+    super.key,
+    required this.userProvider,
+    required this.emailController,
+    required this.passwordController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+      style: FilledButton.styleFrom(backgroundColor: AppColors.darkOrange, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+      onPressed: () async {
+        String email = emailController.text.trim();
+        String password = passwordController.text.trim();
+
+        await userProvider.loginUser(email, password);
+
+        if (userProvider.loginErrorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(userProvider.loginErrorMessage!)),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Login Successful!')),
+          );
+          Navigator.of(context).push(MaterialPageRoute(builder: (context)=> AdminScreen()));
+        }
+      },
+      child: const Text(
+        'Login',
+        style: TextStyle(fontSize: 18),
       ),
     );
   }
