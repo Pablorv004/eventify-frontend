@@ -1,5 +1,6 @@
 import 'package:eventify/domain/models/user.dart';
 import 'package:eventify/providers/user_provider.dart';
+import 'package:eventify/screens/admin/user_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:eventify/config/app_colors.dart';
@@ -19,6 +20,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     super.initState();
     final userProvider = context.read<UserProvider>();
     userProvider.fetchAllUsers(userProvider.currentUser?.rememberToken ?? '');
+    _setFilter("All");
   }
 
   void _setFilter(String filter) {
@@ -68,6 +70,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Manage Users'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -76,17 +79,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           },
         ),
       ),
+      backgroundColor: const Color.fromARGB(255, 249, 249, 249), // Set background color to white
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              'Filters',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 3),
             child: Row(
               children: [
                 _buildFilterButton('All'),
@@ -99,9 +97,9 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           ),
           const Padding(
             padding: EdgeInsets.all(8.0),
-            child: Text(
-              'List',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            child: Divider(
+              color: Colors.grey,
+              thickness: 2,
             ),
           ),
           Expanded(
@@ -121,35 +119,104 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   Widget _buildFilterButton(String filter) {
+    IconData icon = Icons.filter_list;
+    icon = iconChooser(filter, icon);
+
+    bool isSelected = _filters.contains(filter);
+    Color iconColor = isSelected ? Colors.white : Colors.black;
+    Color iconBackgroundColor =
+        isSelected ? AppColors.vibrantOrange : Colors.grey.shade300;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: ElevatedButton(
-        onPressed: () => _setFilter(filter),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _filters.contains(filter) ? AppColors.vibrantOrange : Colors.grey,
+      child: Container(
+        margin: const EdgeInsets.only(right: 3),
+        child: FilterButton(
+          isSelected: isSelected,
+          filter: filter,
+          icon: icon,
+          iconBackgroundColor: iconBackgroundColor,
+          iconColor: iconColor,
+          onPressed: _setFilter,
         ),
-        child: Text(filter),
       ),
     );
   }
+
+  IconData iconChooser(String filter, IconData icon) {
+    switch (filter) {
+      case 'Non-activated':
+        icon = Icons.block;
+        break;
+      case 'Non-verified':
+        icon = Icons.verified_outlined;
+        break;
+      case 'Organizer':
+        icon = Icons.event;
+        break;
+      case 'User':
+        icon = Icons.person;
+        break;
+      default:
+        icon = Icons.filter_list;
+    }
+    return icon;
+  }
 }
 
-class UserCard extends StatelessWidget {
-  const UserCard({
-    super.key,
-    required this.user,
-  });
+class FilterButton extends StatelessWidget {
+  final bool isSelected;
+  final String filter;
+  final IconData icon;
+  final Color iconBackgroundColor;
+  final Color iconColor;
+  final Function(String) onPressed;
 
-  final User user;
+  const FilterButton({
+    super.key,
+    required this.isSelected,
+    required this.filter,
+    required this.icon,
+    required this.iconBackgroundColor,
+    required this.iconColor,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(10),
-      child: ListTile(
-        title: Text(user.name),
-        subtitle: Text(user.email ?? 'No email provided'),
-        trailing: Text(user.role),
+    return ElevatedButton(
+      onPressed: () => onPressed(filter),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? AppColors.vibrantOrange : Colors.white,
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: iconBackgroundColor,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 30, color: iconColor),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            child: Text(
+              filter,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.black,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

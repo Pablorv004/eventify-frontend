@@ -1,6 +1,7 @@
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/admin/manage_users_screen.dart';
 import 'package:eventify/screens/login/login_screen.dart';
+import 'package:eventify/widgets/admin_screen_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -28,12 +29,17 @@ class AdminScreen extends StatelessWidget {
               style: TextStyle(fontSize: 20),
             ),
           ),
-          CardWidget(
+            Divider(
+            height: 20,
+            thickness: 2,
+            color: Colors.grey,
+            ),
+          AdminScreenCard(
               title: "Manage Users",
               description: "Manage activation, verification & user data.",
               imageAsset: 'assets/images/manage-users.jpg',
               destinationScreen: ManageUsersScreen()),
-          CardWidget(
+          AdminScreenCard(
               title: "Manage Events",
               description: "Manage event data, attendance, and information.",
               imageAsset: 'assets/images/manage-events.png',
@@ -92,67 +98,6 @@ void _showLogoutConfirmationDialog(BuildContext context) {
       );
     },
   );
-}
-
-class CardWidget extends StatelessWidget {
-  final String? imageAsset;
-  final String title;
-  final String description;
-  final Widget destinationScreen;
-
-  const CardWidget({
-    super.key,
-    this.imageAsset,
-    required this.title,
-    required this.description,
-    required this.destinationScreen,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => destinationScreen),
-        );
-      },
-      child: Card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(15.0),
-              child: Image.asset(
-                imageAsset ?? 'assets/images/placeholder.png',
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    description,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class PlaceholderScreen extends StatelessWidget {
