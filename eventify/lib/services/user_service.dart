@@ -1,8 +1,6 @@
 import 'dart:convert';
+import 'package:eventify/domain/models/auth_response.dart';
 import 'package:eventify/domain/models/fetch_response.dart';
-import 'package:eventify/domain/models/login_response.dart';
-import 'package:eventify/domain/models/register_response.dart';
-import 'package:eventify/domain/models/validation_response.dart';
 import 'package:http/http.dart' as http;
 
 class UserService {
@@ -19,7 +17,7 @@ class UserService {
     return FetchResponse.fromJson(json.decode(response.body));
   }
 
-  Future<LoginResponse> login(String email, String password) async {
+  Future<AuthResponse> login(String email, String password) async {
     final url = Uri.parse('https://eventify.allsites.es/public/api/login');
 
     final response = await http.post(
@@ -35,11 +33,11 @@ class UserService {
     );
 
     
-    return LoginResponse.fromJson(json.decode(response.body));
+    return AuthResponse.fromJson(json.decode(response.body));
     
   }
 
-  Future<RegisterResponse> register(String name, String email, String password, String confirmPassword, {String role = 'u'}) async {
+  Future<AuthResponse> register(String name, String email, String password, String confirmPassword, {String role = 'u'}) async {
     final url = Uri.parse('https://eventify.allsites.es/public/api/register');
 
     final response = await http.post(
@@ -57,10 +55,10 @@ class UserService {
       }),
     );
 
-    return RegisterResponse.fromJson(json.decode(response.body));
+    return AuthResponse.fromJson(json.decode(response.body));
   }
 
-  Future<ValidationResponse> activate(int id, String token) async {
+  Future<AuthResponse> activate(int id, String token) async {
     final url = Uri.parse('https://eventify.allsites.es/public/api/activate');
 
     final response = await http.post(
@@ -75,10 +73,10 @@ class UserService {
       }),
     );
     
-    return ValidationResponse.fromJson(json.decode(response.body));
+    return AuthResponse.fromJson(json.decode(response.body));
   }
 
-  Future<ValidationResponse> deactivate(int id, String token) async {
+  Future<AuthResponse> deactivate(int id, String token) async {
     final url = Uri.parse('https://eventify.allsites.es/public/api/deactivate');
 
     final response = await http.post(
@@ -93,6 +91,6 @@ class UserService {
       }),
     );
     
-    return ValidationResponse.fromJson(json.decode(response.body));
+    return AuthResponse.fromJson(json.decode(response.body));
   }
 }
