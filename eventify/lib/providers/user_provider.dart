@@ -1,6 +1,5 @@
+import 'package:eventify/domain/models/auth_response.dart';
 import 'package:eventify/domain/models/fetch_response.dart';
-import 'package:eventify/domain/models/login_response.dart';
-import 'package:eventify/domain/models/register_response.dart';
 import 'package:eventify/domain/models/user.dart';
 import 'package:eventify/services/user_service.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +25,7 @@ class UserProvider extends ChangeNotifier {
   /// - [password]: The user's password.
   Future<void> loginUser(String email, String password) async {
     try {
-      LoginResponse loginResponse = await userService.login(email, password);
+      AuthResponse loginResponse = await userService.login(email, password);
 
       if (loginResponse.success) {
         currentUser = User.fromLoginJson(loginResponse.data);
@@ -69,7 +68,7 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> registerUser(String name, String email, String password, String confirmPassword) async {
     try {
-      RegisterResponse registerResponse = await userService.register(name, email, password, confirmPassword);
+      AuthResponse registerResponse = await userService.register(name, email, password, confirmPassword);
 
       if (registerResponse.success) {
         registerErrorMessage = null;
