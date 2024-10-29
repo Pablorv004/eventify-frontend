@@ -63,12 +63,6 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
     }).toList();
   }
 
-  updateScreen(){
-    setState(() {
-      
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final userProvider = context.watch<UserProvider>();
