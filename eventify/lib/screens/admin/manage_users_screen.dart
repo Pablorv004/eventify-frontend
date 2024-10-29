@@ -1,20 +1,20 @@
+import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/user.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/admin/user_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:eventify/config/app_colors.dart';
 
 class ManageUsersScreen extends StatefulWidget {
   const ManageUsersScreen({super.key});
 
   @override
-  _ManageUsersScreenState createState() => _ManageUsersScreenState();
+  ManageUsersScreenState createState() => ManageUsersScreenState();
 }
 
-class _ManageUsersScreenState extends State<ManageUsersScreen> {
+class ManageUsersScreenState extends State<ManageUsersScreen> {
   Set<String> _filters = {'All'};
-
+  
   @override
   void initState() {
     super.initState();
@@ -63,6 +63,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     }).toList();
   }
 
+  updateScreen(){
+    setState(() {
+      
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final userProvider = context.watch<UserProvider>();
@@ -79,7 +85,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           },
         ),
       ),
-      backgroundColor: const Color.fromARGB(255, 249, 249, 249), // Set background color to white
+      backgroundColor: const Color.fromARGB(
+          255, 249, 249, 249),
       body: Column(
         children: [
           SingleChildScrollView(

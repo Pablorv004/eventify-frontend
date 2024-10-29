@@ -59,6 +59,10 @@ class UserProvider extends ChangeNotifier {
       final errorMessage = validationBoolean ? 'Validation Failed' : 'Unvalidation Failed';
 
       validationErrorMessage = validationResponse.success ? null : validationResponse.data['error'] ?? errorMessage;
+
+      if (validationResponse.success) {
+        await fetchAllUsers(currentUser!.rememberToken ?? '');
+      }
     } catch (error) {
       validationErrorMessage = 'Error: ${error.toString()}';
     } finally {
