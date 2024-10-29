@@ -24,7 +24,7 @@ class UserService {
       url,
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json', 
+        'Accept': 'application/json',
       },
       body: json.encode({
         'email': email,
@@ -32,12 +32,12 @@ class UserService {
       }),
     );
 
-    
     return AuthResponse.fromJson(json.decode(response.body));
-    
   }
 
-  Future<AuthResponse> register(String name, String email, String password, String confirmPassword, {String role = 'u'}) async {
+  Future<AuthResponse> register(
+      String name, String email, String password, String confirmPassword,
+      {String role = 'u'}) async {
     final url = Uri.parse('https://eventify.allsites.es/public/api/register');
 
     final response = await http.post(
@@ -51,7 +51,7 @@ class UserService {
         'email': email,
         'password': password,
         'c_password': confirmPassword,
-        'role': role,
+        'role': role, // Ensure role is included here
       }),
     );
 
@@ -66,13 +66,11 @@ class UserService {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer $token', 
+        'Authorization': 'Bearer $token',
       },
-      body: json.encode({
-        'id': id
-      }),
+      body: json.encode({'id': id}),
     );
-    
+
     return AuthResponse.fromJson(json.decode(response.body));
   }
 
@@ -84,13 +82,11 @@ class UserService {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer $token', 
+        'Authorization': 'Bearer $token',
       },
-      body: json.encode({
-        'id': id
-      }),
+      body: json.encode({'id': id}),
     );
-    
+
     return AuthResponse.fromJson(json.decode(response.body));
   }
 }

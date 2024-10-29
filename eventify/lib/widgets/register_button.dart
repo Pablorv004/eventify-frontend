@@ -12,6 +12,7 @@ class RegisterButton extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
+  final TextEditingController roleController;
 
   const RegisterButton({
     super.key,
@@ -21,6 +22,7 @@ class RegisterButton extends StatelessWidget {
     required this.passwordController,
     required this.confirmPasswordController,
     required this.registerFormKey,
+    required this.roleController,
   });
 
   @override
@@ -48,8 +50,10 @@ class RegisterButton extends StatelessWidget {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
     String confirmPassword = confirmPasswordController.text.trim();
+    String role = roleController.text.trim(); // Add this line
 
-    await userProvider.registerUser(name, email, password, confirmPassword);
+    await userProvider.registerUser(
+        name, email, password, confirmPassword, role); // Pass role here
 
     if (userProvider.registerErrorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -58,9 +62,11 @@ class RegisterButton extends StatelessWidget {
     } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginScreen()),
-            );
-            ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please confirm your email to complete registration.')),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Please confirm your email to complete registration.')),
       );
     }
   }

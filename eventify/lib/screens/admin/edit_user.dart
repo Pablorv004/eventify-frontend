@@ -7,16 +7,17 @@ class EditUser extends StatelessWidget {
   EditUser({super.key, required this.user});
 
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final ValueNotifier<bool> _activedNotifier = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> _emailConfirmedNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _emailConfirmedNotifier =
+      ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _deletedNotifier = ValueNotifier<bool>(false);
 
   @override
   Widget build(BuildContext context) {
     _nameController.text = user.name;
-    _emailController.text = user.email ?? '';
     _activedNotifier.value = user.actived ?? false;
     _emailConfirmedNotifier.value = user.emailConfirmed ?? false;
+    _deletedNotifier.value = user.deleted;
 
     return Scaffold(
       appBar: AppBar(
@@ -28,20 +29,52 @@ class EditUser extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 50,
-                backgroundImage: user.profilePicture != null && user.profilePicture!.isNotEmpty
-                  ? NetworkImage(user.profilePicture!)
-                    : const AssetImage('assets/default_profile_picture.png') as ImageProvider,
+              backgroundImage:
+                  user.profilePicture != null && user.profilePicture!.isNotEmpty
+                      ? NetworkImage(user.profilePicture!)
+                      : const AssetImage('assets/default_profile_picture.png')
+                          as ImageProvider,
+            ),
+            const SizedBox(height: 16),
+            ValueListenableBuilder<bool>(
+              valueListenable: _emailConfirmedNotifier,
+              builder: (context, value, child) {
+                return Text(
+                  value ? 'Email Verified' : 'Email Not Verified',
+                  style: TextStyle(
+                    color: value ? Colors.green : Colors.red,
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Name'),
             ),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // TODO: Implement API call to save changes
+              },
+              child: const Text('Save Changes'),
             ),
             const SizedBox(height: 16),
+            Text(
+              'Email: ${user.email ?? ''}',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Role: ${user.role == 'u' ? 'User' : 'Organizer'}',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            const Divider(
+              height: 32,
+              thickness: 1,
+              color: Colors.grey,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -54,21 +87,15 @@ class EditUser extends StatelessWidget {
                   onPressed: (value) => _toggleActived(context, value),
                 ),
                 StatusButton(
-                  notifier: _emailConfirmedNotifier,
-                  activeText: 'Email Verified',
-                  inactiveText: 'Email Not Verified',
-                  activeColor: Colors.green[200]!,
+                  notifier: _deletedNotifier,
+                  activeText: 'Deleted',
+                  inactiveText: 'Delete',
+                  activeColor: Colors.grey,
                   inactiveColor: Colors.red[200]!,
-                  onPressed: (value) => _toggleEmailConfirmed(context, value),
+                  onPressed: (value) => _toggleDeleted(context, value),
+                  isDeletable: true,
                 ),
               ],
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Implement API call to save changes
-              },
-              child: const Text('Save Changes'),
             ),
           ],
         ),
@@ -77,18 +104,15 @@ class EditUser extends StatelessWidget {
   }
 
   void _toggleActived(BuildContext context, bool newValue) async {
-    bool? confirm = await _showConfirmationDialog(context, 'Change activation status?');
-    if (confirm == true) {
-      _activedNotifier.value = newValue;
-      // TODO: Implement API call to update actived status
-    }
+    _activedNotifier.value = newValue;
   }
 
-  void _toggleEmailConfirmed(BuildContext context, bool newValue) async {
-    bool? confirm = await _showConfirmationDialog(context, 'Change email verification status?');
-    if (confirm == true) {
-      _emailConfirmedNotifier.value = newValue;
-      // TODO: Implement API call to update emailConfirmed status
+  void _toggleDeleted(BuildContext context, bool newValue) async {
+    if (newValue) {
+      bool? confirm = await _showConfirmationDialog(context, 'Delete user?');
+      if (confirm == true) {
+        _deletedNotifier.value = newValue;
+      }
     }
   }
 
@@ -122,6 +146,7 @@ class StatusButton extends StatelessWidget {
   final Color activeColor;
   final Color inactiveColor;
   final Function(bool) onPressed;
+  final bool isDeletable;
 
   const StatusButton({
     super.key,
@@ -131,6 +156,7 @@ class StatusButton extends StatelessWidget {
     required this.activeColor,
     required this.inactiveColor,
     required this.onPressed,
+    this.isDeletable = false,
   });
 
   @override
@@ -142,7 +168,7 @@ class StatusButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: value ? activeColor : inactiveColor,
           ),
-          onPressed: () => onPressed(!value),
+          onPressed: value && isDeletable ? null : () => onPressed(!value),
           child: Text(value ? activeText : inactiveText),
         );
       },

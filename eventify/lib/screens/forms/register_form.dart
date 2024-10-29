@@ -17,6 +17,7 @@ class _RegisterFormState extends State<RegisterForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final roleController = TextEditingController();
   bool _isPasswordVisible = true;
 
   @override
@@ -176,12 +177,39 @@ class _RegisterFormState extends State<RegisterForm> {
             },
           ),
           const SizedBox(height: 30),
+          DropdownButtonFormField<String>(
+            value: 'u',
+            decoration: getInputDecoration().copyWith(
+              labelText: 'Role',
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: 'u',
+                child: Text('User'),
+              ),
+              DropdownMenuItem(
+                value: 'o',
+                child: Text('Organizer'),
+              ),
+            ],
+            onChanged: (value) {
+              roleController.text = value!;
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please select a role';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 30),
           RegisterButton(
             userProvider: userProvider,
             nameController: nameController,
             emailController: emailController,
             passwordController: passwordController,
             confirmPasswordController: confirmPasswordController,
+            roleController: roleController,
             registerFormKey: _registerFormKey,
           ),
         ],

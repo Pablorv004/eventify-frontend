@@ -9,11 +9,12 @@ class UserProvider extends ChangeNotifier {
   List<User> userList = [];
   User? currentUser;
   String? loginErrorMessage;
-  String? registerErrorMessage; 
+  String? registerErrorMessage;
   String? fetchErrorMessage;
   String? validationErrorMessage;
 
   UserProvider(this.userService);
+
   /// Attempts to log in a user using the provided email and password credentials.
   ///
   /// This method calls the `login` method from `loginService` with the user's email and password.
@@ -52,13 +53,18 @@ class UserProvider extends ChangeNotifier {
   ///   - `false`: deactivates the user
   Future<void> toggleUserValidation(int id, bool validationBoolean) async {
     try {
-      final validationMethod = validationBoolean ? userService.activate : userService.deactivate;
+      final validationMethod =
+          validationBoolean ? userService.activate : userService.deactivate;
 
-      final validationResponse = await validationMethod(id, currentUser!.rememberToken ?? '');
+      final validationResponse =
+          await validationMethod(id, currentUser!.rememberToken ?? '');
 
-      final errorMessage = validationBoolean ? 'Validation Failed' : 'Unvalidation Failed';
+      final errorMessage =
+          validationBoolean ? 'Validation Failed' : 'Unvalidation Failed';
 
-      validationErrorMessage = validationResponse.success ? null : validationResponse.data['error'] ?? errorMessage;
+      validationErrorMessage = validationResponse.success
+          ? null
+          : validationResponse.data['error'] ?? errorMessage;
     } catch (error) {
       validationErrorMessage = 'Error: ${error.toString()}';
     } finally {
@@ -66,14 +72,18 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> registerUser(String name, String email, String password, String confirmPassword) async {
+  Future<void> registerUser(String name, String email, String password,
+      String confirmPassword, String role) async {
     try {
-      AuthResponse registerResponse = await userService.register(name, email, password, confirmPassword);
+      AuthResponse registerResponse = await userService.register(
+          name, email, password, confirmPassword,
+          role: role); // Pass role here
 
       if (registerResponse.success) {
         registerErrorMessage = null;
       } else {
-        registerErrorMessage = registerResponse.data['error'] ?? 'Registration Failed';
+        registerErrorMessage =
+            registerResponse.data['error'] ?? 'Registration Failed';
       }
     } catch (error) {
       registerErrorMessage = 'Error: ${error.toString()}';
@@ -88,7 +98,8 @@ class UserProvider extends ChangeNotifier {
 
       if (fetchResponse.success) {
         userList = fetchResponse.data
-            .map((userJson) => User.fromFetchUsersJson(userJson)).toList();
+            .map((userJson) => User.fromFetchUsersJson(userJson))
+            .toList();
         fetchErrorMessage = null;
       } else {
         fetchErrorMessage = fetchResponse.message;
