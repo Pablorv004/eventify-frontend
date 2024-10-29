@@ -1,8 +1,7 @@
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/user.dart';
-import 'package:eventify/main.dart';
 import 'package:eventify/providers/user_provider.dart';
-import 'package:eventify/screens/admin/manage_users_screen.dart';
+import 'package:eventify/screens/admin/edit_user.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -18,25 +17,23 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final userProvider = context.watch<UserProvider>();
+    final UserProvider userProvider = context.watch<UserProvider>();
 
     return Slidable(
       key: ValueKey(user.id),
       closeOnScroll: true,
       dragStartBehavior: DragStartBehavior.start,
-      endActionPane: ActionPane(
+      startActionPane: ActionPane(
         motion: const ScrollMotion(),
         children: [
           SlidableAction(
             onPressed: (context) {
-
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditUser(user: user)));
             },
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+            backgroundColor: const Color.fromARGB(255, 33, 149, 243),
+            foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+            autoClose: true,
             icon: Icons.edit,
-            label: 'Edit',
           ),
           SlidableAction(
             onPressed: (context) {
@@ -52,13 +49,26 @@ class UserCard extends StatelessWidget {
             },
             backgroundColor: user.actived! ? Colors.red : Colors.green,
             foregroundColor: Colors.white,
+            borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
+            autoClose: true,
             icon: user.actived! ? Icons.close : Icons.check,
-            label: user.actived! ? 'Unvalidate' : 'Validate',
           ),
         ],
       ),
+      endActionPane: ActionPane(motion: const ScrollMotion(), children: [
+        SlidableAction(
+          onPressed: (context) {
+            // TODO: Implement delete user in UserProvider
+          },
+          backgroundColor: const Color.fromARGB(255, 255, 29, 33),
+          foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+          autoClose: true,
+          icon: Icons.delete,
+        )
+      ]),
       child: Card(
-        margin: const EdgeInsets.all(10),
+        margin: const EdgeInsets.all(5),
         elevation: 5,
         shape: RoundedRectangleBorder(
           side: const BorderSide(color: AppColors.vibrantOrange, width: 2),
@@ -67,9 +77,7 @@ class UserCard extends StatelessWidget {
         color: Colors.white,
         child: ListTile(
           leading: CircleAvatar(
-              backgroundImage: user.profilePicture != null
-                ? NetworkImage(user.profilePicture!)
-                : const NetworkImage('https://via.placeholder.com/150'),
+            backgroundImage: user.profilePicture != null ? NetworkImage(user.profilePicture!) : AssetImage('assets/images/default_profile_image.png'),
           ),
           title: Text(
             user.name,

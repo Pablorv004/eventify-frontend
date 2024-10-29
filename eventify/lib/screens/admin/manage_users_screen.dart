@@ -3,6 +3,7 @@ import 'package:eventify/domain/models/user.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/admin/user_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 class ManageUsersScreen extends StatefulWidget {
@@ -14,13 +15,66 @@ class ManageUsersScreen extends StatefulWidget {
 
 class ManageUsersScreenState extends State<ManageUsersScreen> {
   Set<String> _filters = {'All'};
-  
+
   @override
   void initState() {
     super.initState();
     final userProvider = context.read<UserProvider>();
     userProvider.fetchAllUsers(userProvider.currentUser?.rememberToken ?? '');
     _setFilter("All");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final userProvider = context.watch<UserProvider>();
+    final filteredUsers = _getFilteredUsers(userProvider);
+
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 249, 249, 249),
+      appBar: AppBar(
+        title: const Text('Manage Users', style: TextStyle(color: Colors.white),),
+        centerTitle: true,
+        backgroundColor: AppColors.vibrantOrange,
+      ),
+      body: Column(
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 3),
+            child: Row(
+              children: [
+                _buildFilterButton('All'),
+                _buildFilterButton('Non-activated'),
+                _buildFilterButton('Non-verified'),
+                _buildFilterButton('Organizer'),
+                _buildFilterButton('User'),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Divider(
+              color: Colors.grey,
+              thickness: 2,
+            ),
+          ),
+          Expanded(
+            child: userProvider.fetchErrorMessage != null
+                ? Center(child: Text(userProvider.fetchErrorMessage!))
+                : SlidableAutoCloseBehavior(
+                    closeWhenOpened: true,
+                    child: ListView.builder(
+                      itemCount: filteredUsers.length,
+                      itemBuilder: (context, index) {
+                        final user = filteredUsers[index];
+                        return UserCard(user: user);
+                      },
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _setFilter(String filter) {
@@ -63,70 +117,13 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
     }).toList();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final userProvider = context.watch<UserProvider>();
-    final filteredUsers = _getFilteredUsers(userProvider);
-
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Manage Users'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      backgroundColor: const Color.fromARGB(
-          255, 249, 249, 249),
-      body: Column(
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 3),
-            child: Row(
-              children: [
-                _buildFilterButton('All'),
-                _buildFilterButton('Non-activated'),
-                _buildFilterButton('Non-verified'),
-                _buildFilterButton('Organizer'),
-                _buildFilterButton('User'),
-              ],
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Divider(
-              color: Colors.grey,
-              thickness: 2,
-            ),
-          ),
-          Expanded(
-            child: userProvider.fetchErrorMessage != null
-                ? Center(child: Text(userProvider.fetchErrorMessage!))
-                : ListView.builder(
-                    itemCount: filteredUsers.length,
-                    itemBuilder: (context, index) {
-                      final user = filteredUsers[index];
-                      return UserCard(user: user);
-                    },
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildFilterButton(String filter) {
     IconData icon = Icons.filter_list;
     icon = iconChooser(filter, icon);
 
     bool isSelected = _filters.contains(filter);
     Color iconColor = isSelected ? Colors.white : Colors.black;
-    Color iconBackgroundColor =
-        isSelected ? AppColors.vibrantOrange : Colors.grey.shade300;
+    Color iconBackgroundColor = isSelected ? AppColors.vibrantOrange : Colors.grey.shade300;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
