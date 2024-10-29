@@ -1,9 +1,6 @@
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/login/login_screen.dart';
-import 'package:eventify/services/fetch_service.dart';
-import 'package:eventify/services/login_service.dart';
-import 'package:eventify/services/register_service.dart';
-import 'package:eventify/services/validation_service.dart';
+import 'package:eventify/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider( create: (_) => UserProvider(LoginService(), RegisterService(), FetchService(), ValidationService())),
+        ChangeNotifierProvider( create: (_) => UserProvider(UserService())),
       ],
       child: const MaterialApp(
         title: 'Eventify',

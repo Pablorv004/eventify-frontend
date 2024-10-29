@@ -2,17 +2,11 @@ import 'package:eventify/domain/models/fetch_response.dart';
 import 'package:eventify/domain/models/login_response.dart';
 import 'package:eventify/domain/models/register_response.dart';
 import 'package:eventify/domain/models/user.dart';
-import 'package:eventify/services/fetch_service.dart';
-import 'package:eventify/services/login_service.dart';
-import 'package:eventify/services/register_service.dart';
-import 'package:eventify/services/validation_service.dart';
+import 'package:eventify/services/user_service.dart';
 import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier {
-  final LoginService loginService;
-  final RegisterService registerService; 
-  final FetchService fetchService;
-  final ValidationService validationService;
+  final UserService userService;
   List<User> userList = [];
   User? currentUser;
   String? loginErrorMessage;
@@ -20,7 +14,7 @@ class UserProvider extends ChangeNotifier {
   String? fetchErrorMessage;
   String? validationErrorMessage;
 
-  UserProvider(this.loginService, this.registerService, this.fetchService, this.validationService);
+  UserProvider(this.userService);
   /// Attempts to log in a user using the provided email and password credentials.
   ///
   /// This method calls the `login` method from `loginService` with the user's email and password.
@@ -32,7 +26,7 @@ class UserProvider extends ChangeNotifier {
   /// - [password]: The user's password.
   Future<void> loginUser(String email, String password) async {
     try {
-      LoginResponse loginResponse = await loginService.login(email, password);
+      LoginResponse loginResponse = await userService.login(email, password);
 
       if (loginResponse.success) {
         currentUser = User.fromLoginJson(loginResponse.data);
@@ -59,7 +53,7 @@ class UserProvider extends ChangeNotifier {
   ///   - `false`: deactivates the user
   Future<void> toggleUserValidation(int id, bool validationBoolean) async {
     try {
-      final validationMethod = validationBoolean ? validationService.activate : validationService.deactivate;
+      final validationMethod = validationBoolean ? userService.activate : userService.deactivate;
 
       final validationResponse = await validationMethod(id, currentUser!.rememberToken ?? '');
 
@@ -75,7 +69,7 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> registerUser(String name, String email, String password, String confirmPassword) async {
     try {
-      RegisterResponse registerResponse = await registerService.register(name, email, password, confirmPassword);
+      RegisterResponse registerResponse = await userService.register(name, email, password, confirmPassword);
 
       if (registerResponse.success) {
         registerErrorMessage = null;
@@ -91,7 +85,7 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> fetchAllUsers(String token) async {
     try {
-      FetchResponse fetchResponse = await fetchService.fetchUsers(token);
+      FetchResponse fetchResponse = await userService.fetchUsers(token);
 
       if (fetchResponse.success) {
         userList = fetchResponse.data
