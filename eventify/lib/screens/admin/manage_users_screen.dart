@@ -44,19 +44,20 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       return userProvider.userList;
     }
     return userProvider.userList.where((user) {
-      if (_filters.contains('Non-activated') && (user.actived ?? false) == false) {
-        return true;
+      bool matches = true;
+      if (_filters.contains('Non-activated')) {
+        matches = matches && (user.actived ?? false) == false;
       }
-      if (_filters.contains('Non-verified') && (user.emailConfirmed ?? false) == false) {
-        return true;
+      if (_filters.contains('Non-verified')) {
+        matches = matches && (user.emailConfirmed ?? false) == false;
       }
-      if (_filters.contains('Organizer') && user.role == 'o') {
-        return true;
+      if (_filters.contains('Organizer')) {
+        matches = matches && user.role == 'o';
       }
-      if (_filters.contains('User') && user.role == 'u') {
-        return true;
+      if (_filters.contains('User')) {
+        matches = matches && user.role == 'u';
       }
-      return false;
+      return matches;
     }).toList();
   }
 
