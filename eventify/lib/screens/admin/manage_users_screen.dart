@@ -47,7 +47,6 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
                 _buildFilterButton('All'),
                 _buildFilterButton('Non-activated'),
                 _buildFilterButton('Non-verified'),
-                _buildFilterButton('Deleted'),
                 _buildFilterButton('Organizer'),
                 _buildFilterButton('User'),
               ],
@@ -118,9 +117,6 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
       if (_filters.contains('User')) {
         matches = matches && user.role == 'u';
       }
-      if (_filters.contains('Deleted')) {
-        matches = matches && user.deleted == true;
-      }
       return matches;
     }).toList();
   }
@@ -156,9 +152,6 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
         break;
       case 'Non-verified':
         icon = Icons.verified_outlined;
-        break;
-      case 'Deleted':
-        icon = Icons.delete;
         break;
       case 'Organizer':
         icon = Icons.event;

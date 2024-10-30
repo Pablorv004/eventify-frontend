@@ -80,8 +80,7 @@ class UserProvider extends ChangeNotifier {
       String confirmPassword, String role) async {
     try {
       AuthResponse registerResponse = await userService.register(
-          name, email, password, confirmPassword,
-          role: role); // Pass role here
+          name, email, password, confirmPassword, role);
 
       if (registerResponse.success) {
         registerErrorMessage = null;
@@ -101,7 +100,7 @@ class UserProvider extends ChangeNotifier {
       AuthResponse deleteResponse = await userService.delete(id, currentUser!.rememberToken ?? '');
 
       if (deleteResponse.success) {
-        fetchAllUsers();
+        await fetchAllUsers();
       } else {
         deleteErrorMessage = deleteResponse.data['error'] ?? 'Delete Failed';
       }
