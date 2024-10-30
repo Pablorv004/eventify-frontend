@@ -92,6 +92,23 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> deleteUser(String token, int id) async {
+    try {
+      AuthResponse deleteResponse = await userService.delete(id, token);
+
+      if (deleteResponse.success) {
+        fetchAllUsers(token);
+      } else {
+        fetchErrorMessage = deleteResponse.data['error'] ?? 'Delete Failed';
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+    
+  }
+
   Future<void> fetchAllUsers(String token) async {
     try {
       FetchResponse fetchResponse = await userService.fetchUsers(token);
