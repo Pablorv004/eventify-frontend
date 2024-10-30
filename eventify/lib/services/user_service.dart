@@ -37,7 +37,7 @@ class UserService {
 
   Future<AuthResponse> register(
       String name, String email, String password, String confirmPassword,
-      {String role = 'u'}) async {
+      String role) async {
     final url = Uri.parse('https://eventify.allsites.es/public/api/register');
 
     final response = await http.post(
