@@ -12,14 +12,12 @@ class EditUser extends StatelessWidget {
   final ValueNotifier<bool> _activedNotifier = ValueNotifier<bool>(false);
   final ValueNotifier<bool> _emailConfirmedNotifier =
       ValueNotifier<bool>(false);
-  final ValueNotifier<bool> _deletedNotifier = ValueNotifier<bool>(false);
 
   @override
   Widget build(BuildContext context) {
     _nameController.text = user.name;
     _activedNotifier.value = user.actived ?? false;
     _emailConfirmedNotifier.value = user.emailConfirmed ?? false;
-    _deletedNotifier.value = user.deleted;
 
     return Scaffold(
       appBar: AppBar(
@@ -86,14 +84,12 @@ class EditUser extends StatelessWidget {
                   inactiveColor: Colors.red[200]!,
                   onPressed: (value) => _toggleActived(context, value),
                 ),
-                StatusButton(
-                  notifier: _deletedNotifier,
-                  activeText: 'Deleted',
-                  inactiveText: 'Delete',
-                  activeColor: Colors.grey,
-                  inactiveColor: Colors.red[200]!,
-                  onPressed: (value) => _toggleDeleted(context, value),
-                  isDeletable: true,
+                ElevatedButton(
+                  onPressed: () => _deleteUser(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red[200]!,
+                  ),
+                  child: const Text('Delete'),
                 ),
               ],
             ),
@@ -117,14 +113,12 @@ class EditUser extends StatelessWidget {
     _activedNotifier.value = newValue;
   }
 
-  void _toggleDeleted(BuildContext context, bool newValue) async {
-    if (newValue) {
-      bool? confirm = await _showConfirmationDialog(context, 'Delete user?');
-      if (confirm == true) {
-        final userProvider = context.read<UserProvider>();
-        await userProvider.deleteUser(user.id);
-        _deletedNotifier.value = newValue;
-      }
+  void _deleteUser(BuildContext context) async {
+    bool? confirm = await _showConfirmationDialog(context, 'Delete user? WARNING: This action cannot be undone!');
+    if (confirm == true) {
+      final userProvider = context.read<UserProvider>();
+      await userProvider.deleteUser(user.id);
+      Navigator.of(context).pop();
     }
   }
 
@@ -158,7 +152,6 @@ class StatusButton extends StatelessWidget {
   final Color activeColor;
   final Color inactiveColor;
   final Function(bool) onPressed;
-  final bool isDeletable;
 
   const StatusButton({
     super.key,
@@ -168,7 +161,6 @@ class StatusButton extends StatelessWidget {
     required this.activeColor,
     required this.inactiveColor,
     required this.onPressed,
-    this.isDeletable = false,
   });
 
   @override
@@ -180,7 +172,7 @@ class StatusButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: value ? activeColor : inactiveColor,
           ),
-          onPressed: value && isDeletable ? null : () => onPressed(!value),
+          onPressed: () => onPressed(!value),
           child: Text(value ? activeText : inactiveText),
         );
       },
