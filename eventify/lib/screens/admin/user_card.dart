@@ -145,12 +145,8 @@ class UserCard extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: user.actived!
-              ? const Text('Delete User')
-              : const Text('restore User'),
-          content: user.actived!
-              ? const Text('Are you sure you want to delete this user?')
-              : const Text('Are you sure you want to restore this user?'),
+          title: const Text('Delete User'),
+          content: const Text('Are you sure you want to delete this user?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -164,10 +160,8 @@ class UserCard extends StatelessWidget {
                 Navigator.of(context).pop();
                 if (userProvider.deleteErrorMessage == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(user.actived!
-                          ? 'User deleted!'
-                          : 'User restored!'),
+                    const SnackBar(
+                      content: Text('User deleted!'),
                       backgroundColor: AppColors.vibrantOrange,
                     ),
                   );

@@ -34,7 +34,7 @@ class EditUser extends StatelessWidget {
               backgroundImage:
                   user.profilePicture != null && user.profilePicture!.isNotEmpty
                       ? NetworkImage(user.profilePicture!)
-                      : const AssetImage('assets/default_profile_picture.png')
+                      : const AssetImage('assets/images/default_profile_image.png')
                           as ImageProvider,
             ),
             const SizedBox(height: 16),
