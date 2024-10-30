@@ -92,7 +92,7 @@ void _showLogoutConfirmationDialog(BuildContext context) {
                 (Route<dynamic> route) => false,
               );
             },
-            child: const Text('Sí'),
+            child: const Text('Yes'),
           ),
         ],
       );
