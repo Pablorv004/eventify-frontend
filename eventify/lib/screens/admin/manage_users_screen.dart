@@ -19,7 +19,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   void initState() {
     super.initState();
     final userProvider = context.read<UserProvider>();
-    userProvider.fetchAllUsers(userProvider.currentUser?.rememberToken ?? '');
+    userProvider.fetchAllUsers();
     _setFilter("All");
   }
 

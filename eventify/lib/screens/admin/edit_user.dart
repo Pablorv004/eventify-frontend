@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:eventify/domain/models/user.dart';
+import 'package:provider/provider.dart';
+import 'package:eventify/providers/user_provider.dart';
 
 class EditUser extends StatelessWidget {
   final User user;
@@ -54,9 +56,7 @@ class EditUser extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                // TODO: Implement API call to save changes
-              },
+              onPressed: () => _saveChanges(context),
               child: const Text('Save Changes'),
             ),
             const SizedBox(height: 16),
@@ -103,7 +103,17 @@ class EditUser extends StatelessWidget {
     );
   }
 
+  void _saveChanges(BuildContext context) async {
+    final userProvider = context.read<UserProvider>();
+    await userProvider.updateUser(
+      user.id,
+      _nameController.text,
+    );
+  }
+
   void _toggleActived(BuildContext context, bool newValue) async {
+    final userProvider = context.read<UserProvider>();
+    await userProvider.toggleUserValidation(user.id, newValue);
     _activedNotifier.value = newValue;
   }
 
@@ -111,6 +121,8 @@ class EditUser extends StatelessWidget {
     if (newValue) {
       bool? confirm = await _showConfirmationDialog(context, 'Delete user?');
       if (confirm == true) {
+        final userProvider = context.read<UserProvider>();
+        await userProvider.deleteUser(user.id);
         _deletedNotifier.value = newValue;
       }
     }

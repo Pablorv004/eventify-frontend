@@ -105,4 +105,20 @@ class UserService {
 
     return AuthResponse.fromJson(json.decode(response.body));
   }
+
+  Future<AuthResponse> update(String name, int id, String token) async {
+    final url = Uri.parse('https://eventify.allsites.es/public/api/updateUser');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode({'name': name, 'id': id}),
+    );
+
+    return AuthResponse.fromJson(json.decode(response.body));
+  }
 }

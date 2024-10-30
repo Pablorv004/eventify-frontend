@@ -12,6 +12,8 @@ class UserProvider extends ChangeNotifier {
   String? registerErrorMessage;
   String? fetchErrorMessage;
   String? validationErrorMessage;
+  String? updateErrorMessage;
+  String? deleteErrorMessage;
 
   UserProvider(this.userService);
 
@@ -92,26 +94,42 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteUser(String token, int id) async {
+  Future<void> deleteUser(int id) async {
     try {
-      AuthResponse deleteResponse = await userService.delete(id, token);
+      AuthResponse deleteResponse = await userService.delete(id, currentUser!.rememberToken ?? '');
 
       if (deleteResponse.success) {
-        fetchAllUsers(token);
+        fetchAllUsers();
       } else {
-        fetchErrorMessage = deleteResponse.data['error'] ?? 'Delete Failed';
+        deleteErrorMessage = deleteResponse.data['error'] ?? 'Delete Failed';
       }
     } catch (error) {
-      fetchErrorMessage = 'Error: ${error.toString()}';
+      deleteErrorMessage = 'Error: ${error.toString()}';
     } finally {
       notifyListeners();
     }
     
   }
 
-  Future<void> fetchAllUsers(String token) async {
+  Future<void> updateUser(int id, String name) async {
     try {
-      FetchResponse fetchResponse = await userService.fetchUsers(token);
+      AuthResponse updateResponse = await userService.update(name, id, currentUser!.rememberToken ?? '');
+
+      if (updateResponse.success) {
+        fetchAllUsers();
+      } else {
+        updateErrorMessage = updateResponse.data['error'] ?? 'Update Failed';
+      }
+    } catch (error) {
+      updateErrorMessage = 'Error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchAllUsers() async {
+    try {
+      FetchResponse fetchResponse = await userService.fetchUsers(currentUser!.rememberToken ?? '');
 
       if (fetchResponse.success) {
         userList = fetchResponse.data
