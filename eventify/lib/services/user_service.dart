@@ -51,7 +51,7 @@ class UserService {
         'email': email,
         'password': password,
         'c_password': confirmPassword,
-        'role': role, // Ensure role is included here
+        'role': role,
       }),
     );
 

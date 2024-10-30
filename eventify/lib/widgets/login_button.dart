@@ -53,16 +53,19 @@ class LoginButton extends StatelessWidget {
       );
     } else {
       if(userProvider.currentUser!.role == 'a'){
-        Navigator.of(context).pushReplacement(
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const AdminScreen()),
+          (route) => false,
         );
       } else if(userProvider.currentUser!.role == 'u'){
-        Navigator.of(context).pushReplacement(
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const UserScreen()),
+          (route) => false,
         );
       } else {
-        Navigator.of(context).pushReplacement(
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const OrganizerScreen()),
+          (route) => false,
         );
       }
     }
