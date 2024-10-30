@@ -160,7 +160,7 @@ class UserCard extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                userProvider.deleteUser(userProvider.currentUser!.rememberToken, user.id);
+                userProvider.deleteUser(user.id);
                 Navigator.of(context).pop();
                 if (userProvider.deleteErrorMessage == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
