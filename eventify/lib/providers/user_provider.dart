@@ -81,7 +81,7 @@ class UserProvider extends ChangeNotifier {
     try {
       AuthResponse registerResponse = await userService.register(
           name, email, password, confirmPassword,
-          role: role); // Pass role here
+          role); 
 
       if (registerResponse.success) {
         registerErrorMessage = null;

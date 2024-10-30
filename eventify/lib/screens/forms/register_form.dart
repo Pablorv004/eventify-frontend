@@ -17,7 +17,7 @@ class _RegisterFormState extends State<RegisterForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
-  final roleController = TextEditingController();
+  final roleController = TextEditingController(text: 'u');
   bool _isPasswordVisible = true;
 
   @override
@@ -180,7 +180,7 @@ class _RegisterFormState extends State<RegisterForm> {
           DropdownButtonFormField<String>(
             value: 'u',
             decoration: getInputDecoration().copyWith(
-              labelText: 'Role',
+              labelText: 'I am a...',
             ),
             items: const [
               DropdownMenuItem(
