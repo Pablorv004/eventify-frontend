@@ -117,7 +117,7 @@ class UserProvider extends ChangeNotifier {
       AuthResponse updateResponse = await userService.update(name, id, currentUser!.rememberToken ?? '');
 
       if (updateResponse.success) {
-        fetchAllUsers();
+        await fetchAllUsers();
       } else {
         updateErrorMessage = updateResponse.data['error'] ?? 'Update Failed';
       }

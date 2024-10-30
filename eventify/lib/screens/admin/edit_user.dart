@@ -9,15 +9,10 @@ class EditUser extends StatelessWidget {
   EditUser({super.key, required this.user});
 
   final TextEditingController _nameController = TextEditingController();
-  final ValueNotifier<bool> _activedNotifier = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> _emailConfirmedNotifier =
-      ValueNotifier<bool>(false);
 
   @override
   Widget build(BuildContext context) {
     _nameController.text = user.name;
-    _activedNotifier.value = user.actived ?? false;
-    _emailConfirmedNotifier.value = user.emailConfirmed ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -36,16 +31,11 @@ class EditUser extends StatelessWidget {
                           as ImageProvider,
             ),
             const SizedBox(height: 16),
-            ValueListenableBuilder<bool>(
-              valueListenable: _emailConfirmedNotifier,
-              builder: (context, value, child) {
-                return Text(
-                  value ? 'Email Verified' : 'Email Not Verified',
-                  style: TextStyle(
-                    color: value ? Colors.green : Colors.red,
-                  ),
-                );
-              },
+            Text(
+              user.emailVerifiedAt != null ? 'Email Verified' : 'Email Not Verified',
+              style: TextStyle(
+                color: user.emailVerifiedAt != null ? Colors.green : Colors.red,
+              ),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -76,13 +66,12 @@ class EditUser extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                StatusButton(
-                  notifier: _activedNotifier,
-                  activeText: 'Activated',
-                  inactiveText: 'Deactivated',
-                  activeColor: Colors.green[200]!,
-                  inactiveColor: Colors.red[200]!,
-                  onPressed: (value) => _toggleActived(context, value),
+                ElevatedButton(
+                  onPressed: () => _toggleActived(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: user.actived == true ? Colors.green[200]! : Colors.red[200]!,
+                  ),
+                  child: Text(user.actived == true ? 'Activated' : 'Deactivated'),
                 ),
                 ElevatedButton(
                   onPressed: () => _deleteUser(context),
@@ -107,10 +96,11 @@ class EditUser extends StatelessWidget {
     );
   }
 
-  void _toggleActived(BuildContext context, bool newValue) async {
+  void _toggleActived(BuildContext context) async {
     final userProvider = context.read<UserProvider>();
+    bool newValue = !(user.actived ?? false);
     await userProvider.toggleUserValidation(user.id, newValue);
-    _activedNotifier.value = newValue;
+    user.actived = newValue;
   }
 
   void _deleteUser(BuildContext context) async {
@@ -139,41 +129,6 @@ class EditUser extends StatelessWidget {
               child: const Text('Confirm'),
             ),
           ],
-        );
-      },
-    );
-  }
-}
-
-class StatusButton extends StatelessWidget {
-  final ValueNotifier<bool> notifier;
-  final String activeText;
-  final String inactiveText;
-  final Color activeColor;
-  final Color inactiveColor;
-  final Function(bool) onPressed;
-
-  const StatusButton({
-    super.key,
-    required this.notifier,
-    required this.activeText,
-    required this.inactiveText,
-    required this.activeColor,
-    required this.inactiveColor,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<bool>(
-      valueListenable: notifier,
-      builder: (context, value, child) {
-        return ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: value ? activeColor : inactiveColor,
-          ),
-          onPressed: () => onPressed(!value),
-          child: Text(value ? activeText : inactiveText),
         );
       },
     );

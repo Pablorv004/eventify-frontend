@@ -29,11 +29,11 @@ class AdminScreen extends StatelessWidget {
               style: TextStyle(fontSize: 20),
             ),
           ),
-            Divider(
+          Divider(
             height: 20,
             thickness: 2,
             color: Colors.grey,
-            ),
+          ),
           AdminScreenCard(
               title: "Manage Users",
               description: "Manage activation, verification & user data.",
@@ -53,11 +53,10 @@ class AdminScreen extends StatelessWidget {
         title: Image.asset('assets/images/eventify-text.png', height: 40),
         actions: [
           IconButton(
-            onPressed: () {
+              onPressed: () {
                 _showLogoutConfirmationDialog(context);
               },
-            icon: const Icon(Icons.logout)
-          )
+              icon: const Icon(Icons.logout))
         ],
       ),
       body: Padding(
