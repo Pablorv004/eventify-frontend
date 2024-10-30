@@ -40,23 +40,22 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
         children: [
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
+            physics: const ClampingScrollPhysics(),
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 3),
             child: Row(
               children: [
                 _buildFilterButton('All'),
                 _buildFilterButton('Non-activated'),
                 _buildFilterButton('Non-verified'),
+                _buildFilterButton('Deleted'),
                 _buildFilterButton('Organizer'),
                 _buildFilterButton('User'),
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Divider(
-              color: Colors.grey,
-              thickness: 2,
-            ),
+          const Divider(
+            color: Colors.grey,
+            thickness: 2,
           ),
           Expanded(
             child: userProvider.fetchErrorMessage != null
@@ -85,6 +84,12 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
         _filters.remove('All');
         if (_filters.contains(filter)) {
           _filters.remove(filter);
+        } else if (filter == 'Organizer'){
+          _filters.remove('User');
+          _filters.add(filter);
+        } else if (filter == 'User'){
+          _filters.remove('Organizer');
+          _filters.add(filter);
         } else {
           _filters.add(filter);
         }
@@ -112,6 +117,9 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
       }
       if (_filters.contains('User')) {
         matches = matches && user.role == 'u';
+      }
+      if (_filters.contains('Deleted')) {
+        matches = matches && user.deleted == true;
       }
       return matches;
     }).toList();
@@ -148,6 +156,9 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
         break;
       case 'Non-verified':
         icon = Icons.verified_outlined;
+        break;
+      case 'Deleted':
+        icon = Icons.delete;
         break;
       case 'Organizer':
         icon = Icons.event;

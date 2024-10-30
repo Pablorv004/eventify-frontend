@@ -17,8 +17,6 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final UserProvider userProvider = context.watch<UserProvider>();
-
     return Slidable(
       key: ValueKey(user.id),
       closeOnScroll: true,
@@ -28,7 +26,8 @@ class UserCard extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (context) {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditUser(user: user)));
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => EditUser(user: user)));
             },
             backgroundColor: const Color.fromARGB(255, 33, 149, 243),
             foregroundColor: const Color.fromARGB(255, 255, 255, 255),
@@ -37,19 +36,13 @@ class UserCard extends StatelessWidget {
           ),
           SlidableAction(
             onPressed: (context) {
-              userProvider.toggleUserValidation(user.id, !user.actived!);
-              if (userProvider.validationErrorMessage == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(user.actived! ? 'User Unvalidated!' : 'User Validated!'),
-                    backgroundColor: AppColors.vibrantOrange,
-                  ),
-                );
-              }
+              _showValidationConfirmationDialog(context, user);
             },
             backgroundColor: user.actived! ? Colors.red : Colors.green,
             foregroundColor: Colors.white,
-            borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
+            borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(20),
+                bottomRight: Radius.circular(20)),
             autoClose: true,
             icon: user.actived! ? Icons.close : Icons.check,
           ),
@@ -58,11 +51,12 @@ class UserCard extends StatelessWidget {
       endActionPane: ActionPane(motion: const ScrollMotion(), children: [
         SlidableAction(
           onPressed: (context) {
-            // TODO: Implement delete user in UserProvider
+            _showDeletionConfirmationDialog(context, user);
           },
           backgroundColor: const Color.fromARGB(255, 255, 29, 33),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+          borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
           autoClose: true,
           icon: Icons.delete,
         )
@@ -72,21 +66,118 @@ class UserCard extends StatelessWidget {
         elevation: 5,
         shape: RoundedRectangleBorder(
           side: const BorderSide(color: AppColors.vibrantOrange, width: 2),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(7),
         ),
         color: Colors.white,
         child: ListTile(
           leading: CircleAvatar(
-            backgroundImage: user.profilePicture != null ? NetworkImage(user.profilePicture!) : AssetImage('assets/images/default_profile_image.png'),
+            backgroundImage: user.profilePicture != null
+                ? NetworkImage(user.profilePicture!)
+                : const AssetImage('assets/images/default_profile_image.png'),
           ),
           title: Text(
             user.name,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           subtitle: Text(user.email ?? 'No email provided'),
-          trailing: Text(user.role == 'u' ? 'User' : 'Organizer'),
+          trailing: Container(
+            padding: const EdgeInsets.all(5),
+            margin: const EdgeInsets.only(bottom: 25),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.softOrange, width: 2),
+            ),
+            child: Text(
+              user.role == 'u' ? 'User' : 'Organizer',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  void _showValidationConfirmationDialog(BuildContext context, User user) {
+    UserProvider userProvider = context.read<UserProvider>();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: user.actived!
+              ? const Text('Unvalidate User')
+              : const Text('Validate User'),
+          content: user.actived!
+              ? const Text('Are you sure you want to unvalidate this user?')
+              : const Text('Are you sure you want to validate this user?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                userProvider.toggleUserValidation(user.id, !user.actived!);
+                Navigator.of(context).pop();
+                if (userProvider.validationErrorMessage == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(user.actived!
+                          ? 'User Unvalidated!'
+                          : 'User Validated!'),
+                      backgroundColor: AppColors.vibrantOrange,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeletionConfirmationDialog(BuildContext context, User user) {
+    UserProvider userProvider = context.read<UserProvider>();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: user.actived!
+              ? const Text('Delete User')
+              : const Text('restore User'),
+          content: user.actived!
+              ? const Text('Are you sure you want to delete this user?')
+              : const Text('Are you sure you want to restore this user?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                userProvider.deleteUser(userProvider.currentUser!.rememberToken, user.id);
+                Navigator.of(context).pop();
+                if (userProvider.deleteErrorMessage == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(user.actived!
+                          ? 'User deleted!'
+                          : 'User restored!'),
+                      backgroundColor: AppColors.vibrantOrange,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
