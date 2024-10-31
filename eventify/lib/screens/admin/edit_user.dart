@@ -31,13 +31,6 @@ class EditUser extends StatelessWidget {
                           as ImageProvider,
             ),
             const SizedBox(height: 16),
-            Text(
-              user.emailVerifiedAt != null ? 'Email Verified' : 'Email Not Verified',
-              style: TextStyle(
-                color: user.emailVerifiedAt != null ? Colors.green : Colors.red,
-              ),
-            ),
-            const SizedBox(height: 16),
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Name'),
@@ -45,7 +38,7 @@ class EditUser extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => _saveChanges(context),
-              child: const Text('Save Changes'),
+              child: const Text('Save Name Change'),
             ),
             const SizedBox(height: 16),
             Text(

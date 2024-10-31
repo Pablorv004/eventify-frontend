@@ -32,7 +32,10 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 249, 249, 249),
       appBar: AppBar(
-        title: const Text('Manage Users', style: TextStyle(color: Colors.white),),
+        title: const Text(
+          'Manage Users',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         backgroundColor: AppColors.vibrantOrange,
       ),
@@ -46,7 +49,6 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
               children: [
                 _buildFilterButton('All'),
                 _buildFilterButton('Non-activated'),
-                _buildFilterButton('Non-verified'),
                 _buildFilterButton('Organizer'),
                 _buildFilterButton('User'),
               ],
@@ -83,10 +85,10 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
         _filters.remove('All');
         if (_filters.contains(filter)) {
           _filters.remove(filter);
-        } else if (filter == 'Organizer'){
+        } else if (filter == 'Organizer') {
           _filters.remove('User');
           _filters.add(filter);
-        } else if (filter == 'User'){
+        } else if (filter == 'User') {
           _filters.remove('Organizer');
           _filters.add(filter);
         } else {
@@ -101,15 +103,16 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
 
   List<User> _getFilteredUsers(UserProvider userProvider) {
     if (_filters.contains('All')) {
-      return userProvider.userList;
+      return userProvider.userList
+          .where(
+              (user) => user.emailVerifiedAt != null && user.deleted == false)
+          .toList();
     }
     return userProvider.userList.where((user) {
-      bool matches = true;
+      bool matches =
+          true && user.emailVerifiedAt != null && user.deleted == false;
       if (_filters.contains('Non-activated')) {
         matches = matches && (user.actived ?? false) == false;
-      }
-      if (_filters.contains('Non-verified')) {
-        matches = matches && (user.emailConfirmed ?? false) == false;
       }
       if (_filters.contains('Organizer')) {
         matches = matches && user.role == 'o';
@@ -127,7 +130,8 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
 
     bool isSelected = _filters.contains(filter);
     Color iconColor = isSelected ? Colors.white : Colors.black;
-    Color iconBackgroundColor = isSelected ? AppColors.vibrantOrange : Colors.grey.shade300;
+    Color iconBackgroundColor =
+        isSelected ? AppColors.vibrantOrange : Colors.grey.shade300;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -149,9 +153,6 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
     switch (filter) {
       case 'Non-activated':
         icon = Icons.block;
-        break;
-      case 'Non-verified':
-        icon = Icons.verified_outlined;
         break;
       case 'Organizer':
         icon = Icons.event;
