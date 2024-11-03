@@ -50,10 +50,10 @@ class RegisterButton extends StatelessWidget {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
     String confirmPassword = confirmPasswordController.text.trim();
-    String role = roleController.text.trim(); // Add this line
+    String role = roleController.text.trim();
 
     await userProvider.registerUser(
-        name, email, password, confirmPassword, role); // Pass role here
+        name, email, password, confirmPassword, role);
 
     if (userProvider.registerErrorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
