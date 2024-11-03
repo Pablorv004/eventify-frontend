@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/user.dart';
 import 'package:eventify/providers/user_provider.dart';
@@ -155,8 +157,9 @@ class UserCard extends StatelessWidget {
               child: const Text('No'),
             ),
             TextButton(
-              onPressed: () {
-                userProvider.deleteUser(user.id);
+              onPressed: () async {
+                await userProvider.deleteUser(user.id);
+                await userProvider.fetchAllUsers();
                 Navigator.of(context).pop();
                 if (userProvider.deleteErrorMessage == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
