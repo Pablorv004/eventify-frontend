@@ -5,17 +5,27 @@ import 'package:eventify/domain/models/user.dart';
 import 'package:provider/provider.dart';
 import 'package:eventify/providers/user_provider.dart';
 
-class EditUser extends StatelessWidget {
+class EditUser extends StatefulWidget {
   final User user;
 
-  EditUser({super.key, required this.user});
+  const EditUser({super.key, required this.user});
 
+  @override
+  // ignore: library_private_types_in_public_api
+  _EditUserState createState() => _EditUserState();
+}
+
+class _EditUserState extends State<EditUser> {
   final TextEditingController _nameController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    _nameController.text = user.name;
+  void initState() {
+    super.initState();
+    _nameController.text = widget.user.name;
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit User'),
@@ -27,8 +37,8 @@ class EditUser extends StatelessWidget {
             CircleAvatar(
               radius: 50,
               backgroundImage:
-                  user.profilePicture != null && user.profilePicture!.isNotEmpty
-                      ? NetworkImage(user.profilePicture!)
+                  widget.user.profilePicture != null && widget.user.profilePicture!.isNotEmpty
+                      ? NetworkImage(widget.user.profilePicture!)
                       : const AssetImage('assets/images/default_profile_image.png')
                           as ImageProvider,
             ),
@@ -44,12 +54,12 @@ class EditUser extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Email: ${user.email ?? ''}',
+              'Email: ${widget.user.email ?? ''}',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
             Text(
-              'Role: ${user.role == 'u' ? 'User' : 'Organizer'}',
+              'Role: ${widget.user.role == 'u' ? 'User' : 'Organizer'}',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
@@ -64,9 +74,9 @@ class EditUser extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () => _toggleActived(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: user.actived == true ? Colors.green[200]! : Colors.red[200]!,
+                    backgroundColor: widget.user.actived == true ? Colors.green[200]! : Colors.red[200]!,
                   ),
-                  child: Text(user.actived == true ? 'Activated' : 'Deactivated'),
+                  child: Text(widget.user.actived == true ? 'Activated' : 'Deactivated'),
                 ),
                 ElevatedButton(
                   onPressed: () => _deleteUser(context),
@@ -86,23 +96,26 @@ class EditUser extends StatelessWidget {
   void _saveChanges(BuildContext context) async {
     final userProvider = context.read<UserProvider>();
     await userProvider.updateUser(
-      user.id,
+      widget.user.id,
       _nameController.text,
     );
+    await userProvider.fetchAllUsers();
   }
 
   void _toggleActived(BuildContext context) async {
     final userProvider = context.read<UserProvider>();
-    bool newValue = !(user.actived ?? false);
-    await userProvider.toggleUserValidation(user.id, newValue);
-    user.actived = newValue;
+    bool newValue = !(widget.user.actived ?? false);
+    await userProvider.toggleUserValidation(widget.user.id, newValue);
+    setState(() {
+      widget.user.actived = newValue;
+    });
   }
 
   void _deleteUser(BuildContext context) async {
     bool? confirm = await _showConfirmationDialog(context, 'Delete user? WARNING: This action cannot be undone!');
     if (confirm == true) {
       final userProvider = context.read<UserProvider>();
-      await userProvider.deleteUser(user.id);
+      await userProvider.deleteUser(widget.user.id);
       Navigator.of(context).pop();
     }
   }
