@@ -29,13 +29,24 @@ class RegisterScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  'assets/images/eventify-logo.png',
-                  width: 200,
-                  height: 200,
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.black),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    Center(
+                      child: Image.asset(
+                        'assets/images/eventify-logo.png',
+                        width: 200,
+                        height: 200,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 60),
-
                 // Register form
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
