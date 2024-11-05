@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:eventify/domain/models/auth_response.dart';
-import 'package:eventify/domain/models/fetch_response.dart';
+import 'package:eventify/domain/models/http_responses/auth_response.dart';
+import 'package:eventify/domain/models/http_responses/fetch_response.dart';
 import 'package:http/http.dart' as http;
 
 class UserService {
