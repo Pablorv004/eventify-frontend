@@ -1,5 +1,5 @@
 class Event {
-  final String id;
+  final int id;
   final int? organizerId;
   final String title;
   final String? description;
@@ -41,7 +41,5 @@ class Event {
       category: json['category'],
     );
   }
-
-  static fromJson(event) {}
 
 }
