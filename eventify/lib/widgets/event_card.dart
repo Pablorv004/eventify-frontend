@@ -64,7 +64,7 @@ class EventCard extends StatelessWidget {
     } else if (event.category == 'Technology') {
       return AppColors.technologyColor;
     } else {
-      return AppColors.lightGray;
+      return const Color.fromARGB(255, 168, 168, 168);
     }
   }
 }
