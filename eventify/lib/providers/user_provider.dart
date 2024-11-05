@@ -1,5 +1,5 @@
-import 'package:eventify/domain/models/auth_response.dart';
-import 'package:eventify/domain/models/fetch_response.dart';
+import 'package:eventify/domain/models/http_responses/auth_response.dart';
+import 'package:eventify/domain/models/http_responses/fetch_response.dart';
 import 'package:eventify/domain/models/user.dart';
 import 'package:eventify/services/user_service.dart';
 import 'package:flutter/material.dart';

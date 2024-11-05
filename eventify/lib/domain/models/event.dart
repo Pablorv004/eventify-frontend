@@ -42,4 +42,6 @@ class Event {
     );
   }
 
+  static fromJson(event) {}
+
 }
