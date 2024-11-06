@@ -42,32 +42,31 @@ class LoginButton extends StatelessWidget {
   }
 
   Future<void> tryLogin(BuildContext context) async {
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
+  String email = emailController.text.trim();
+  String password = passwordController.text.trim();
+
+  await userProvider.loginUser(email, password);
+
+  if (userProvider.loginErrorMessage != null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(userProvider.loginErrorMessage!)),
+    );
+  } else {
     
-    await userProvider.loginUser(email, password);
-    
-    if (userProvider.loginErrorMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(userProvider.loginErrorMessage!)),
-      );
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    Widget targetScreen;
+    if (userProvider.currentUser?.role == 'a') {
+      targetScreen = const AdminScreen();
+    } else if (userProvider.currentUser?.role == 'u') {
+      targetScreen = const UserScreen();
     } else {
-      if(userProvider.currentUser!.role == 'a'){
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const AdminScreen()),
-          (route) => false,
-        );
-      } else if(userProvider.currentUser!.role == 'u'){
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const UserScreen()),
-          (route) => false,
-        );
-      } else {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const OrganizerScreen()),
-          (route) => false,
-        );
-      }
+      targetScreen = const OrganizerScreen();
     }
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => targetScreen),
+    );
   }
+}
 }

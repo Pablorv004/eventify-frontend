@@ -25,12 +25,15 @@ class _UserEventScreenState extends State<UserEventScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
-      child: ListView.builder(
-        itemCount: eventProvider.filteredEventList.length,
-        itemBuilder: (context, index) {
-          final event = eventProvider.filteredEventList[index];
-          return EventCard(event: event);
-        },
+      child: RefreshIndicator(
+        onRefresh: () { return eventProvider.fetchEvents(); },
+        child: ListView.builder(
+          itemCount: eventProvider.filteredEventList.length,
+          itemBuilder: (context, index) {
+            final event = eventProvider.filteredEventList[index];
+            return EventCard(event: event);
+          },
+        ),
       ),
     );
   }
