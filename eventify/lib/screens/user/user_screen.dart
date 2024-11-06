@@ -1,3 +1,4 @@
+import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/screens/temporal/coming_soon_screen.dart';
 import 'package:eventify/screens/user/user_event_screen.dart';
 import 'package:eventify/widgets/filter_button.dart';
@@ -19,27 +20,51 @@ class _UserScreenState extends State<UserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Image.asset('assets/images/eventify-text.png', height: 50),
+        scrolledUnderElevation: 20,
         centerTitle: true,
-        title: const Text("Events"),
       ),
       body: screenList[currentScreenIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.event),
-            label: 'Events',
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.only(bottom: 5, right: 5, left: 5),
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
+          borderRadius: const BorderRadius.all(
+            Radius.circular(30)
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Coming Soon!',
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(
+            Radius.circular(30)
           ),
-        ],
-        currentIndex: 0,
-        onTap: (index) {
-          setState(() {
-            currentScreenIndex = index;
-          });
-        },
+          child: BottomNavigationBar(
+            iconSize: 30,
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.event),
+                label: 'Events',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Coming Soon!',
+              ),
+            ],
+            currentIndex: currentScreenIndex,
+            onTap: (index) {
+              setState(() {
+                currentScreenIndex = index;
+              });
+            },
+            elevation: 20.0,
+          ),
+        ),
       ),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: const FilterButton(),

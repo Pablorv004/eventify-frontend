@@ -1,6 +1,7 @@
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/event.dart';
 import 'package:flutter/material.dart';
+
 class EventCard extends StatelessWidget {
   final Event event;
   const EventCard({super.key, required this.event});
@@ -8,6 +9,8 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: const Color.fromARGB(255, 255, 255, 255),
+      elevation: 10,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
         side: BorderSide(
@@ -18,13 +21,16 @@ class EventCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(15.0),
-            child: Image.network(
-              event.imageUrl,
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
+          Padding(
+            padding: const EdgeInsets.only(top: 7, left: 7, right: 7),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15.0),
+              child: Image.network(
+                event.imageUrl,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           Padding(
@@ -35,17 +41,35 @@ class EventCard extends StatelessWidget {
                 Text(
                   event.title,
                   style: const TextStyle(
-                      fontSize: 30, fontWeight: FontWeight.bold),
+                      fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 5),
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today, size: 25),
-                    const SizedBox(width: 5),
-                    Text(
-                      '${event.startTime}',
-                      style: const TextStyle(fontSize: 20),
-                    ),
+                    Row(children: [
+                      const Icon(Icons.calendar_today, size: 25),
+                      Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: Text(
+                        '${event.startTime.toLocal().day}/${event.startTime.toLocal().month}/${event.startTime.toLocal().year}',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      ),
+                    ]),
+
+                    const Spacer(),
+
+                    // Time row
+                    Row(children: [
+                      const Icon(Icons.access_time, size: 25),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Text(
+                          'Starts at: ${event.startTime.toLocal().hour}:${event.startTime.toLocal().minute}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ]),
                   ],
                 ),
               ],

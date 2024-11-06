@@ -1,3 +1,4 @@
+import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/widgets/event_card.dart';
@@ -13,12 +14,15 @@ class UserEventScreen extends StatelessWidget {
     eventProvider.fetchUpcomingEvents(context.read<UserProvider>().currentUser!.rememberToken ?? '');
     eventProvider.sortEventsByTime();
 
-    return ListView.builder(
-      itemCount: eventProvider.eventList.length,
-      itemBuilder: (context, index) {
-        final event = eventProvider.eventList[index];
-        return EventCard(event: event);
-      },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: ListView.builder(
+        itemCount: eventProvider.eventList.length,
+        itemBuilder: (context, index) {
+          final event = eventProvider.eventList[index];
+          return EventCard(event: event);
+        },
+      ),
     );
   }
 }
