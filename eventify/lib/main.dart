@@ -2,6 +2,7 @@ import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/login/login_screen.dart';
+import 'package:eventify/services/auth_service.dart';
 import 'package:eventify/services/event_service.dart';
 import 'package:eventify/services/user_service.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +17,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider( create: (_) => UserProvider(UserService())),
-        ChangeNotifierProvider( create: (_) => EventProvider(EventService())),
+        ChangeNotifierProvider( create: (_) => UserProvider(UserService(), AuthService())),
+        ChangeNotifierProvider( create: (_) => EventProvider(EventService(), AuthService())),
       ],
       child: MaterialApp(
         theme: ThemeData(

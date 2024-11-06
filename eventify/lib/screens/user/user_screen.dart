@@ -1,3 +1,4 @@
+import 'package:eventify/domain/models/category.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/login/login_screen.dart';
@@ -32,9 +33,8 @@ class _UserScreenState extends State<UserScreen> {
 
     return PopScope(
       onPopInvokedWithResult: (didPop, result){
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (Route<dynamic> route) => false,
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginScreen())
         );
       },
       child: Scaffold(
@@ -48,7 +48,7 @@ class _UserScreenState extends State<UserScreen> {
             child: Image.asset('assets/images/eventify-text.png', height: 50),
           ),
           elevation: 12.0,
-          shadowColor: Colors.black.withOpacity(0.5), // Optional: Customize shadow color
+          shadowColor: Colors.black.withOpacity(0.5),
           scrolledUnderElevation: 20,
           centerTitle: true,
           surfaceTintColor: Colors.transparent,
@@ -123,10 +123,33 @@ class _UserScreenState extends State<UserScreen> {
         ),
       
         // Floating action buttons
-        floatingActionButtonLocation: ExpandableFab.location,
-        floatingActionButton: FilterButton(categoryList: buildExpandableButtons(context)),
+        floatingActionButtonLocation: currentScreenIndex == 0 ? ExpandableFab.location : null,
+        floatingActionButton: currentScreenIndex == 0 ? buildFloatingActionButton(context) : null
       ),
     );
+  }
+
+  FutureBuilder<List<Widget>> buildFloatingActionButton(BuildContext context) {
+    return FutureBuilder<List<Widget>>(
+        future: _fetchCategories(context),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return const Icon(Icons.error);
+          } else {
+            List<Widget> categoryButtons = snapshot.data ?? [];
+            return FilterButton(categoryList: categoryButtons);
+          }
+        },
+      );
+  }
+
+  Future<List<Widget>> _fetchCategories(BuildContext context) async {
+    EventProvider eventProvider = context.read<EventProvider>();
+    await eventProvider.fetchCategories();
+    List<Category> categoryList = eventProvider.categoryList;
+    return getExpandableFabButtons(categoryList);
   }
 
   void _onPageChanged(int index) {
@@ -142,19 +165,16 @@ class _UserScreenState extends State<UserScreen> {
       curve: Curves.easeInOut,
     );
   }
-  
-  List<Widget> buildExpandableButtons(BuildContext context) {
-    EventProvider eventProvider = context.read<EventProvider>();
-    eventProvider.fetchCategories(context.read<UserProvider>().currentUser!.rememberToken!);
-    List<String> categories = eventProvider.categories;
-    List<Widget> categoryList = [];
 
-    for(String category in categories){
-      categoryList.add(ExpandableFabButton(category_name: category));
+  getExpandableFabButtons(List<Category> categoryList) {
+    List<Widget> categoryButtons = [];
+
+    for (Category category in categoryList) {
+      categoryButtons.add(ExpandableFabButton(category_name: category.name));
     }
 
-    categoryList.add(ExpandableFabButton(category_name: 'Clear filter'));
+    categoryButtons.add(const ExpandableFabButton(category_name: 'Clear filter'));
 
-    return categoryList;
+    return categoryButtons;
   }
 }

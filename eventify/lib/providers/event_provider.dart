@@ -1,24 +1,33 @@
 import 'package:eventify/domain/models/event.dart';
+import 'package:eventify/domain/models/category.dart';
 import 'package:eventify/domain/models/http_responses/fetch_response.dart';
 import 'package:eventify/services/event_service.dart';
-import 'package:eventify/widgets/expandable_fab_button.dart';
-import 'package:flutter/material.dart';
+import 'package:eventify/services/auth_service.dart';
+import 'package:flutter/foundation.dart' as flutter_foundation;
 
-class EventProvider extends ChangeNotifier {
+class EventProvider extends flutter_foundation.ChangeNotifier {
   final EventService eventsService;
+  final AuthService authService;
   List<Event> eventList = [];
-  List<String> categories = [];
+  List<Category> categoryList = [];
   String? fetchErrorMessage;
 
-  EventProvider(this.eventsService);
+  EventProvider(this.eventsService, this.authService);
 
   /// Fetches a list of events from the server.
   ///
   /// This method retrieve a list of events.
   /// If the fetch is successful, it initializes `eventList` with the list of events and clears
   /// any existing error messages in `fetchErrorMessage`.
-  Future<void> fetchEvents(String token) async {
+  Future<void> fetchEvents() async {
     try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+
       FetchResponse fetchResponse = await eventsService.fetchEvents(token);
 
       if (fetchResponse.success) {
@@ -37,8 +46,8 @@ class EventProvider extends ChangeNotifier {
   }
 
   // Fetches all events that haven't started yet.
-  Future<void> fetchUpcomingEvents(String token) async {
-    await fetchEvents(token);
+  Future<void> fetchUpcomingEvents() async {
+    await fetchEvents();
     eventList = eventList
         .where((event) => event.startTime.isAfter(DateTime.now()))
         .toList();
@@ -50,13 +59,20 @@ class EventProvider extends ChangeNotifier {
   }
 
   // Fetch all categories
-  Future<void> fetchCategories(String token) async {
+  Future<void> fetchCategories() async {
     try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+
       FetchResponse fetchResponse = await eventsService.fetchCategories(token);
 
       if (fetchResponse.success) {
-        categories = fetchResponse.data
-            .map((category) => category['name'].toString())
+        categoryList = fetchResponse.data
+            .map((category) => Category.fromFetchCategoriesJson(category))
             .toList();
         fetchErrorMessage = null;
         
@@ -64,7 +80,7 @@ class EventProvider extends ChangeNotifier {
         fetchErrorMessage = fetchResponse.message;
       }
     } catch (error) {
-      fetchErrorMessage = 'Fetching categores error: ${error.toString()}';
+      fetchErrorMessage = 'Fetching categories error: ${error.toString()}';
     } finally {
       notifyListeners();
     }

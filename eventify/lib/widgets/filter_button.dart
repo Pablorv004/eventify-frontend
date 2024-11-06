@@ -4,8 +4,10 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 
 class FilterButton extends StatelessWidget {
   final List<Widget> categoryList;
+
   const FilterButton({
-    super.key, required this.categoryList,
+    super.key,
+    required this.categoryList,
   });
 
   @override
@@ -19,7 +21,7 @@ class FilterButton extends StatelessWidget {
         backgroundColor: AppColors.darkOrange,
       ),
       closeButtonBuilder: RotateFloatingActionButtonBuilder(
-        angle: 3.15,
+        angle: 3.14,
         child: const Icon(Icons.arrow_upward),
         fabSize: ExpandableFabSize.regular,
         foregroundColor: Colors.black,
@@ -34,6 +36,4 @@ class FilterButton extends StatelessWidget {
       children: categoryList,
     );
   }
-
-  
 }

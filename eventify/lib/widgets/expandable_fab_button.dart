@@ -34,11 +34,11 @@ class ExpandableFabButton extends StatelessWidget{
 
       Icon getIcon(String category_name) {
         switch(category_name){
-          case 'Clear filter': return Icon(Icons.close);
-          case 'Technology': return Icon(Icons.tablet_android);
-          case 'Sport': return Icon(Icons.sports_basketball);
-          case 'Music': return Icon(Icons.music_note);
-          default: return Icon(Icons.warning);
+          case 'Clear filter': return const Icon(Icons.close);
+          case 'Technology': return const Icon(Icons.tablet_android);
+          case 'Sport': return const Icon(Icons.sports_basketball);
+          case 'Music': return const Icon(Icons.music_note);
+          default: return const Icon(Icons.warning);
         }
       }
   }

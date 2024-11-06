@@ -1,10 +1,12 @@
 import 'package:eventify/domain/models/http_responses/auth_response.dart';
 import 'package:eventify/domain/models/http_responses/fetch_response.dart';
 import 'package:eventify/domain/models/user.dart';
+import 'package:eventify/services/auth_service.dart';
 import 'package:eventify/services/user_service.dart';
 import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier {
+  final AuthService authService;
   final UserService userService;
   List<User> userList = [];
   User? currentUser;
@@ -15,7 +17,7 @@ class UserProvider extends ChangeNotifier {
   String? updateErrorMessage;
   String? deleteErrorMessage;
 
-  UserProvider(this.userService);
+  UserProvider(this.userService, this.authService);
 
   /// Attempts to log in a user using the provided email and password credentials.
   ///
@@ -32,6 +34,7 @@ class UserProvider extends ChangeNotifier {
 
       if (loginResponse.success) {
         currentUser = User.fromLoginJson(loginResponse.data);
+        authService.saveToken(currentUser!.rememberToken ?? '');
         loginErrorMessage = null;
       } else {
         loginErrorMessage = loginResponse.data['error'] ?? 'Login Failed';
