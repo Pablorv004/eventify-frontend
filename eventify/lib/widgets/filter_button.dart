@@ -32,7 +32,7 @@ class FilterButton extends StatelessWidget {
       children: const [
         Row(
           children: [
-            Text('Music'),
+            Text('Music', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
             SizedBox(width: 20),
             FloatingActionButton.small(
               backgroundColor: Color.fromARGB(255, 215, 156, 225),
@@ -44,7 +44,7 @@ class FilterButton extends StatelessWidget {
         ),
         Row(
           children: [
-            Text('Technology'),
+            Text('Technology', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
             SizedBox(width: 20),
             FloatingActionButton.small(
               backgroundColor: Color.fromARGB(255, 196, 248, 255),
@@ -56,7 +56,7 @@ class FilterButton extends StatelessWidget {
         ),
         Row(
           children: [
-            Text('Sports'),
+            Text('Sports', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
             SizedBox(width: 20),
             FloatingActionButton.small(
               backgroundColor: Color.fromARGB(255, 255, 226, 139),
@@ -68,7 +68,7 @@ class FilterButton extends StatelessWidget {
         ),
         Row(
           children: [
-            Text('No Filter'),
+            Text('Clear filter', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
             SizedBox(width: 20),
             FloatingActionButton.small(
               backgroundColor: Color.fromARGB(255, 252, 155, 148),

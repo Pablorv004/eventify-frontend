@@ -11,8 +11,8 @@ class AppColors {
   static const Color burntOrange = Color(0xFFEF6C00);  // Naranja quemado
   static const Color amberOrange = Color(0xFFFFB300);  // Ámbar
      // Gris claro
-  static const Color musicColor = Color(0xFFFFD700);
-  static const Color sportColor = Color(0xFFFF4500);
-  static const Color technologyColor = Color(0xFF4CAF50);
+  static const Color musicColor = Color.fromARGB(255, 232, 197, 0);
+  static const Color sportColor = Color.fromARGB(255, 205, 99, 0);
+  static const Color technologyColor = Color.fromARGB(255, 69, 159, 72);
 
 }
