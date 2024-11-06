@@ -56,7 +56,7 @@ class ExpandableFabButton extends StatelessWidget {
       case 'Music':
         return const Icon(Icons.music_note);
       default:
-        return const Icon(Icons.warning);
+        return const Icon(Icons.question_mark_outlined);
     }
   }
 

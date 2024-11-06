@@ -13,7 +13,7 @@ class EventCard extends StatelessWidget {
         color: Colors.white,
         elevation: 10,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
+          borderRadius: BorderRadius.circular(15.0),
           side: BorderSide(
             color: chooseCardBorderColor(),
             width: 2.0,
@@ -29,14 +29,14 @@ class EventCard extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 5,
+                      spreadRadius: 3,
                       blurRadius: 7,
-                      offset: const Offset(0, 3),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20.0),
+                  borderRadius: BorderRadius.circular(8.0),
                   child: Image.network(
                     event.imageUrl,
                     height: 200,

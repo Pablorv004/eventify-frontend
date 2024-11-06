@@ -31,7 +31,7 @@ class FilterButton extends StatelessWidget {
       childrenAnimation: ExpandableFabAnimation.none,
       distance: 70,
       overlayStyle: ExpandableFabOverlayStyle(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withOpacity(0.6),
       ),
       children: categoryList,
     );

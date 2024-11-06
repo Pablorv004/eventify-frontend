@@ -84,6 +84,7 @@ class _UserScreenState extends State<UserScreen> {
 
           // Bottom Navigation Bar
           bottomNavigationBar: Container(
+
             padding: const EdgeInsets.only(bottom: 5, right: 5, left: 5),
             decoration: BoxDecoration(
               boxShadow: [
