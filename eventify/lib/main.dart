@@ -1,4 +1,3 @@
-import 'package:eventify/domain/models/event.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/login/login_screen.dart';

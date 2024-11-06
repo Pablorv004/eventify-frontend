@@ -33,4 +33,17 @@ class EventProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Fetches all events that haven't started yet.
+  Future<void> fetchUpcomingEvents(String token) async {
+    await fetchEvents(token);
+    eventList = eventList
+        .where((event) => event.startTime.isAfter(DateTime.now()))
+        .toList();
+  }
+
+  //Sort events by time
+  void sortEventsByTime() {
+    eventList.sort((a, b) => a.startTime.compareTo(b.startTime));
+  }
 }

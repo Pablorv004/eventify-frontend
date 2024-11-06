@@ -10,7 +10,8 @@ class UserEventScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     EventProvider eventProvider = context.watch<EventProvider>();
-    eventProvider.fetchEvents(context.read<UserProvider>().currentUser!.rememberToken ?? '');
+    eventProvider.fetchUpcomingEvents(context.read<UserProvider>().currentUser!.rememberToken ?? '');
+    eventProvider.sortEventsByTime();
 
     return ListView.builder(
       itemCount: eventProvider.eventList.length,
