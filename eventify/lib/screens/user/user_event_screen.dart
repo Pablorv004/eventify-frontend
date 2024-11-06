@@ -1,3 +1,4 @@
+import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/widgets/event_card.dart';
@@ -23,5 +24,30 @@ class UserEventScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  List<Widget> getCategories(List<String> categories) {
+    List<Widget> categoryList = [];
+
+    for (String category in categories) {
+      categoryList.add(ExpandableFabButton(category, Icon(Icons.filter_alt_outlined), AppColors.darkOrange));
+    }
+
+    return categoryList;
+  }
+
+  Row ExpandableFabButton(String category_name, Icon icon, Color color) {
+    return Row(
+        children: [
+          Text(category_name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+          const SizedBox(width: 20),
+          FloatingActionButton.small(
+            backgroundColor: color,
+            heroTag: null,
+            onPressed: null,
+            child: icon,
+          ),
+        ],
+      );
   }
 }

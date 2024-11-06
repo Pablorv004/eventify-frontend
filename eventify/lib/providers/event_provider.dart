@@ -1,6 +1,7 @@
 import 'package:eventify/domain/models/event.dart';
 import 'package:eventify/domain/models/http_responses/fetch_response.dart';
 import 'package:eventify/services/event_service.dart';
+import 'package:eventify/widgets/expandable_fab_button.dart';
 import 'package:flutter/material.dart';
 
 class EventProvider extends ChangeNotifier {
@@ -25,8 +26,6 @@ class EventProvider extends ChangeNotifier {
             .map((event) => Event.fromFetchEventsJson(event))
             .toList();
         fetchErrorMessage = null;
-
-        getAllCategories();
       } else {
         fetchErrorMessage = fetchResponse.message;
       }
@@ -51,11 +50,23 @@ class EventProvider extends ChangeNotifier {
   }
 
   // Fetch all categories
-  void getAllCategories() {
-    for( Event event in eventList ) {
-      if (!categories.contains(event.category)) {
-        categories.add(event.category);
+  Future<void> fetchCategories(String token) async {
+    try {
+      FetchResponse fetchResponse = await eventsService.fetchCategories(token);
+
+      if (fetchResponse.success) {
+        categories = fetchResponse.data
+            .map((category) => category['name'].toString())
+            .toList();
+        fetchErrorMessage = null;
+        
+      } else {
+        fetchErrorMessage = fetchResponse.message;
       }
+    } catch (error) {
+      fetchErrorMessage = 'Fetching categores error: ${error.toString()}';
+    } finally {
+      notifyListeners();
     }
   }
 }
