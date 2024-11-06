@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/category.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/providers/user_provider.dart';
@@ -93,21 +94,15 @@ class _UserScreenState extends State<UserScreen> {
                   offset: const Offset(0, 3),
                 ),
               ],
-              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
             ),
             child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
               child: BottomNavigationBar(
                 iconSize: 30,
-                items: const <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.event),
-                    label: 'Events',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    label: 'Coming Soon!',
-                  ),
+                items: [
+                  createNavigationBarItem('Events', 0),
+                  createNavigationBarItem('Coming Soon', 1),
                 ],
                 currentIndex: currentScreenIndex,
                 onTap: (index) {
@@ -125,6 +120,23 @@ class _UserScreenState extends State<UserScreen> {
           floatingActionButton: currentScreenIndex == 0 ? buildFloatingActionButton(context) : null),
     );
   }
+
+  BottomNavigationBarItem createNavigationBarItem(String title, int index) {
+  return BottomNavigationBarItem(
+    icon: Container(
+      decoration: BoxDecoration(
+        color: currentScreenIndex == index ? AppColors.deepOrange : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Icon(
+        index == 0 ? Icons.event : Icons.access_time, // This will change when there are more screens (we will need a method to determine the icon)
+        color: currentScreenIndex == index ? Colors.white : Colors.black,
+      ),
+    ),
+    label: title,
+  );
+}
 
   FutureBuilder<List<Widget>> buildFloatingActionButton(BuildContext context) {
     return FutureBuilder<List<Widget>>(
