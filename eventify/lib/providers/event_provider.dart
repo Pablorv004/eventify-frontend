@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 class EventProvider extends ChangeNotifier {
   final EventService eventsService;
   List<Event> eventList = [];
+  List<String> categories = [];
   String? fetchErrorMessage;
 
   EventProvider(this.eventsService);
@@ -24,6 +25,8 @@ class EventProvider extends ChangeNotifier {
             .map((event) => Event.fromFetchEventsJson(event))
             .toList();
         fetchErrorMessage = null;
+
+        getAllCategories();
       } else {
         fetchErrorMessage = fetchResponse.message;
       }
@@ -45,5 +48,14 @@ class EventProvider extends ChangeNotifier {
   //Sort events by time
   void sortEventsByTime() {
     eventList.sort((a, b) => a.startTime.compareTo(b.startTime));
+  }
+
+  // Fetch all categories
+  void getAllCategories() {
+    for( Event event in eventList ) {
+      if (!categories.contains(event.category)) {
+        categories.add(event.category);
+      }
+    }
   }
 }

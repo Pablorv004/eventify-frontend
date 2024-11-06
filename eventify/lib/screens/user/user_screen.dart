@@ -25,6 +25,7 @@ class _UserScreenState extends State<UserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // AppBar
       appBar: AppBar(
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(bottomLeft: Radius.circular(35), bottomRight: Radius.circular(35)),
@@ -46,10 +47,23 @@ class _UserScreenState extends State<UserScreen> {
       backgroundColor: const Color.fromARGB(255, 240, 240, 240),
 
       // Body
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
-        children: screenList,
+      body: Stack(
+        children: [
+          // Background image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/no-filter-events-background-image.jpg',
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          // PageView
+          PageView(
+            controller: _pageController,
+            onPageChanged: _onPageChanged,
+            children: screenList,
+          ),
+        ],
       ),
 
       // Bottom Navigation Bar
@@ -65,12 +79,12 @@ class _UserScreenState extends State<UserScreen> {
             ),
           ],
           borderRadius: const BorderRadius.all(
-            Radius.circular(30)
+            Radius.circular(20)
           ),
         ),
         child: ClipRRect(
           borderRadius: const BorderRadius.all(
-            Radius.circular(30)
+            Radius.circular(20)
           ),
           child: BottomNavigationBar(
             iconSize: 30,

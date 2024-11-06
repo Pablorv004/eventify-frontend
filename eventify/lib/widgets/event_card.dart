@@ -12,7 +12,7 @@ class EventCard extends StatelessWidget {
       color: Colors.white,
       elevation: 10,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
+        borderRadius: BorderRadius.circular(20.0),
         side: BorderSide(
           color: chooseCardBorderColor(),
           width: 2.0,
@@ -35,7 +35,7 @@ class EventCard extends StatelessWidget {
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(15.0),
+                borderRadius: BorderRadius.circular(20.0),
                 child: Image.network(
                   event.imageUrl,
                   height: 200,

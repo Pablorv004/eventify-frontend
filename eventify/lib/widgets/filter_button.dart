@@ -1,6 +1,8 @@
 import 'package:eventify/config/app_colors.dart';
+import 'package:eventify/providers/event_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:provider/provider.dart';
 
 class FilterButton extends StatelessWidget {
   const FilterButton({
@@ -9,6 +11,10 @@ class FilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    EventProvider eventProvider = context.watch<EventProvider>();
+    List<Widget> categoryList = getCategories(eventProvider.categories);
+    
     return ExpandableFab(
       openButtonBuilder: RotateFloatingActionButtonBuilder(
         child: const Icon(Icons.filter_alt_outlined),
@@ -29,56 +35,32 @@ class FilterButton extends StatelessWidget {
       overlayStyle: ExpandableFabOverlayStyle(
         color: Colors.white.withOpacity(0.9),
       ),
-      children: const [
-        Row(
-          children: [
-            Text('Music', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-            SizedBox(width: 20),
-            FloatingActionButton.small(
-              backgroundColor: Color.fromARGB(255, 215, 156, 225),
-              heroTag: null,
-              onPressed: null,
-              child: Icon(Icons.music_note),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            Text('Technology', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-            SizedBox(width: 20),
-            FloatingActionButton.small(
-              backgroundColor: Color.fromARGB(255, 196, 248, 255),
-              heroTag: null,
-              onPressed: null,
-              child: Icon(Icons.tablet_android),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            Text('Sports', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-            SizedBox(width: 20),
-            FloatingActionButton.small(
-              backgroundColor: Color.fromARGB(255, 255, 226, 139),
-              heroTag: null,
-              onPressed: null,
-              child: Icon(Icons.sports_basketball),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            Text('Clear filter', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-            SizedBox(width: 20),
-            FloatingActionButton.small(
-              backgroundColor: Color.fromARGB(255, 252, 155, 148),
-              heroTag: null,
-              onPressed: null,
-              child: Icon(Icons.dangerous),
-            ),
-          ],
-        ),
-      ],
+      children: categoryList,
     );
+  }
+
+  List<Widget> getCategories(List<String> categories) {
+    List<Widget> categoryList = [];
+
+    for (String category in categories) {
+      categoryList.add(ExpandableFabButton(category, Icon(Icons.filter_alt_outlined), AppColors.darkOrange));
+    }
+
+    return categoryList;
+  }
+
+  Row ExpandableFabButton(String category_name, Icon icon, Color color) {
+    return Row(
+        children: [
+          Text(category_name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+          const SizedBox(width: 20),
+          FloatingActionButton.small(
+            backgroundColor: color,
+            heroTag: null,
+            onPressed: null,
+            child: icon,
+          ),
+        ],
+      );
   }
 }
