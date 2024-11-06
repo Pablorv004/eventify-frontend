@@ -177,6 +177,17 @@ class _EditUserState extends State<EditUser> {
       _nameController.text,
     );
     await userProvider.fetchAllUsers();
+    showSnackBar(whatsUpdated: 'Name'
+    );
+  }
+
+  void showSnackBar({required String whatsUpdated}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+      content: Text('$whatsUpdated updated successfully!'),
+      backgroundColor: Colors.green,
+      ),
+    );
   }
 
   void _toggleActived(BuildContext context) async {
@@ -186,6 +197,8 @@ class _EditUserState extends State<EditUser> {
     setState(() {
       widget.user.actived = newValue;
     });
+    showSnackBar(whatsUpdated: 'Activation status'
+    );
   }
 
   void _deleteUser(BuildContext context) async {
