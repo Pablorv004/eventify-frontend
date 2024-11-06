@@ -9,7 +9,7 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color.fromARGB(255, 255, 255, 255),
+      color: Colors.white,
       elevation: 10,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -22,14 +22,26 @@ class EventCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 7, left: 7, right: 7),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(15.0),
-              child: Image.network(
-                event.imageUrl,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
+            padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: Image.network(
+                  event.imageUrl,
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
@@ -49,11 +61,11 @@ class EventCard extends StatelessWidget {
                     Row(children: [
                       const Icon(Icons.calendar_today, size: 25),
                       Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: Text(
-                        '${event.startTime.toLocal().day}/${event.startTime.toLocal().month}/${event.startTime.toLocal().year}',
-                        style: const TextStyle(fontSize: 18),
-                      ),
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Text(
+                          '${event.startTime.toLocal().day}/${event.startTime.toLocal().month}/${event.startTime.toLocal().year}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
                       ),
                     ]),
 

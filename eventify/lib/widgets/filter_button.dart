@@ -13,8 +13,8 @@ class FilterButton extends StatelessWidget {
       openButtonBuilder: RotateFloatingActionButtonBuilder(
         child: const Icon(Icons.filter_alt_outlined),
         fabSize: ExpandableFabSize.regular,
-        foregroundColor: Colors.black,
-        backgroundColor: AppColors.amberOrange,
+        foregroundColor: Colors.white,
+        backgroundColor: AppColors.darkOrange,
       ),
       closeButtonBuilder: RotateFloatingActionButtonBuilder(
         angle: 3.15,

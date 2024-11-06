@@ -12,18 +12,47 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
-  final screenList = [UserEventScreen(), ComingSoonScreen()];
+  final PageController _pageController = PageController(initialPage: 0);
+  final List<Widget> screenList = [const UserEventScreen(), const ComingSoonScreen()];
   int currentScreenIndex = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset('assets/images/eventify-text.png', height: 50),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(35), bottomRight: Radius.circular(35)),
+        ),
+        title: Padding(
+          padding: const EdgeInsets.only(bottom: 18),
+          child: Image.asset('assets/images/eventify-text.png', height: 50),
+        ),
+        elevation: 12.0,
+        shadowColor: Colors.black.withOpacity(0.5), // Optional: Customize shadow color
         scrolledUnderElevation: 20,
         centerTitle: true,
+        surfaceTintColor: Colors.transparent,
       ),
-      body: screenList[currentScreenIndex],
+
+      // Body properties
+      extendBodyBehindAppBar: true,
+      extendBody: true,
+      backgroundColor: const Color.fromARGB(255, 240, 240, 240),
+
+      // Body
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        children: screenList,
+      ),
+
+      // Bottom Navigation Bar
       bottomNavigationBar: Container(
         padding: const EdgeInsets.only(bottom: 5, right: 5, left: 5),
         decoration: BoxDecoration(
@@ -58,15 +87,31 @@ class _UserScreenState extends State<UserScreen> {
             currentIndex: currentScreenIndex,
             onTap: (index) {
               setState(() {
-                currentScreenIndex = index;
+                _onBottomNavTapped(index);
               });
             },
             elevation: 20.0,
           ),
         ),
       ),
+
+      // Floating action buttons
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: const FilterButton(),
+    );
+  }
+
+  void _onPageChanged(int index) {
+    setState(() {
+      currentScreenIndex = index;
+    });
+  }
+
+  void _onBottomNavTapped(int index) {
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 }

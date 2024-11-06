@@ -14,7 +14,7 @@ class UserEventScreen extends StatelessWidget {
     eventProvider.sortEventsByTime();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
       child: ListView.builder(
         itemCount: eventProvider.eventList.length,
         itemBuilder: (context, index) {
