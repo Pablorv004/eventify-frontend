@@ -12,7 +12,7 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
-  final screenList = [UserEventScreen(), ComingSoonScreen()];
+  final screenList = [const UserEventScreen(), const ComingSoonScreen()];
   int currentScreenIndex = 0;
 
   @override
