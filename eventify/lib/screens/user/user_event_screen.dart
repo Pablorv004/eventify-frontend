@@ -1,4 +1,3 @@
-import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/widgets/event_card.dart';

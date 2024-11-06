@@ -1,3 +1,4 @@
+import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/login/login_screen.dart';
@@ -18,10 +19,19 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider( create: (_) => UserProvider(UserService())),
         ChangeNotifierProvider( create: (_) => EventProvider(EventService())),
       ],
-      child: const MaterialApp(
+      child: MaterialApp(
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch().copyWith(
+            primary: AppColors.deepOrange,
+          ),
+          buttonTheme: const ButtonThemeData(
+            buttonColor: AppColors.deepOrange,
+            textTheme: ButtonTextTheme.primary,
+          ),
+        ),
         title: 'Eventify',
         debugShowCheckedModeBanner: false,
-        home: Scaffold(
+        home: const Scaffold(
           body: LoginScreen()
         ),
       ),

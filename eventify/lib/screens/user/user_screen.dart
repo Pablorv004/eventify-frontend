@@ -1,4 +1,3 @@
-import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/screens/temporal/coming_soon_screen.dart';
 import 'package:eventify/screens/user/user_event_screen.dart';
 import 'package:eventify/widgets/filter_button.dart';

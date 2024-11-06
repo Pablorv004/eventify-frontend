@@ -74,14 +74,14 @@ class _EditUserState extends State<EditUser> {
                 ElevatedButton(
                   onPressed: () => _toggleActived(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: widget.user.actived == true ? Colors.green[200]! : Colors.red[200]!,
+                    backgroundColor: widget.user.actived == true ? Colors.green[100]! : Colors.red[100]!,
                   ),
                   child: Text(widget.user.actived == true ? 'Activated' : 'Deactivated'),
                 ),
                 ElevatedButton(
                   onPressed: () => _deleteUser(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red[200]!,
+                    backgroundColor: Colors.red[100]!,
                   ),
                   child: const Text('Delete'),
                 ),
