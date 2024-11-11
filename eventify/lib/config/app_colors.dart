@@ -12,7 +12,7 @@ class AppColors {
   static const Color amberOrange = Color(0xFFFFB300);  // Ámbar
      // Gris claro
   static const Color musicColor = Color.fromARGB(255, 232, 197, 0);
-  static const Color sportColor = Color.fromARGB(255, 205, 99, 0);
+  static const Color sportColor = Color.fromARGB(255, 205, 48, 0);
   static const Color technologyColor = Color.fromARGB(255, 69, 159, 72);
 
 }

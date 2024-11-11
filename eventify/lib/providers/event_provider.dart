@@ -1,29 +1,43 @@
 import 'package:eventify/domain/models/event.dart';
+import 'package:eventify/domain/models/category.dart';
 import 'package:eventify/domain/models/http_responses/fetch_response.dart';
 import 'package:eventify/services/event_service.dart';
-import 'package:flutter/material.dart';
+import 'package:eventify/services/auth_service.dart';
+import 'package:flutter/foundation.dart' as flutter_foundation;
 
-class EventProvider extends ChangeNotifier {
+class EventProvider extends flutter_foundation.ChangeNotifier {
   final EventService eventsService;
+  final AuthService authService;
   List<Event> eventList = [];
+  List<Event> filteredEventList = [];
+  List<Category> categoryList = [];
   String? fetchErrorMessage;
 
-  EventProvider(this.eventsService);
 
-  /// Fetches a list of events from the server.
+  EventProvider(this.eventsService, this.authService);
+
+  /// Fetches all events.
   ///
-  /// This method retrieve a list of events.
-  /// If the fetch is successful, it initializes `eventList` with the list of events and clears
-  /// any existing error messages in `fetchErrorMessage`.
-  Future<void> fetchEvents(String token) async {
+  /// This method calls the `fetchEvents` method from `eventsService` to retrieve the list of events.
+  /// If fetching is successful, it updates the `eventList` and `filteredEventList` with the retrieved events.
+  Future<void> fetchEvents() async {
     try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+
       FetchResponse fetchResponse = await eventsService.fetchEvents(token);
 
       if (fetchResponse.success) {
-        eventList = fetchResponse.data
-            .map((event) => Event.fromFetchEventsJson(event))
-            .toList();
+        eventList = fetchResponse.data.map((event) => Event.fromFetchEventsJson(event)).toList();
+        
+        // Only show events that have not happened yet
+        filteredEventList = eventList.where((event) => event.startTime.isAfter(DateTime.now())).toList();
         fetchErrorMessage = null;
+        sortEventsByTime();
       } else {
         fetchErrorMessage = fetchResponse.message;
       }
@@ -34,16 +48,70 @@ class EventProvider extends ChangeNotifier {
     }
   }
 
-  // Fetches all events that haven't started yet.
-  Future<void> fetchUpcomingEvents(String token) async {
-    await fetchEvents(token);
-    eventList = eventList
-        .where((event) => event.startTime.isAfter(DateTime.now()))
-        .toList();
+  /// Fetches upcoming events.
+  ///
+  /// This method filters the `eventList` to only include events that have not happened yet
+  /// and updates the `filteredEventList`.
+  void fetchUpcomingEvents() {
+    filteredEventList = eventList.where((event) => event.startTime.isAfter(DateTime.now())).toList();
+    sortEventsByTime();
+    notifyListeners();
   }
 
-  //Sort events by time
+  /// Fetches events by category.
+  ///
+  /// This method filters the `eventList` to only include events that belong to the specified category
+  /// and have not happened yet, and updates the `filteredEventList`.
+  ///
+  /// ### Parameters
+  /// - [category]: The category to filter events by.
+  void fetchEventsByCategory(String category) {
+    filteredEventList = eventList
+        .where((event) => event.category == category && event.startTime.isAfter(DateTime.now()))
+        .toList();
+    sortEventsByTime();
+    notifyListeners();
+  }
+
+  /// Clears the current filter and fetches upcoming events.
+  ///
+  /// This method resets the `filteredEventList` to include all upcoming events.
+  void clearFilter() {
+    fetchUpcomingEvents();
+  }
+
+  /// Sorts events by time.
+  ///
+  /// This method sorts the `filteredEventList` by the start time of the events in ascending order.
   void sortEventsByTime() {
-    eventList.sort((a, b) => a.startTime.compareTo(b.startTime));
+    filteredEventList.sort((a, b) => a.startTime.compareTo(b.startTime));
+  }
+
+  /// Fetches all categories.
+  ///
+  /// This method calls the `fetchCategories` method from `eventsService` to retrieve the list of categories.
+  /// If fetching is successful, it updates the `categoryList` with the retrieved categories.
+  Future<void> fetchCategories() async {
+    try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+
+      FetchResponse fetchResponse = await eventsService.fetchCategories(token);
+
+      if (fetchResponse.success) {
+        categoryList = fetchResponse.data.map((category) => Category.fromFetchCategoriesJson(category)).toList();
+        fetchErrorMessage = null;
+      } else {
+        fetchErrorMessage = fetchResponse.message;
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Fetching categories error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
   }
 }

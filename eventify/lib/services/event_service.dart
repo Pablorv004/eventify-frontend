@@ -16,4 +16,17 @@ class EventService {
     );
     return FetchResponse.fromJson(json.decode(response.body));
   }
+
+  Future<FetchResponse> fetchCategories(String token) async {
+    final url = Uri.parse('https://eventify.allsites.es/public/api/categories');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    return FetchResponse.fromJson(json.decode(response.body));
+  }
 }
