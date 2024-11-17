@@ -1,5 +1,9 @@
+import 'package:eventify/config/app_colors.dart';
+import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/login/login_screen.dart';
+import 'package:eventify/services/auth_service.dart';
+import 'package:eventify/services/event_service.dart';
 import 'package:eventify/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,12 +17,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider( create: (_) => UserProvider(UserService())),
+        ChangeNotifierProvider( create: (_) => UserProvider(UserService(), AuthService())),
+        ChangeNotifierProvider( create: (_) => EventProvider(EventService(), AuthService())),
       ],
-      child: const MaterialApp(
+      child: MaterialApp(
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch().copyWith(
+            primary: AppColors.deepOrange,
+            secondary: AppColors.lightOrange,
+          ),
+          buttonTheme: const ButtonThemeData(
+            buttonColor: AppColors.deepOrange,
+            textTheme: ButtonTextTheme.primary,
+          ),
+        ),
         title: 'Eventify',
         debugShowCheckedModeBanner: false,
-        home: Scaffold(
+        home: const Scaffold(
           body: LoginScreen()
         ),
       ),
