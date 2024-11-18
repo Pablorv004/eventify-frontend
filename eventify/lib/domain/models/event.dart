@@ -36,9 +36,12 @@ class Event {
     return Event(
       id: json['id'],
       title: json['title'],
+      description: json['description'],
       startTime: DateTime.parse(json['start_time']),
+      endTime: DateTime.parse(json['end_time']),
       imageUrl: json['image_url'],
       category: json['category'],
+      location: json['location'],
     );
   }
 

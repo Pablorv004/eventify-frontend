@@ -25,12 +25,12 @@ class LoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FilledButton(
       style: FilledButton.styleFrom(
-        backgroundColor: AppColors.darkOrange,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        elevation: 4
-      ),
+          backgroundColor: AppColors.darkOrange,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          elevation: 4),
       onPressed: () async {
-        if(loginFormKey.currentState!.validate()){
+        if (loginFormKey.currentState!.validate()) {
           await tryLogin(context);
         }
       },
@@ -42,31 +42,30 @@ class LoginButton extends StatelessWidget {
   }
 
   Future<void> tryLogin(BuildContext context) async {
-  String email = emailController.text.trim();
-  String password = passwordController.text.trim();
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
 
-  await userProvider.loginUser(email, password);
+    await userProvider.loginUser(email, password);
 
-  if (userProvider.loginErrorMessage != null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(userProvider.loginErrorMessage!)),
-    );
-  } else {
-    
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    Widget targetScreen;
-    if (userProvider.currentUser?.role == 'a') {
-      targetScreen = const AdminScreen();
-    } else if (userProvider.currentUser?.role == 'u') {
-      targetScreen = const UserScreen();
+    if (userProvider.loginErrorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(userProvider.loginErrorMessage!)),
+      );
     } else {
-      targetScreen = const OrganizerScreen();
-    }
+      await Future.delayed(const Duration(milliseconds: 100));
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => targetScreen),
-    );
+      Widget targetScreen;
+      if (userProvider.currentUser?.role == 'a') {
+        targetScreen = const AdminScreen();
+      } else if (userProvider.currentUser?.role == 'u') {
+        targetScreen = const UserScreen();
+      } else {
+        targetScreen = const OrganizerScreen();
+      }
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => targetScreen),
+      );
+    }
   }
-}
 }

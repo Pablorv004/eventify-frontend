@@ -1,12 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/admin/manage_users_screen.dart';
-import 'package:eventify/screens/login/login_screen.dart';
 import 'package:eventify/widgets/admin_screen_card.dart';
 import 'package:eventify/widgets/dialogs/_show_logout_confirmation_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AdminScreen extends StatelessWidget {
   const AdminScreen({super.key});

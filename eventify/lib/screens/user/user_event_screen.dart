@@ -1,5 +1,6 @@
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/widgets/event_card.dart';
+import 'package:eventify/widgets/user_event_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,7 @@ class _UserEventScreenState extends State<UserEventScreen> {
           itemCount: eventProvider.filteredEventList.length,
           itemBuilder: (context, index) {
             final event = eventProvider.filteredEventList[index];
-            return EventCard(event: event);
+            return UserEventCard(event: event);
           },
         ),
       ),
