@@ -36,7 +36,9 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         eventList = fetchResponse.data.map((event) => Event.fromFetchEventsJson(event)).toList();
         
         // Only show events that have not happened yet
-        filteredEventList = eventList.where((event) => event.startTime.isAfter(DateTime.now())).toList();
+        filteredEventList = eventList
+            .where((event) => event.startTime.isAfter(DateTime.now()) && !userEventList.contains(event))
+            .toList();
         fetchErrorMessage = null;
         sortEventsByTime();
       } else {
@@ -87,7 +89,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   /// This method filters the `eventList` to only include events that have not happened yet
   /// and updates the `filteredEventList`.
   void fetchUpcomingEvents() {
-    filteredEventList = eventList.where((event) => event.startTime.isAfter(DateTime.now())).toList();
+    filteredEventList = eventList.where((event) => event.startTime.isAfter(DateTime.now()) && !userEventList.contains(event)).toList();
     sortEventsByTime();
     notifyListeners();
   }
@@ -101,7 +103,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   /// - [category]: The category to filter events by.
   void fetchEventsByCategory(String category) {
     filteredEventList = eventList
-        .where((event) => event.category == category && event.startTime.isAfter(DateTime.now()))
+        .where((event) => event.category == category && event.startTime.isAfter(DateTime.now()) && !userEventList.contains(event))
         .toList();
     sortEventsByTime();
     notifyListeners();
