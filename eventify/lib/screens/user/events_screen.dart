@@ -1,5 +1,5 @@
 import 'package:eventify/providers/event_provider.dart';
-import 'package:eventify/providers/user_provider.dart'; // Add this line
+import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/widgets/event_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

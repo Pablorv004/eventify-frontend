@@ -4,6 +4,7 @@ import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/category.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/screens/user/events_screen.dart';
+import 'package:eventify/screens/user/report_screen.dart';
 import 'package:eventify/screens/user/user_events_screen.dart';
 import 'package:eventify/widgets/dialogs/_show_logout_confirmation_dialog.dart';
 import 'package:eventify/widgets/expandable_fab_button.dart';
@@ -21,7 +22,7 @@ class UserScreen extends StatefulWidget {
 
 class _UserScreenState extends State<UserScreen> {
   final PageController _pageController = PageController(initialPage: 0);
-  final List<Widget> screenList = [const EventsScreen(), const UserEventsScreen()];
+  final List<Widget> screenList = [const EventsScreen(), const UserEventsScreen(), const ReportScreen()];
   int currentScreenIndex = 0;
 
   @override
@@ -82,7 +83,6 @@ class _UserScreenState extends State<UserScreen> {
 
           // Bottom Navigation Bar
           bottomNavigationBar: Container(
-
             padding: const EdgeInsets.only(bottom: 5, right: 5, left: 5),
             decoration: BoxDecoration(
               boxShadow: [
@@ -102,12 +102,11 @@ class _UserScreenState extends State<UserScreen> {
                 items: [
                   createNavigationBarItem('Upcoming Events', 0),
                   createNavigationBarItem('My Events', 1),
+                  createNavigationBarItem('Reports', 2),
                 ],
                 currentIndex: currentScreenIndex,
                 onTap: (index) {
-                  setState(() {
-                    _onBottomNavTapped(index);
-                  });
+                  _pageController.jumpToPage(index);
                 },
                 elevation: 20.0,
               ),
@@ -137,13 +136,15 @@ class _UserScreenState extends State<UserScreen> {
   );
 }
 
-//Method to set the icon of the elements in the bottom navigation bar
+// Method to set the icon of the elements in the bottom navigation bar
 IconData getIcon(int index) {
   switch (index) {
     case 0:
       return Icons.event;
     case 1:
       return Icons.event_available;
+    case 2:
+      return Icons.description;
     default:
       return Icons.text_format;
   }
@@ -176,14 +177,6 @@ IconData getIcon(int index) {
     setState(() {
       currentScreenIndex = index;
     });
-  }
-
-  void _onBottomNavTapped(int index) {
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
   }
 
   getExpandableFabButtons(List<Category> categoryList) {
