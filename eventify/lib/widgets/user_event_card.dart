@@ -1,11 +1,13 @@
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/event.dart';
+import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/widgets/dialogs/_show_event_info_dialog.dart';
 import 'package:flutter/material.dart';
 
 class UserEventCard extends StatelessWidget {
   final Event event;
-  const UserEventCard({super.key, required this.event});
+  final EventProvider eventProvider;
+  const UserEventCard({super.key, required this.event, required this.eventProvider});
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +55,12 @@ class UserEventCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    event.title,
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      event.title,
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
                   ),
                   const SizedBox(height: 5),
                   Row(
@@ -90,37 +95,61 @@ class UserEventCard extends StatelessWidget {
               ),
             ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+            Card(
+              margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+              color: const Color.fromARGB(255, 246, 246, 246),
+              elevation: 5,
+              shadowColor: Colors.grey.withOpacity(0.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        elevation: 3,
+                        backgroundColor: const Color.fromARGB(255, 241, 84, 97)
+                      ),
+                      onPressed: () {
+                        // TODO: IMPLEMENT USER REMOVING FROM EVENT
+                      },
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('I can\'t go'),
+                          SizedBox(width: 5),
+                          Text('😔'),
+                        ],
+                      ),
                     ),
-                    backgroundColor: Colors.red
-                  ),
-                  onPressed: (){
-                    // TODO: IMPLEMENT USER UNREGISTER FROM AN EVENT
-                  },
-                  child: Text('I can\'t go, sorry!')
-                ),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+
+                    SizedBox(width: 5),
+
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 3,
+                        backgroundColor: const Color.fromARGB(255, 114, 145, 247),
+                      ),
+                      onPressed: (){
+                        showEventDialogInfo(context, event);
+                      },
+                      child: const Text('More Info')
                     ),
-                    backgroundColor: Colors.blue
-                  ),
-                  onPressed: (){
-                    showEventDialogInfo(context, event);
-                  },
-                  child: Text('More Info')
+                  ],
                 ),
-              ],
+              ),
             ),
 
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
           ],
         ),
       ),
