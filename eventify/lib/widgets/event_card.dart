@@ -1,10 +1,13 @@
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/event.dart';
+import 'package:eventify/providers/event_provider.dart';
+import 'package:eventify/widgets/dialogs/_show_event_info_dialog.dart';
 import 'package:flutter/material.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;
-  const EventCard({super.key, required this.event});
+  final EventProvider eventProvider;
+  const EventCard({super.key, required this.event, required this.eventProvider});
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +55,12 @@ class EventCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    event.title,
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      event.title,
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
                   ),
                   const SizedBox(height: 5),
                   Row(
@@ -88,6 +94,56 @@ class EventCard extends StatelessWidget {
                 ],
               ),
             ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                mainAxisAlignment: eventProvider.userEventList.contains(event) ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
+                children: [
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      elevation: 5,
+                      backgroundColor: eventProvider.userEventList.contains(event) ? const Color.fromARGB(255, 241, 84, 97) : const Color.fromARGB(255, 114, 145, 247),
+                    ),
+                    onPressed: () {
+                      // TODO: IMPLEMENT ADD/REMOVE USER EVENT
+                      // TODO: REMEMBER TO CREATE DIALOGS FOR ASKING THE USER IF THEY ARE SURE THEY WANT TO ADD/REMOVE THE EVENT
+                      // TODO: eventProvider.userEventList.contains(event) ? eventProvider.removeUserEvent(event) : eventProvider.addUserEvent(event);
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(eventProvider.userEventList.contains(event) ? 'I can\'t go!' : 'Count with me!'),
+                        SizedBox(width: 5),
+                        Text(eventProvider.userEventList.contains(event) ? '😔' : '😀'),
+                      ],
+                    ),
+                  ),
+            
+                  SizedBox(width: 5),
+                  
+                  if(eventProvider.userEventList.contains(event))
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 5,
+                        backgroundColor: const Color.fromARGB(255, 114, 145, 247),
+                      ),
+                      onPressed: (){
+                        showEventDialogInfo(context, event);
+                      },
+                      child: const Text('More Info')
+                    ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
           ],
         ),
       ),
@@ -106,7 +162,7 @@ class EventCard extends StatelessWidget {
             ),
           ),
           child: Center(
-            child: Icon(chooseIcon(), color: chooseCardBorderColor(), size: 52),
+            child: Icon(chooseIcon(), color: chooseCardBorderColor(), size: 45),
           ),
         ),
       )
