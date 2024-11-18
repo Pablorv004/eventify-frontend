@@ -129,12 +129,24 @@ class _UserScreenState extends State<UserScreen> {
       ),
       padding: const EdgeInsets.all(8),
       child: Icon(
-        index == 0 ? Icons.event : Icons.access_time, // This will change when there are more screens (we will need a method to determine the icon)
+        getIcon(index),
         color: currentScreenIndex == index ? Colors.white : Colors.black,
       ),
     ),
     label: title,
   );
+}
+
+//Method to set the icon of the elements in the bottom navigation bar
+IconData getIcon(int index) {
+  switch (index) {
+    case 0:
+      return Icons.event;
+    case 1:
+      return Icons.event_available;
+    default:
+      return Icons.text_format;
+  }
 }
 
   FutureBuilder<List<Widget>> buildFloatingActionButton(BuildContext context) {
