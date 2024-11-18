@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSwatch().copyWith(
             primary: AppColors.deepOrange,
+            secondary: AppColors.lightOrange,
           ),
           buttonTheme: const ButtonThemeData(
             buttonColor: AppColors.deepOrange,

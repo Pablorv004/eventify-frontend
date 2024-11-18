@@ -29,4 +29,18 @@ class EventService {
     );
     return FetchResponse.fromJson(json.decode(response.body));
   }
+
+  Future<FetchResponse> fetchEventsByUser(String token, int userId) async {
+    final url = Uri.parse('https://eventify.allsites.es/public/api/events/user');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'id': userId.toString(),
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    return FetchResponse.fromJson(json.decode(response.body));
+  }
 }

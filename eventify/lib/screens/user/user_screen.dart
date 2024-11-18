@@ -3,10 +3,8 @@
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/category.dart';
 import 'package:eventify/providers/event_provider.dart';
-import 'package:eventify/providers/user_provider.dart';
-import 'package:eventify/screens/login/login_screen.dart';
-import 'package:eventify/screens/temporal/coming_soon_screen.dart';
-import 'package:eventify/screens/user/user_event_screen.dart';
+import 'package:eventify/screens/user/events_screen.dart';
+import 'package:eventify/screens/user/user_events_screen.dart';
 import 'package:eventify/widgets/dialogs/_show_logout_confirmation_dialog.dart';
 import 'package:eventify/widgets/expandable_fab_button.dart';
 import 'package:eventify/widgets/filter_button.dart';
@@ -23,7 +21,7 @@ class UserScreen extends StatefulWidget {
 
 class _UserScreenState extends State<UserScreen> {
   final PageController _pageController = PageController(initialPage: 0);
-  final List<Widget> screenList = [const UserEventScreen(), const ComingSoonScreen()];
+  final List<Widget> screenList = [const EventsScreen(), const UserEventsScreen()];
   int currentScreenIndex = 0;
 
   @override
@@ -102,8 +100,8 @@ class _UserScreenState extends State<UserScreen> {
               child: BottomNavigationBar(
                 iconSize: 30,
                 items: [
-                  createNavigationBarItem('Events', 0),
-                  createNavigationBarItem('Coming Soon', 1),
+                  createNavigationBarItem('Upcoming Events', 0),
+                  createNavigationBarItem('My Events', 1),
                 ],
                 currentIndex: currentScreenIndex,
                 onTap: (index) {
@@ -131,12 +129,24 @@ class _UserScreenState extends State<UserScreen> {
       ),
       padding: const EdgeInsets.all(8),
       child: Icon(
-        index == 0 ? Icons.event : Icons.access_time, // This will change when there are more screens (we will need a method to determine the icon)
+        getIcon(index),
         color: currentScreenIndex == index ? Colors.white : Colors.black,
       ),
     ),
     label: title,
   );
+}
+
+//Method to set the icon of the elements in the bottom navigation bar
+IconData getIcon(int index) {
+  switch (index) {
+    case 0:
+      return Icons.event;
+    case 1:
+      return Icons.event_available;
+    default:
+      return Icons.text_format;
+  }
 }
 
   FutureBuilder<List<Widget>> buildFloatingActionButton(BuildContext context) {

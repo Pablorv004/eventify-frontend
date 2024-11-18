@@ -6,7 +6,7 @@ class ComingSoonScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text('Coming Soon!', style: const TextStyle(fontSize: 30),),
+      child: Text('Coming Soon!', style: TextStyle(fontSize: 30),),
     );
   }
 }
