@@ -10,6 +10,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   final AuthService authService;
   List<Event> eventList = [];
   List<Event> filteredEventList = [];
+  List<Event> userEventList = [];
   List<Category> categoryList = [];
   String? fetchErrorMessage;
 
@@ -47,6 +48,39 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Fetches events by user.
+  /// Has the user id as a parameter.
+  /// This method calls the `fetchEventsByUser` method from `eventsService` to retrieve the list of events created by the user.
+  /// If fetching is successful, it updates the `eventList` and `filteredEventList` with the retrieved events.
+  Future <void> fetchEventsByUser(int userId) async {
+    try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+
+      FetchResponse fetchResponse = await eventsService.fetchEventsByUser(token, userId);
+
+      if (fetchResponse.success) {
+        eventList = fetchResponse.data.map((event) => Event.fromFetchEventsJson(event)).toList();
+        
+        // Only show events that have not happened yet
+        userEventList = eventList.where((event) => event.startTime.isAfter(DateTime.now())).toList();
+        fetchErrorMessage = null;
+        sortEventsByTime();
+      } else {
+        fetchErrorMessage = fetchResponse.message;
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Fetching error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+  }
+  
 
   /// Fetches upcoming events.
   ///

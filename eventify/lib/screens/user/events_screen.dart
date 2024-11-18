@@ -3,14 +3,14 @@ import 'package:eventify/widgets/event_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class UserEventScreen extends StatefulWidget {
-  const UserEventScreen({super.key});
+class EventsScreen extends StatefulWidget {
+  const EventsScreen({super.key});
 
   @override
-  _UserEventScreenState createState() => _UserEventScreenState();
+  _EventsScreenState createState() => _EventsScreenState();
 }
 
-class _UserEventScreenState extends State<UserEventScreen> {
+class _EventsScreenState extends State<EventsScreen> {
   @override
   void initState() {
     super.initState();
