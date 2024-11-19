@@ -40,7 +40,7 @@ class _UserEventsScreenState extends State<UserEventsScreen> {
           itemCount: eventProvider.userEventList.length,
           itemBuilder: (context, index) {
             final event = eventProvider.userEventList[index];
-            return EventCard(event: event);
+            return EventCard(event: event, eventProvider: eventProvider,);
           },
         ),
       ),
