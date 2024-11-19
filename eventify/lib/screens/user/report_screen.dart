@@ -35,7 +35,7 @@ class _ReportScreenState extends State<ReportScreen> {
         eventProvider.categoryList.map((category) => category.name).toList();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 100),
+      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 160),
       child: Card(
         color: Colors.white,
         elevation: 10,
@@ -51,6 +51,17 @@ class _ReportScreenState extends State<ReportScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Center(
+                child: Text(
+                  'Generate Report',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               const Text(
                 'Starts after...',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -117,23 +128,26 @@ class _ReportScreenState extends State<ReportScreen> {
                 'Event Types',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              ListView(
-                shrinkWrap: true,
-                children: eventTypes.map((type) {
-                  return CheckboxListTile(
-                    title: Text(type),
-                    value: selectedEventTypes.contains(type),
-                    onChanged: (bool? value) {
-                      setState(() {
-                        if (value == true) {
-                          selectedEventTypes.add(type);
-                        } else {
-                          selectedEventTypes.remove(type);
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
+              SizedBox(
+                height: 230,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: eventTypes.map((type) {
+                    return CheckboxListTile(
+                      title: Text(type),
+                      value: selectedEventTypes.contains(type),
+                      onChanged: (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            selectedEventTypes.add(type);
+                          } else {
+                            selectedEventTypes.remove(type);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
