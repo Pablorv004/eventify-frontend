@@ -117,13 +117,13 @@ class EventCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(eventProvider.userEventList.contains(event) ? 'I can\'t go!' : 'Count with me!'),
-                        SizedBox(width: 5),
+                        const SizedBox(width: 5),
                         Text(eventProvider.userEventList.contains(event) ? '😔' : '😀'),
                       ],
                     ),
                   ),
             
-                  SizedBox(width: 5),
+                  const SizedBox(width: 5),
                   
                   if(eventProvider.userEventList.contains(event))
                     FilledButton(
