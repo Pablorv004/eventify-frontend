@@ -1,8 +1,11 @@
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/event.dart';
+import 'package:eventify/domain/models/user.dart';
 import 'package:eventify/providers/event_provider.dart';
+import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/widgets/dialogs/_show_event_info_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;
@@ -109,9 +112,35 @@ class EventCard extends StatelessWidget {
                       backgroundColor: eventProvider.userEventList.contains(event) ? const Color.fromARGB(255, 241, 84, 97) : const Color.fromARGB(255, 114, 145, 247),
                     ),
                     onPressed: () {
-                      // TODO: IMPLEMENT ADD/REMOVE USER EVENT
-                      // TODO: REMEMBER TO CREATE DIALOGS FOR ASKING THE USER IF THEY ARE SURE THEY WANT TO ADD/REMOVE THE EVENT
-                      // TODO: eventProvider.userEventList.contains(event) ? eventProvider.removeUserEvent(event) : eventProvider.addUserEvent(event);
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text(eventProvider.userEventList.contains(event) ? 'Unregister from Event' : 'Register for Event'),
+                          content: Text(eventProvider.userEventList.contains(event)
+                              ? 'Are you sure you want to unregister from this event?'
+                              : 'Are you sure you want to register for this event?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                User user = context.read<UserProvider>().currentUser!;
+                                eventProvider.userEventList.contains(event)
+                                    ? eventProvider.unregisterUserFromEvent(user.id, event.id)
+                                    : eventProvider.registerUserToEvent(user.id, event.id);
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Confirm'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
                     },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
