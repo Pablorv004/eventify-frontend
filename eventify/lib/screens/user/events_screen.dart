@@ -33,9 +33,9 @@ class _EventsScreenState extends State<EventsScreen> {
       child: RefreshIndicator(
         onRefresh: () { return eventProvider.fetchEvents(); },
         child: ListView.builder(
-          itemCount: eventProvider.filteredEventList.length,
+          itemCount: eventProvider.eventList.length,
           itemBuilder: (context, index) {
-            final event = eventProvider.filteredEventList[index];
+            final event = eventProvider.eventList[index];
             return EventCard(event: event, eventProvider: eventProvider,);
           },
         ),

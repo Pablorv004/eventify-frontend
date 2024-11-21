@@ -32,12 +32,10 @@ class EventService {
   }
 
   Future<FetchResponse> fetchEventsByUser(String token, int userId) async {
-    final url = Uri.parse('https://eventify.allsites.es/public/api/events/user');
-
-    final response = await http.get(
+    final url = Uri.parse('https://eventify.allsites.es/public/api/eventsByUser?id=$userId');
+    final response = await http.post(
       url,
       headers: {
-        'id': userId.toString(),
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
       },

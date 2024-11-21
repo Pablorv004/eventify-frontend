@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:eventify/domain/models/event.dart';
 import 'package:eventify/domain/models/category.dart';
@@ -12,7 +11,6 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   final EventService eventsService;
   final AuthService authService;
   List<Event> eventList = [];
-  List<Event> filteredEventList = [];
   List<Event> userEventList = [];
   List<Category> categoryList = [];
   String? fetchErrorMessage;
@@ -36,11 +34,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
 
       if (fetchResponse.success) {
         eventList = fetchResponse.data
-            .map((event) => Event.fromFetchEventsJson(event))
-            .toList();
-        // Only show events that have not happened yet
-        filteredEventList = eventList
-            .where((event) => event.startTime.isAfter(DateTime.now()))
+            .map((event) => Event.fromFetchEventsJson(event)).where((event) => event.startTime.isAfter(DateTime.now()))
             .toList();
         removeUserEvents();
         fetchErrorMessage = null;
@@ -67,18 +61,12 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         notifyListeners();
         return;
       }
-
       FetchResponse fetchResponse =
           await eventsService.fetchEventsByUser(token, userId);
-
       if (fetchResponse.success) {
-        eventList = fetchResponse.data
-            .map((event) => Event.fromFetchEventsJson(event))
-            .toList();
-
         // Only show events that have not happened yet
-        userEventList = eventList
-            .where((event) => event.startTime.isAfter(DateTime.now()))
+        userEventList = fetchResponse.data
+            .map((event) => Event.fromFetchEventsByUserJson(event))
             .toList();
         fetchErrorMessage = null;
         sortEventsByTime();
@@ -107,14 +95,14 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   /// This is to prevent the user from registering to the same event multiple times.
   void removeUserEvents() {
     List<Event> eventsToRemove = [];
-    for (Event event in filteredEventList) {
+    for (Event event in eventList) {
       for (Event userEvent in userEventList) {
         if (event.id == userEvent.id) {
           eventsToRemove.add(event);
         }
       }
     }
-    filteredEventList.removeWhere((event) => eventsToRemove.contains(event));
+    eventList.removeWhere((event) => eventsToRemove.contains(event));
   }
 
   /// Fetches events by category.
@@ -125,10 +113,9 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   /// ### Parameters
   /// - [category]: The category to filter events by.
   void fetchEventsByCategory(String category) {
-    filteredEventList = eventList
+    eventList
         .where((event) =>
-            event.category == category &&
-            event.startTime.isAfter(DateTime.now()))
+            event.category == category )
         .toList();
     removeUserEvents();
     sortEventsByTime();
@@ -146,7 +133,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   ///
   /// This method sorts the `filteredEventList` by the start time of the events in ascending order.
   void sortEventsByTime() {
-    filteredEventList.sort((a, b) => a.startTime.compareTo(b.startTime));
+    eventList.sort((a, b) => a.startTime.compareTo(b.startTime));
   }
 
   /// Fetches all categories.
@@ -196,10 +183,8 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
           await eventsService.registerUserToEvent(token, userId, eventId);
 
       if (authResponse.success) {
-        Event registeredEvent =
-            eventList.firstWhere((event) => event.id == eventId);
-        userEventList.add(registeredEvent);
-        filteredEventList.remove(registeredEvent);
+        await fetchEventsByUser(userId);
+        removeUserEvents();
         sortEventsByTime();
         fetchErrorMessage = null;
       } else {
@@ -229,7 +214,8 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
           await eventsService.unregisterUserFromEvent(token, userId, eventId);
 
       if (authResponse.success) {
-        userEventList.removeWhere((event) => event.id == eventId);
+        await fetchEventsByUser(userId);
+        removeUserEvents();
         fetchErrorMessage = null;
       } else {
         fetchErrorMessage = authResponse.message;
