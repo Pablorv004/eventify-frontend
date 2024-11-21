@@ -64,14 +64,8 @@ class ExpandableFabButton extends StatelessWidget {
     switch (category_name) {
       case 'Clear filter':
         return () => eventProvider.clearFilter();
-      case 'Technology':
-        return () => eventProvider.fetchEventsByCategory('Technology');
-      case 'Sport':
-        return () => eventProvider.fetchEventsByCategory('Sport');
-      case 'Music':
-        return () => eventProvider.fetchEventsByCategory('Music');
       default:
-        return () => print('Unknown category');
+        return () => eventProvider.fetchEventsByCategory(category_name);
     }
   }
 }

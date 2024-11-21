@@ -102,7 +102,7 @@ class _UserScreenState extends State<UserScreen> {
                 items: [
                   createNavigationBarItem('Upcoming Events', 0),
                   createNavigationBarItem('My Events', 1),
-                  createNavigationBarItem('Reports', 2),
+                  createNavigationBarItem('Report', 2)
                 ],
                 currentIndex: currentScreenIndex,
                 onTap: (index) {

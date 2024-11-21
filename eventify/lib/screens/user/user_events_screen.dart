@@ -31,7 +31,6 @@ class _UserEventsScreenState extends State<UserEventsScreen> {
     if (userId == null) {
       return const Center(child: Text('User not logged in'));
     }
-
     return Padding(
       padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
       child: RefreshIndicator(

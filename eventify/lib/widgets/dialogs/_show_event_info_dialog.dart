@@ -41,7 +41,7 @@ void showEventDialogInfo(BuildContext context, Event event) {
                     child: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.8,
                       child: Image.network(
-                        event.imageUrl,
+                        event.imageUrl??'https://via.placeholder.com/150',
                         height: 200,
                         width: double.infinity,
                         fit: BoxFit.cover,
