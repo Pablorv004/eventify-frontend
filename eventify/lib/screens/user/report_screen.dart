@@ -1,6 +1,10 @@
 import 'package:eventify/providers/event_provider.dart';
+import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/utils/pdf_util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 
@@ -17,22 +21,39 @@ class _ReportScreenState extends State<ReportScreen> {
   List<String> selectedEventTypes = [];
 
   Future<void> _downloadPdf(EventProvider eventProvider) async {
-    final pdfDocument = await generatePdf(
-        startDate, endDate, selectedEventTypes, eventProvider);
+    final pdfDocument = await generatePdf(startDate, endDate, selectedEventTypes, eventProvider);
     final pdfFile = await writePdf(pdfDocument);
-    await Printing.sharePdf(
-        bytes: await pdfFile.readAsBytes(), filename: 'eventify_report.pdf');
+    await Printing.sharePdf(bytes: await pdfFile.readAsBytes(), filename: 'eventify_report.pdf');
   }
 
-  Future<void> _sendPdfByEmail() async {
-    // Send email functionality
+  Future<void> _sendPdfByEmail(EventProvider eventProvider, UserProvider userProvider) async {
+    final pdfDocument = await generatePdf(startDate, endDate, selectedEventTypes, eventProvider);
+    final pdfFile = await writePdf(pdfDocument);
+
+    // final smtpServer = SmtpServer('smtp.gmail.com', username: 'rafael.bcauth@gmail.com', password: 'irtl qzsx dmtm gupk');
+    final smtpServer = SmtpServer('smtp.gmail.com', username: dotenv.env['GMAIL_USERNAME'], password: dotenv.env['GMAIL_PASSWORD']);
+
+    final message = Message()
+      ..from = Address('rafael.bcauth@gmail.com', 'Rafael')
+      // ..recipients.add(userProvider.currentUser!.email)
+      ..recipients.add('rafael.beltrancaceres@gmail.com')
+      ..subject = 'Your Eventify Report'
+      ..text = 'Hello! Here is your Eventify report. Please find the attached PDF file.'
+      ..attachments.add(FileAttachment(pdfFile));
+
+    try {
+      final sendReport = await send(message, smtpServer);
+      print('Message sent');
+    } catch (e) {
+      print('Error occurred while sending email: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final eventProvider = context.read<EventProvider>();
-    final eventTypes =
-        eventProvider.categoryList.map((category) => category.name).toList();
+    final userProvider = context.read<UserProvider>();
+    final eventTypes = eventProvider.categoryList.map((category) => category.name).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 160),
@@ -82,15 +103,12 @@ class _ReportScreenState extends State<ReportScreen> {
                   }
                 },
                 child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(startDate != null
-                        ? startDate.toString()
-                        : 'Choose Date')),
+                    child: Text(startDate != null ? startDate.toString() : 'Choose Date')),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -113,14 +131,12 @@ class _ReportScreenState extends State<ReportScreen> {
                   }
                 },
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
-                      endDate != null ? endDate.toString() : 'Choose Date'),
+                  child: Text(endDate != null ? endDate.toString() : 'Choose Date'),
                 ),
               ),
               const SizedBox(height: 16),
@@ -157,12 +173,12 @@ class _ReportScreenState extends State<ReportScreen> {
                     child: const Text('Download PDF'),
                   ),
                   ElevatedButton(
-                    onPressed: _sendPdfByEmail,
+                    onPressed: () => _sendPdfByEmail(eventProvider, userProvider),
                     child: const Text('Send PDF by Email'),
                   ),
                 ],
               ),
-              const SizedBox(height: 16), // Add some padding at the bottom
+              const SizedBox(height: 16),
             ],
           ),
         ),
