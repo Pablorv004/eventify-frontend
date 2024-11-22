@@ -49,7 +49,7 @@ class Event {
       id: json['id'],
       title: json['title'],
       organizerId: json['organizer_id'],
-      category: json['category'],
+      category: json['category_name'],
       description: json['description'],
       startTime: DateTime.parse(json['start_time']),
       endTime: DateTime.parse(json['end_time']),
