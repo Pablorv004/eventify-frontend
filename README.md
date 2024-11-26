@@ -32,7 +32,14 @@ Eventify is a Flutter-based application designed to help users manage and attend
     flutter pub get
     ```
 
-3. **Run the application:**
+3. **Download or create .env file**
+
+   ```dart
+    GMAIL_USERNAME=yourgmailsmtpadress
+    GMAIL_PASSWORD=yourgmailsmtpapppassword
+    ```
+
+4. **Run the application:**
 
     ```bash
     flutter run
