@@ -129,44 +129,50 @@ class _EditUserState extends State<EditUser> {
                   
 
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      
-                      ElevatedButton(
-                        onPressed: () => _saveChanges(context),
-                        child: const Text('Save Name Change'),
-                      ),
-
-                      ElevatedButton(
-                        onPressed: () => _toggleActived(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: widget.user.actived == true
-                              ? Colors.white
-                              : AppColors.darkOrange,
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        
+                        ElevatedButton(
+                          onPressed: () => _saveChanges(context),
+                          child: const Text('Save Changes'),
                         ),
-                        child: Text(
-                          widget.user.actived == true ? 'Activated' : 'Activate',
-                          style: TextStyle(
-                            color: widget.user.actived == true
-                                ? AppColors.darkOrange
-                                : Colors.white,
+                        const SizedBox(width: 10,),
+                    
+                        ElevatedButton(
+                          onPressed: () => _toggleActived(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: widget.user.actived == true
+                                ? Colors.white
+                                : AppColors.darkOrange,
+                          ),
+                          child: Text(
+                            widget.user.actived == true ? 'Activated' : 'Activate',
+                            style: TextStyle(
+                              color: widget.user.actived == true
+                                  ? AppColors.darkOrange
+                                  : Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-
-                      ElevatedButton(
-                        onPressed: () => _deleteUser(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.darkOrange,
+                        const SizedBox(width: 10,),
+                    
+                        ElevatedButton(
+                          onPressed: () => _deleteUser(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.darkOrange,
+                          ),
+                          child: const Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
-                        child: const Text(
-                          'Delete',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      
-                    ],
+                        const SizedBox(width: 10,),
+                        
+                      ],
+                    ),
                   ),
 
 
