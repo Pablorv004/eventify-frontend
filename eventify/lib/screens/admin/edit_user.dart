@@ -126,13 +126,18 @@ class _EditUserState extends State<EditUser> {
                     thickness: 2,
                     color: AppColors.deepOrange,
                   ),
+                  
+
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
+                      
                       ElevatedButton(
                         onPressed: () => _saveChanges(context),
                         child: const Text('Save Name Change'),
                       ),
+
                       ElevatedButton(
                         onPressed: () => _toggleActived(context),
                         style: ElevatedButton.styleFrom(
@@ -149,6 +154,7 @@ class _EditUserState extends State<EditUser> {
                           ),
                         ),
                       ),
+
                       ElevatedButton(
                         onPressed: () => _deleteUser(context),
                         style: ElevatedButton.styleFrom(
@@ -159,8 +165,12 @@ class _EditUserState extends State<EditUser> {
                           style: TextStyle(color: Colors.white),
                         ),
                       ),
+                      
                     ],
                   ),
+
+
+
                   const Divider(
                     height: 32,
                     thickness: 2,
