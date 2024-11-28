@@ -32,7 +32,7 @@ Eventify is a Flutter-based application designed to help users manage and attend
     flutter pub get
     ```
 
-3. **Download or create .env file**
+3. **Download from Trello or create .env file**
 
    ```dart
     GMAIL_USERNAME=yourgmailsmtpadress
