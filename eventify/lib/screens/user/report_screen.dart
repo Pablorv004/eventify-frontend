@@ -24,6 +24,12 @@ class _ReportScreenState extends State<ReportScreen> {
     final pdfDocument = await generatePdf(startDate, endDate, selectedEventTypes, eventProvider);
     final pdfFile = await writePdf(pdfDocument);
     await Printing.sharePdf(bytes: await pdfFile.readAsBytes(), filename: 'eventify_report.pdf');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+      content: Text('PDF successfully downloaded!'),
+      backgroundColor: Colors.green,
+      ),
+    );
   }
 
   Future<void> _sendPdfByEmail(EventProvider eventProvider, UserProvider userProvider) async {
