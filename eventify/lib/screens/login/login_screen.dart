@@ -46,13 +46,13 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
       resizeToAvoidBottomInset: true,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 80),
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: AnimatedBuilder(
             animation: _animation,
             builder: (context, child) {
               return Container(
                 transform: Matrix4.translationValues(0, _animation.value, 0),
-                padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(20),

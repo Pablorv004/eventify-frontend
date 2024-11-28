@@ -30,15 +30,7 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
     final filteredUsers = _getFilteredUsers(userProvider);
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 249, 249, 249),
-      appBar: AppBar(
-        title: const Text(
-          'Manage Users',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-        backgroundColor: AppColors.vibrantOrange,
-      ),
+      backgroundColor: Colors.transparent,
       body: Column(
         children: [
           SingleChildScrollView(
