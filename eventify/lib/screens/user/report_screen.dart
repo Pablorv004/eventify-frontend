@@ -26,7 +26,7 @@ class _ReportScreenState extends State<ReportScreen> {
     await Printing.sharePdf(bytes: await pdfFile.readAsBytes(), filename: 'eventify_report.pdf');
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-      content: Text('PDF successfully downloaded!'),
+      content: Text('PDF successfully downloaded in Downloads folder.'),
       backgroundColor: Colors.green,
       ),
     );
