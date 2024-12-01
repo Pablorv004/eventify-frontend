@@ -37,10 +37,10 @@ class _ReportScreenState extends State<ReportScreen> {
     final pdfFile = await writePdf(pdfDocument);
 
     final smtpServer = SmtpServer('smtp.gmail.com', username: dotenv.env['GMAIL_USERNAME'], password: dotenv.env['GMAIL_PASSWORD']);
-
+    print(userProvider.currentUser!.email);
     final message = Message()
       ..from = const Address('rafael.bcauth@gmail.com', 'Rafael')
-      ..recipients.add('rafael.beltrancaceres@gmail.com')
+      ..recipients.add(userProvider.currentUser!.email)
       ..subject = 'Your Eventify Report'
       ..text = 'Hello! Here is your Eventify report. Please find the attached PDF file.'
       ..attachments.add(FileAttachment(pdfFile));

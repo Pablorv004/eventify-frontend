@@ -53,7 +53,7 @@ class LoginButton extends StatelessWidget {
       );
     } else {
       await Future.delayed(const Duration(milliseconds: 100));
-
+      userProvider.currentUser!.email = email;
       Widget targetScreen;
       if (userProvider.currentUser?.role == 'a') {
         targetScreen = const AdminScreen();
