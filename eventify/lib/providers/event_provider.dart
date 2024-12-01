@@ -1,4 +1,3 @@
-
 import 'package:eventify/domain/models/event.dart';
 import 'package:eventify/domain/models/category.dart';
 import 'package:eventify/domain/models/http_responses/auth_response.dart';
@@ -34,7 +33,8 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
 
       if (fetchResponse.success) {
         eventList = fetchResponse.data
-            .map((event) => Event.fromFetchEventsJson(event)).where((event) => event.startTime.isAfter(DateTime.now()))
+            .map((event) => Event.fromFetchEventsJson(event))
+            .where((event) => event.startTime.isAfter(DateTime.now()))
             .toList();
         removeUserEvents();
         fetchErrorMessage = null;
@@ -64,10 +64,11 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
       FetchResponse fetchResponse =
           await eventsService.fetchEventsByUser(token, userId);
       if (fetchResponse.success) {
-        // Only show events that have not happened yet
         userEventList = fetchResponse.data
             .map((event) => Event.fromFetchEventsByUserJson(event))
+            .where((event) => event.startTime.isAfter(DateTime.now()))
             .toList();
+
         fetchErrorMessage = null;
         sortEventsByTime();
       } else {
@@ -112,11 +113,9 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   ///
   /// ### Parameters
   /// - [category]: The category to filter events by.
-  void fetchEventsByCategory(String category) {
-    eventList
-        .where((event) =>
-            event.category == category )
-        .toList();
+  void fetchEventsByCategory(String category) async {
+    await fetchEvents();
+    eventList = eventList.where((event) => event.category == category).toList();
     removeUserEvents();
     sortEventsByTime();
     notifyListeners();

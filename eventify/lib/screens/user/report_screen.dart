@@ -47,6 +47,12 @@ class _ReportScreenState extends State<ReportScreen> {
 
     try {
       await send(message, smtpServer);
+      ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+      content: Text('PDF successfully sent!.'),
+      backgroundColor: Colors.green,
+      ),
+    );
     } catch (e) {
       e.toString();
     }
@@ -173,18 +179,18 @@ class _ReportScreenState extends State<ReportScreen> {
                     }).toList(),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => _downloadPdf(eventProvider),
-                      child: const Text('Download PDF'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => _sendPdfByEmail(eventProvider, userProvider),
-                      child: const Text('Send PDF by Email'),
-                    ),
-                  ],
+                Center(
+                  child: ElevatedButton(
+                  onPressed: () => _downloadPdf(eventProvider),
+                  child: const Text('Download PDF'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: ElevatedButton(
+                  onPressed: () => _sendPdfByEmail(eventProvider, userProvider),
+                  child: const Text('Send PDF by Email'),
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],
