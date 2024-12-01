@@ -3,7 +3,7 @@ class Event {
   final int? organizerId;
   final String title;
   final String? description;
-  final String category;
+  final String? category;
   final DateTime startTime;
   final DateTime? endTime;
   final String? location;
@@ -11,7 +11,7 @@ class Event {
   final double? longitude;
   final int? maxAttendees;
   final double? price;
-  final String imageUrl;
+  final String? imageUrl;
   final bool? deleted;
 
   Event({
@@ -19,7 +19,7 @@ class Event {
     this.organizerId,
     required this.title,
     this.description,
-    required this.category,
+    this.category,
     required this.startTime,
     this.endTime,
     this.location,
@@ -27,7 +27,7 @@ class Event {
     this.longitude,
     this.maxAttendees,
     this.price,
-    required this.imageUrl,
+    this.imageUrl,
     this.deleted,
   });
 
@@ -37,9 +37,24 @@ class Event {
       id: json['id'],
       title: json['title'],
       startTime: DateTime.parse(json['start_time']),
+      endTime: DateTime.parse(json['end_time']),
       imageUrl: json['image_url'],
       category: json['category'],
     );
   }
 
+  // ENDPOINT --> /EVENTS_BY_USER
+  factory Event.fromFetchEventsByUserJson(Map<String, dynamic> json) {
+    return Event(
+      id: json['id'],
+      title: json['title'],
+      organizerId: json['organizer_id'],
+      category: json['category_name'],
+      description: json['description'],
+      startTime: DateTime.parse(json['start_time']),
+      endTime: DateTime.parse(json['end_time']),
+      imageUrl: json['image_url'],
+      location: json['location'],
+    );
+  }
 }

@@ -1,94 +1,154 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:eventify/providers/user_provider.dart';
+import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/screens/admin/manage_users_screen.dart';
-import 'package:eventify/screens/login/login_screen.dart';
-import 'package:eventify/widgets/admin_screen_card.dart';
+import 'package:eventify/screens/temporal/coming_soon_screen.dart';
 import 'package:eventify/widgets/dialogs/_show_logout_confirmation_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-class AdminScreen extends StatelessWidget {
+class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
 
   @override
+  State<AdminScreen> createState() => _AdminScreenState();
+}
+
+class _AdminScreenState extends State<AdminScreen> {
+  final PageController _pageController = PageController(initialPage: 0);
+
+  int currentScreenIndex = 0;
+
+  final List<Widget> screenList = [
+    const ManageUsersScreen(),
+    const ComingSoonScreen()
+  ];
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Container containerTop = Container(
-      alignment: Alignment.centerLeft,
-      child: const Column(
-        children: [
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              'Hello, Admin!',
-              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-            ),
-          ),
-          SizedBox(height: 5),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'What will you do today?',
-              style: TextStyle(fontSize: 20),
-            ),
-          ),
-          Divider(
-            height: 20,
-            thickness: 2,
-            color: Colors.grey,
-          ),
-          AdminScreenCard(
-              title: "Manage Users",
-              description: "Manage activation, verification & user data.",
-              imageAsset: 'assets/images/manage-users.jpg',
-              destinationScreen: ManageUsersScreen()),
-          AdminScreenCard(
-              title: "Manage Events",
-              description: "Manage event data, attendance, and information.",
-              imageAsset: 'assets/images/manage-events.png',
-              destinationScreen: PlaceholderScreen()),
-        ],
-      ),
-    );
-
-
     return WillPopScope(
       onWillPop: () async {
         showLogoutConfirmationDialog(context);
         return Future.value(false);
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Image.asset('assets/images/eventify-text.png', height: 40),
-          actions: [
-            IconButton(
-                onPressed: () {
+          // AppBar
+          appBar: AppBar(
+            title: Padding(
+              padding: const EdgeInsets.only(bottom: 18),
+              child: Image.asset('assets/images/eventify-text.png', height: 50),
+            ),
+            actions: [
+              IconButton(
+                onPressed: (){
                   showLogoutConfirmationDialog(context);
                 },
-                icon: const Icon(Icons.logout))
-          ],
+              icon: const Icon(Icons.logout))
+            ],
+            elevation: 12.0,
+            shadowColor: Colors.black.withOpacity(0.5),
+            scrolledUnderElevation: 20,
+            centerTitle: true,
+            surfaceTintColor: Colors.transparent,
+          ),
+
+          // Body properties
+          extendBody: true,
+          backgroundColor: const Color.fromARGB(255, 240, 240, 240),
+
+          // Body
+          body: Stack(
+            children: [
+              // Background image
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/images/no-filter-events-background-image.jpg',
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+              // PageView
+              PageView(
+                physics: const NeverScrollableScrollPhysics(),
+                controller: _pageController,
+                onPageChanged: _onPageChanged,
+                children: screenList,
+              ),
+            ],
+          ),
+
+          // Bottom Navigation Bar
+          bottomNavigationBar: Container(
+            padding: const EdgeInsets.only(bottom: 5, right: 5, left: 5),
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
+            ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
+              child: BottomNavigationBar(
+                iconSize: 30,
+                items: [
+                  createNavigationBarItem('Manage Users', 0),
+                  createNavigationBarItem('Coming Soon!', 1),
+                ],
+                currentIndex: currentScreenIndex,
+                onTap: (index) {
+                  _pageController.jumpToPage(index);
+                },
+                elevation: 20.0,
+              ),
+            ),
+          ),
+    ));
+  }
+
+  BottomNavigationBarItem createNavigationBarItem(String title, int index) {
+    return BottomNavigationBarItem(
+      icon: Container(
+        decoration: BoxDecoration(
+          color: currentScreenIndex == index
+              ? AppColors.deepOrange
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14.0),
-          child: containerTop,
+        padding: const EdgeInsets.all(8),
+        child: Icon(
+          getIcon(index),
+          color: currentScreenIndex == index ? Colors.white : Colors.black,
         ),
       ),
+      label: title,
     );
   }
-}
 
-class PlaceholderScreen extends StatelessWidget {
-  const PlaceholderScreen({super.key});
+  // Method to set the icon of the elements in the bottom navigation bar
+  IconData getIcon(int index) {
+    switch (index) {
+      case 0:
+        return Icons.event;
+      case 1:
+        return Icons.event_available;
+      default:
+        return Icons.text_format;
+    }
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Placeholder Screen'),
-      ),
-      body: const Center(
-        child: Text('This is a placeholder screen.'),
-      ),
-    );
+  void _onPageChanged(int index) {
+    setState(() {
+      currentScreenIndex = index;
+    });
   }
 }

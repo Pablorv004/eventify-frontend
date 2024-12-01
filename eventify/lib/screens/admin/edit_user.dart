@@ -29,143 +29,164 @@ class _EditUserState extends State<EditUser> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      backgroundColor: AppColors.mediumOrange,
-      centerTitle: true,
-      title: const Text(
-        'Edit User',
-        style: TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-        ),
-      ),
-      ),
-      body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-        const SizedBox(height: 16),
-        Stack(
-          children: [
-          CircleAvatar(
-            radius: 100,
-            backgroundImage: widget.user.profilePicture != null &&
-                widget.user.profilePicture!.isNotEmpty
-              ? NetworkImage(widget.user.profilePicture!)
-              : const AssetImage(
-                  'assets/images/default_profile_image.png')
-                as ImageProvider,
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: CircleAvatar(
-            radius: 25,
-            backgroundColor: Colors.grey[100],
-            child: Icon(
-              widget.user.role == 'u'
-                ? Icons.person
-                : Icons.calendar_today,
-              color: AppColors.mediumOrange,
-              size: 30,
-            ),
-            ),
-          ),
-          ],
-        ),
-        const SizedBox(height: 32),
-        const Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-          'Name',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _nameController,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 20),
-          decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.darkOrange),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.amberOrange),
-          ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        const Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-          'Email',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          widget.user.email ?? '',
-          style: const TextStyle(fontSize: 20),
-        ),
-        const SizedBox(height: 32),
-        const Spacer(),
-        const Text(
-          'ACTIONS',
+        backgroundColor: AppColors.mediumOrange,
+        centerTitle: true,
+        title: const Text(
+          'Edit User',
           style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Roboto',
-          color: AppColors.deepOrange,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        const Divider(
-          height: 32,
-          thickness: 2,
-          color: AppColors.deepOrange,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-          ElevatedButton(
-            onPressed: () => _saveChanges(context),
-            child: const Text('Save Name Change'),
-          ),
-          ElevatedButton(
-            onPressed: () => _toggleActived(context),
-            style: ElevatedButton.styleFrom(
-            backgroundColor: widget.user.actived == true
-              ? Colors.white
-              : AppColors.darkOrange,
-            ),
-            child: Text(
-            widget.user.actived == true ? 'Activated' : 'Activate',
-            style: TextStyle(
-              color: widget.user.actived == true
-                ? AppColors.darkOrange
-                : Colors.white,
-            ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => _deleteUser(context),
-            style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.darkOrange,
-            ),
-            child: const Text(
-            'Delete',
-            style: TextStyle(color: Colors.white),
-            ),
-          ),
-          ],
-        ),
-        const Divider(
-          height: 32,
-          thickness: 2,
-          color: AppColors.deepOrange,
-        ),
-        ],
       ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: constraints.maxWidth * 0.25,
+                        backgroundImage: widget.user.profilePicture != null &&
+                                widget.user.profilePicture!.isNotEmpty
+                            ? NetworkImage(widget.user.profilePicture!)
+                            : const AssetImage(
+                                    'assets/images/default_profile_image.png')
+                                as ImageProvider,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: constraints.maxWidth * 0.06,
+                          backgroundColor: Colors.grey[100],
+                          child: Icon(
+                            widget.user.role == 'u'
+                                ? Icons.person
+                                : Icons.calendar_today,
+                            color: AppColors.mediumOrange,
+                            size: constraints.maxWidth * 0.08,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Name',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _nameController,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 20),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: AppColors.darkOrange),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: AppColors.amberOrange),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Email',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    widget.user.email ?? '',
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(height: 32),
+                  const Text(
+                    'ACTIONS',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Roboto',
+                      color: AppColors.deepOrange,
+                    ),
+                  ),
+                  const Divider(
+                    height: 32,
+                    thickness: 2,
+                    color: AppColors.deepOrange,
+                  ),
+                  
+
+
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        
+                        ElevatedButton(
+                          onPressed: () => _saveChanges(context),
+                          child: const Text('Save Changes'),
+                        ),
+                        const SizedBox(width: 10,),
+                    
+                        ElevatedButton(
+                          onPressed: () => _toggleActived(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: widget.user.actived == true
+                                ? Colors.white
+                                : AppColors.darkOrange,
+                          ),
+                          child: Text(
+                            widget.user.actived == true ? 'Activated' : 'Activate',
+                            style: TextStyle(
+                              color: widget.user.actived == true
+                                  ? AppColors.darkOrange
+                                  : Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10,),
+                    
+                        ElevatedButton(
+                          onPressed: () => _deleteUser(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.darkOrange,
+                          ),
+                          child: const Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 10,),
+                        
+                      ],
+                    ),
+                  ),
+
+
+
+                  const Divider(
+                    height: 32,
+                    thickness: 2,
+                    color: AppColors.deepOrange,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -177,15 +198,14 @@ class _EditUserState extends State<EditUser> {
       _nameController.text,
     );
     await userProvider.fetchAllUsers();
-    showSnackBar(whatsUpdated: 'Name'
-    );
+    showSnackBar(whatsUpdated: 'Name');
   }
 
   void showSnackBar({required String whatsUpdated}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-      content: Text('$whatsUpdated updated successfully!'),
-      backgroundColor: Colors.green,
+        content: Text('$whatsUpdated updated successfully!'),
+        backgroundColor: Colors.green,
       ),
     );
   }
@@ -197,8 +217,7 @@ class _EditUserState extends State<EditUser> {
     setState(() {
       widget.user.actived = newValue;
     });
-    showSnackBar(whatsUpdated: 'Activation status'
-    );
+    showSnackBar(whatsUpdated: 'Activation status');
   }
 
   void _deleteUser(BuildContext context) async {

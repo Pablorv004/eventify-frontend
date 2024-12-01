@@ -23,7 +23,7 @@ class ExpandableFabButton extends StatelessWidget {
         FloatingActionButton.small(
           backgroundColor: getBackgroundColor(category_name),
           heroTag: null,
-          onPressed: getButtonAction(category_name, eventProvider),
+          onPressed: () => getButtonAction(category_name, eventProvider),
           child: getIcon(category_name),
         ),
       ],
@@ -63,15 +63,9 @@ class ExpandableFabButton extends StatelessWidget {
   getButtonAction(String category_name, EventProvider eventProvider) {
     switch (category_name) {
       case 'Clear filter':
-        return () => eventProvider.clearFilter();
-      case 'Technology':
-        return () => eventProvider.fetchEventsByCategory('Technology');
-      case 'Sport':
-        return () => eventProvider.fetchEventsByCategory('Sport');
-      case 'Music':
-        return () => eventProvider.fetchEventsByCategory('Music');
+        return eventProvider.clearFilter();
       default:
-        return () => print('Unknown category');
+        return eventProvider.fetchEventsByCategory(category_name);
     }
   }
 }
