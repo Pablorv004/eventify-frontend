@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
-import 'package:printing/printing.dart';
+import 'package:open_file/open_file.dart';
 import 'package:provider/provider.dart';
 
 class ReportScreen extends StatefulWidget {
@@ -23,7 +23,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> _downloadPdf(EventProvider eventProvider) async {
     final pdfDocument = await generatePdf(startDate, endDate, selectedEventTypes, eventProvider);
     final pdfFile = await writePdf(pdfDocument);
-    await Printing.sharePdf(bytes: await pdfFile.readAsBytes(), filename: 'eventify_report.pdf');
+    await OpenFile.open(pdfFile.path);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
       content: Text('PDF successfully downloaded in Downloads folder.'),
@@ -49,7 +49,7 @@ class _ReportScreenState extends State<ReportScreen> {
       await send(message, smtpServer);
       ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-      content: Text('PDF successfully sent!.'),
+      content: Text('PDF successfully sent!'),
       backgroundColor: Colors.green,
       ),
     );

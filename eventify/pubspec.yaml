@@ -42,6 +42,7 @@ dependencies:
   provider: ^6.1.2
   shared_preferences: ^2.3.3
   flutter_launcher_icons: ^0.14.1
+  open_file: ^3.2.1
 
 dev_dependencies:
   flutter_lints: ^4.0.0
