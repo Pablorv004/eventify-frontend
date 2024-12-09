@@ -11,6 +11,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   final AuthService authService;
   List<Event> eventList = [];
   List<Event> userEventList = [];
+  List<Event> organizerEventList = [];
   List<Category> categoryList = [];
   String? fetchErrorMessage;
 
@@ -95,10 +96,10 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         return;
       }
 
-      FetchResponse fetchResponse = await eventsService.fetchEventsByUser(token, organizerId);
+      FetchResponse fetchResponse = await eventsService.fetchEventsByOrganizer(token, organizerId);
 
       if (fetchResponse.success) {
-        userEventList = fetchResponse.data
+        organizerEventList = fetchResponse.data
             .map((event) => Event.fromFetchEventsByOrganizerJson(event))
             .where((event) => event.startTime.isAfter(DateTime.now()))
             .toList();
