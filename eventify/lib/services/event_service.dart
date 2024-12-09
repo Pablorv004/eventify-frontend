@@ -43,6 +43,18 @@ class EventService {
     return FetchResponse.fromJson(json.decode(response.body));
   }
 
+  Future<FetchResponse> fetchEventsByOrganizer(String token, int organizerId) async {
+    final url = Uri.parse('https://eventify.allsites.es/public/api/eventsByOrganizer?id=$organizerId');
+    final response = await http.post(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    return FetchResponse.fromJson(json.decode(response.body));
+  }
+
   Future<AuthResponse> registerUserToEvent(String token, int userId, int eventId) async{
     final url = Uri.parse('https://eventify.allsites.es/public/api/registerEvent');
     final response = await http.post(
