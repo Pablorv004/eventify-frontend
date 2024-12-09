@@ -25,7 +25,7 @@ class EventListCard extends StatelessWidget {
           onPressed: (context) {
             // TODO: implement navigation to event editing form
           },
-          backgroundColor: const Color.fromARGB(255, 255, 29, 33),
+          backgroundColor: const Color.fromARGB(255, 29, 101, 255),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
           autoClose: true,
@@ -41,11 +41,18 @@ class EventListCard extends StatelessWidget {
         ),
         color: Colors.white,
         child: ListTile(
-          leading: Image.network(
-            event.imageUrl ?? 'https://via.placeholder.com/150',
-            height: 200,
-            width: double.infinity,
-            fit: BoxFit.cover,
+          leading: SizedBox(
+            height: 50,
+            width: 50,
+            child: event.imageUrl != null && event.imageUrl!.isNotEmpty
+                ? Image.network(
+                    event.imageUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset('assets/images/app_logo.png', fit: BoxFit.cover);
+                    },
+                  )
+                : Image.asset('assets/images/app_logo.png', fit: BoxFit.cover),
           ),
           title: Text(
             event.title,
