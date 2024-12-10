@@ -11,6 +11,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   final AuthService authService;
   List<Event> eventList = [];
   List<Event> userEventList = [];
+  List<Event> organizerEventList = [];
   List<Category> categoryList = [];
   String? fetchErrorMessage;
 
@@ -66,6 +67,40 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
       if (fetchResponse.success) {
         userEventList = fetchResponse.data
             .map((event) => Event.fromFetchEventsByUserJson(event))
+            .where((event) => event.startTime.isAfter(DateTime.now()))
+            .toList();
+
+        fetchErrorMessage = null;
+        sortEventsByTime();
+      } else {
+        fetchErrorMessage = fetchResponse.message;
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Fetching error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  /// Fetches events organized by a specific organizer.
+  ///
+  /// This method retrieves events for a given organizer by their ID. It first
+  /// attempts to get an authentication token. If the token is not found, it sets
+  /// an error message and notifies listeners.
+  Future<void> fetchEventsByOrganizer(int organizerId) async {
+    try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+
+      FetchResponse fetchResponse = await eventsService.fetchEventsByOrganizer(token, organizerId);
+
+      if (fetchResponse.success) {
+        organizerEventList = fetchResponse.data
+            .map((event) => Event.fromFetchEventsByOrganizerJson(event))
             .where((event) => event.startTime.isAfter(DateTime.now()))
             .toList();
 

@@ -54,6 +54,17 @@ class _UserScreenState extends State<UserScreen> {
             scrolledUnderElevation: 20,
             centerTitle: true,
             surfaceTintColor: Colors.transparent,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10, right: 10),
+                child: IconButton(
+                  icon: const Icon(Icons.logout),
+                  onPressed: () {
+                    showLogoutConfirmationDialog(context);
+                  },
+                ),
+              ),
+            ],
           ),
 
           // Body properties
