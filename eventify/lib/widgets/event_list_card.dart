@@ -2,6 +2,7 @@
 
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/event.dart';
+import 'package:eventify/screens/organizer/organizer_event_form.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -23,14 +24,29 @@ class EventListCard extends StatelessWidget {
       endActionPane: ActionPane(motion: const ScrollMotion(), children: [
         SlidableAction(
           onPressed: (context) {
-            // TODO: implement navigation to event editing form
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OrganizerEventForm(event: event),
+              ),
+            );
           },
           backgroundColor: const Color.fromARGB(255, 29, 101, 255),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
           autoClose: true,
           icon: Icons.edit,
-        )
+        ),
+        SlidableAction(
+          onPressed: (context) {
+            //TODO: Implement deletion of event
+          },
+            backgroundColor: const Color.fromARGB(255, 255, 0, 0),
+          foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+          autoClose: true,
+          icon: Icons.delete,
+        ),
       ]),
       child: Card(
         margin: const EdgeInsets.all(5),

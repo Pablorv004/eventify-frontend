@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:eventify/config/app_colors.dart';
+import 'package:eventify/screens/organizer/organizer_event_form.dart';
 import 'package:eventify/screens/organizer/organizer_events_screen.dart';
 import 'package:eventify/screens/organizer/organizer_graph_screen.dart';
 import 'package:eventify/widgets/dialogs/_show_logout_confirmation_dialog.dart';
@@ -118,7 +119,12 @@ class _OrganizerScreenState extends State<OrganizerScreen> {
 
           // Floating action buttons
           floatingActionButton: currentScreenIndex == 0 ? 
-            FloatingActionButton(onPressed: () {}, backgroundColor: AppColors.deepOrange, child: const Icon(Icons.add),) : null
+            FloatingActionButton(onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const OrganizerEventForm(event: null,)),
+              );
+            }, backgroundColor: AppColors.deepOrange, child: const Icon(Icons.add),) : null
         ),
     );
   }
