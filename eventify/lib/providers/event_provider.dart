@@ -102,6 +102,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         organizerEventList = fetchResponse.data
             .map((event) => Event.fromFetchEventsByOrganizerJson(event))
             .where((event) => event.startTime.isAfter(DateTime.now()))
+            .where((event) => event.deleted == false) //TODO: Tell raul
             .toList();
 
         fetchErrorMessage = null;
@@ -267,7 +268,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
     }
   }
 
-  Future<void> updateEvent(Event event) async {
+  Future<void> updateEvent(Event event) async { //TODO: Tell raul
     try {
       String? token = await authService.getToken();
       if (token == null) {
@@ -275,9 +276,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         notifyListeners();
         return;
       }
-
       AuthResponse authResponse = await eventsService.updateEvent(token, event);
-
       if (authResponse.success) {
         await fetchEventsByOrganizer(event.organizerId!);
         fetchErrorMessage = null;
@@ -300,8 +299,8 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         return;
       }
 
-      AuthResponse authResponse = await eventsService.deleteEvent(token, event.id);
-
+      FetchResponse authResponse = await eventsService.deleteEvent(token, event.id);
+      
       if (authResponse.success) {
         await fetchEventsByOrganizer(event.organizerId!);
         fetchErrorMessage = null;

@@ -119,7 +119,7 @@ class EventService {
     return AuthResponse.fromJson(json.decode(response.body));
   }
 
-  Future<AuthResponse> deleteEvent(String token, int eventId) async {
+  Future<FetchResponse> deleteEvent(String token, int eventId) async {
     final url =
         Uri.parse('https://eventify.allsites.es/public/api/eventDelete');
     final response = await http.post(
@@ -132,7 +132,7 @@ class EventService {
         'id': eventId.toString(),
       },
     );
-    return AuthResponse.fromJson(json.decode(response.body));
+    return FetchResponse.fromJson(json.decode(response.body));
   }
 
   Future<AuthResponse> updateEvent(String token, Event event) async {
@@ -144,14 +144,19 @@ class EventService {
         'Authorization': 'Bearer $token',
       },
       body: {
+        'id': event.id.toString(),
         'organizer_id': event.organizerId.toString(),
         'title': event.title,
         'description': event.description,
         'category_id': event.category,
         'start_time': event.startTime.toIso8601String(),
-        'end_time': event.endTime?.toIso8601String(),
+        'end_time': event.endTime!.toIso8601String(),
         'location': event.location,
         'price': event.price.toString(),
+        'latitude': '0',
+        'longitude': '0',
+        'max_attendees': '0',
+        'image_url': event.imageUrl,
       },
     );
     return AuthResponse.fromJson(json.decode(response.body));

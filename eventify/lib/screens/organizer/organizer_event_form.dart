@@ -33,14 +33,14 @@ class _OrganizerEventFormState extends State<OrganizerEventForm> {
     _imageUrlController = TextEditingController(text: widget.event?.imageUrl ?? '');
     _startTime = widget.event?.startTime ?? DateTime.now();
     _endTime = widget.event?.endTime ?? DateTime.now().add(const Duration(hours: 1));
-    _selectedCategory = widget.event?.category;
+    _selectedCategory = widget.event?.category ?? 'Sport';
   }
 
   Future<void> _selectDateTime(BuildContext context, bool isStartTime) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: isStartTime ? _startTime : _endTime,
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2101),
     );
     if (pickedDate != null) {
@@ -96,9 +96,10 @@ class _OrganizerEventFormState extends State<OrganizerEventForm> {
                 controller: _descriptionController,
                 decoration: const InputDecoration(labelText: 'Description'),
               ),
+
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
-                items: eventProvider.categoryList.map((category) {
+                items: eventProvider.categoryList.toSet().map((category) {
                   return DropdownMenuItem<String>(
                     value: category.id.toString(),
                     child: Text(category.name),
@@ -135,6 +136,9 @@ class _OrganizerEventFormState extends State<OrganizerEventForm> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a price';
                   }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
                   return null;
                 },
               ),
@@ -142,19 +146,31 @@ class _OrganizerEventFormState extends State<OrganizerEventForm> {
                 controller: _imageUrlController,
                 decoration: const InputDecoration(labelText: 'Image URL'),
               ),
-                ListTile(
+              ListTile(
                 title: Text('Start Time: ${_startTime.toLocal().toString().split(' ')[0]} ${_startTime.toLocal().toString().split(' ')[1].substring(0, 5)}'),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () => _selectDateTime(context, true),
-                ),
-                ListTile(
+              ),
+              ListTile(
                 title: Text('End Time: ${_endTime.toLocal().toString().split(' ')[0]} ${_endTime.toLocal().toString().split(' ')[1].substring(0, 5)}'),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () => _selectDateTime(context, false),
-                ),
+              ),
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
+                    if (_startTime.isBefore(DateTime.now())) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Start time must be after today')),
+                      );
+                      return;
+                    }
+                    if (_startTime.isAfter(_endTime)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Start time must be before end time')),
+                      );
+                      return;
+                    }
                     final event = Event(
                       id: widget.event?.id ?? 0,
                       organizerId: userProvider.currentUser?.id,
