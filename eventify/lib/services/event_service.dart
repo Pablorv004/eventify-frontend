@@ -96,7 +96,7 @@ class EventService {
     return AuthResponse.fromJson(json.decode(response.body));
   }
 
-  Future<AuthResponse> createOrUpdateEvent(String token, Event event) async {
+  Future<AuthResponse> createEvent(String token, Event event) async {
     final url = Uri.parse('https://eventify.allsites.es/public/api/events');
     final response = await http.post(
       url,
@@ -130,6 +130,28 @@ class EventService {
       },
       body: {
         'id': eventId.toString(),
+      },
+    );
+    return AuthResponse.fromJson(json.decode(response.body));
+  }
+
+  Future<AuthResponse> updateEvent(String token, Event event) async {
+    final url = Uri.parse('https://eventify.allsites.es/public/api/eventUpdate');
+    final response = await http.post(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: {
+        'organizer_id': event.organizerId.toString(),
+        'title': event.title,
+        'description': event.description,
+        'category_id': event.category,
+        'start_time': event.startTime.toIso8601String(),
+        'end_time': event.endTime?.toIso8601String(),
+        'location': event.location,
+        'price': event.price.toString(),
       },
     );
     return AuthResponse.fromJson(json.decode(response.body));

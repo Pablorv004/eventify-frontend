@@ -167,7 +167,11 @@ class _OrganizerEventFormState extends State<OrganizerEventForm> {
                       price: double.tryParse(_priceController.text),
                       imageUrl: _imageUrlController.text,
                     );
-                    await eventProvider.createOrUpdateEvent(event);
+                    if (widget.event == null) {
+                      await eventProvider.createEvent(event);
+                    } else {
+                      await eventProvider.updateEvent(event);
+                    }
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Event saved successfully')),
                     );

@@ -245,7 +245,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
     }
   }
 
-  Future<void> createOrUpdateEvent(Event event) async {
+  Future<void> createEvent(Event event) async {
     try {
       String? token = await authService.getToken();
       if (token == null) {
@@ -253,7 +253,31 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         notifyListeners();
         return;
       }
-      AuthResponse authResponse = await eventsService.createOrUpdateEvent(token, event);
+      AuthResponse authResponse = await eventsService.createEvent(token, event);
+      if (authResponse.success) {
+        await fetchEventsByOrganizer(event.organizerId!);
+        fetchErrorMessage = null;
+      } else {
+        fetchErrorMessage = authResponse.message;
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateEvent(Event event) async {
+    try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+
+      AuthResponse authResponse = await eventsService.updateEvent(token, event);
+
       if (authResponse.success) {
         await fetchEventsByOrganizer(event.organizerId!);
         fetchErrorMessage = null;
