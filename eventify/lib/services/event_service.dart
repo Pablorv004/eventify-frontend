@@ -33,7 +33,8 @@ class EventService {
   }
 
   Future<FetchResponse> fetchEventsByUser(String token, int userId) async {
-    final url = Uri.parse('https://eventify.allsites.es/public/api/eventsByUser?id=$userId');
+    final url = Uri.parse(
+        'https://eventify.allsites.es/public/api/eventsByUser?id=$userId');
     final response = await http.post(
       url,
       headers: {
@@ -44,8 +45,10 @@ class EventService {
     return FetchResponse.fromJson(json.decode(response.body));
   }
 
-  Future<FetchResponse> fetchEventsByOrganizer(String token, int organizerId) async {
-    final url = Uri.parse('https://eventify.allsites.es/public/api/eventsByOrganizer?id=$organizerId');
+  Future<FetchResponse> fetchEventsByOrganizer(
+      String token, int organizerId) async {
+    final url = Uri.parse(
+        'https://eventify.allsites.es/public/api/eventsByOrganizer?id=$organizerId');
     final response = await http.post(
       url,
       headers: {
@@ -56,8 +59,10 @@ class EventService {
     return FetchResponse.fromJson(json.decode(response.body));
   }
 
-  Future<AuthResponse> registerUserToEvent(String token, int userId, int eventId) async{
-    final url = Uri.parse('https://eventify.allsites.es/public/api/registerEvent');
+  Future<AuthResponse> registerUserToEvent(
+      String token, int userId, int eventId) async {
+    final url =
+        Uri.parse('https://eventify.allsites.es/public/api/registerEvent');
     final response = await http.post(
       url,
       headers: {
@@ -71,10 +76,12 @@ class EventService {
       },
     );
     return AuthResponse.fromJson(json.decode(response.body));
-}
+  }
 
-  Future<AuthResponse> unregisterUserFromEvent(String token, int userId, int eventId) async{
-    final url = Uri.parse('https://eventify.allsites.es/public/api/unregisterEvent');
+  Future<AuthResponse> unregisterUserFromEvent(
+      String token, int userId, int eventId) async {
+    final url =
+        Uri.parse('https://eventify.allsites.es/public/api/unregisterEvent');
     final response = await http.post(
       url,
       headers: {
@@ -107,6 +114,22 @@ class EventService {
         'location': event.location,
         'price': event.price.toString(),
         'image_url': event.imageUrl,
+      },
+    );
+    return AuthResponse.fromJson(json.decode(response.body));
+  }
+
+  Future<AuthResponse> deleteEvent(String token, int eventId) async {
+    final url =
+        Uri.parse('https://eventify.allsites.es/public/api/eventDelete');
+    final response = await http.post(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: {
+        'id': eventId.toString(),
       },
     );
     return AuthResponse.fromJson(json.decode(response.body));

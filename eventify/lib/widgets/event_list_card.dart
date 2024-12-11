@@ -2,10 +2,12 @@
 
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/event.dart';
+import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/screens/organizer/organizer_event_form.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
 
 class EventListCard extends StatelessWidget {
   const EventListCard({
@@ -39,7 +41,35 @@ class EventListCard extends StatelessWidget {
         ),
         SlidableAction(
           onPressed: (context) {
-            //TODO: Implement deletion of event
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Confirm Deletion'),
+                content: const Text('Are you sure you want to delete this event?'),
+                actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                  Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                  context.read<EventProvider>().deleteEvent(event);
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                    content: Text('${event.title} has been deleted'),
+                    ),
+                  );
+                  },
+                  child: const Text('Delete'),
+                ),
+                ],
+              );
+              },
+            );
           },
             backgroundColor: const Color.fromARGB(255, 255, 0, 0),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
