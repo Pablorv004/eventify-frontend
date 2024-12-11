@@ -5,8 +5,21 @@ class OrganizerGraphScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Coming Soon!', style: TextStyle(fontSize: 30),),
+    return Column(
+      children: [
+        DropdownButton(
+          items: <String>['Option 1', 'Option 2', 'Option 3', 'Option 4'].map((String value) {
+            return DropdownMenuItem(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            // Handle change
+          },
+          hint: const Text('Select a category'),
+        )
+      ],
     );
   }
 }
