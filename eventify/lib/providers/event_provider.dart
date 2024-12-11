@@ -36,8 +36,8 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         eventList = fetchResponse.data
             .map((event) => Event.fromFetchEventsJson(event))
             .where((event) => event.startTime.isAfter(DateTime.now()))
+            .where((event) => !userEventList.any((userEvent) => userEvent.id == event.id))
             .toList();
-        removeUserEvents();
         fetchErrorMessage = null;
         sortEventsByTime();
       } else {
@@ -126,21 +126,6 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
     notifyListeners();
   }
 
-  /// Removes user events from the filtered event list.
-  /// This method removes events that the user has already registered to from the `filteredEventList`.
-  /// This is to prevent the user from registering to the same event multiple times.
-  void removeUserEvents() {
-    List<Event> eventsToRemove = [];
-    for (Event event in eventList) {
-      for (Event userEvent in userEventList) {
-        if (event.id == userEvent.id) {
-          eventsToRemove.add(event);
-        }
-      }
-    }
-    eventList.removeWhere((event) => eventsToRemove.contains(event));
-  }
-
   /// Fetches events by category.
   ///
   /// This method filters the `eventList` to only include events that belong to the specified category
@@ -151,7 +136,6 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   void fetchEventsByCategory(String category) async {
     await fetchEvents();
     eventList = eventList.where((event) => event.category == category).toList();
-    removeUserEvents();
     sortEventsByTime();
     notifyListeners();
   }
@@ -218,7 +202,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
 
       if (authResponse.success) {
         await fetchEventsByUser(userId);
-        removeUserEvents();
+        await fetchEvents();
         sortEventsByTime();
         fetchErrorMessage = null;
       } else {
@@ -249,7 +233,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
 
       if (authResponse.success) {
         await fetchEventsByUser(userId);
-        removeUserEvents();
+        await fetchEvents();
         fetchErrorMessage = null;
       } else {
         fetchErrorMessage = authResponse.message;

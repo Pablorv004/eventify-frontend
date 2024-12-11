@@ -98,7 +98,6 @@ class EventService {
         'Authorization': 'Bearer $token',
       },
       body: {
-        'id': event.id.toString(),
         'organizer_id': event.organizerId.toString(),
         'title': event.title,
         'description': event.description,
