@@ -35,16 +35,14 @@ class _OrganizerEventsScreenState extends State<OrganizerEventsScreen> {
         style: TextStyle(fontSize: 18, overflow: TextOverflow.ellipsis),
       ));
     }
-    return Expanded(
-      child: SlidableAutoCloseBehavior(
-        closeWhenOpened: true,
-        child: ListView.builder(
-          itemCount: eventProvider.organizerEventList.length,
-          itemBuilder: (context, index) {
-            final event = eventProvider.organizerEventList[index];
-            return EventListCard(event: event);
-          },
-        ),
+    return SlidableAutoCloseBehavior(
+      closeWhenOpened: true,
+      child: ListView.builder(
+        itemCount: eventProvider.organizerEventList.length,
+        itemBuilder: (context, index) {
+          final event = eventProvider.organizerEventList[index];
+          return EventListCard(event: event);
+        },
       ),
     );
   }

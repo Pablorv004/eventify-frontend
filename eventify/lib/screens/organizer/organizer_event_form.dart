@@ -1,10 +1,8 @@
 import 'package:eventify/domain/models/event.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/providers/user_provider.dart';
-import 'package:eventify/screens/organizer/organizer_events_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 class OrganizerEventForm extends StatefulWidget {
   const OrganizerEventForm({super.key, this.event});
@@ -144,16 +142,16 @@ class _OrganizerEventFormState extends State<OrganizerEventForm> {
                 controller: _imageUrlController,
                 decoration: const InputDecoration(labelText: 'Image URL'),
               ),
-              ListTile(
-                title: Text('Start Time: ${DateFormat('yyyy-MM-dd – kk:mm').format(_startTime)}'),
-                trailing: Icon(Icons.calendar_today),
+                ListTile(
+                title: Text('Start Time: ${_startTime.toLocal().toString().split(' ')[0]} ${_startTime.toLocal().toString().split(' ')[1].substring(0, 5)}'),
+                trailing: const Icon(Icons.calendar_today),
                 onTap: () => _selectDateTime(context, true),
-              ),
-              ListTile(
-                title: Text('End Time: ${DateFormat('yyyy-MM-dd – kk:mm').format(_endTime)}'),
-                trailing: Icon(Icons.calendar_today),
+                ),
+                ListTile(
+                title: Text('End Time: ${_endTime.toLocal().toString().split(' ')[0]} ${_endTime.toLocal().toString().split(' ')[1].substring(0, 5)}'),
+                trailing: const Icon(Icons.calendar_today),
                 onTap: () => _selectDateTime(context, false),
-              ),
+                ),
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
@@ -173,12 +171,7 @@ class _OrganizerEventFormState extends State<OrganizerEventForm> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Event saved successfully')),
                     );
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const OrganizerEventsScreen(),
-                      ),
-                    );
+                    Navigator.pop(context);
                   }
                 },
                 child: Text(widget.event == null ? 'Add Event' : 'Save Changes'),
