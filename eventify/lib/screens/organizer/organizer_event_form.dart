@@ -173,7 +173,7 @@ class _OrganizerEventFormState extends State<OrganizerEventForm> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Event saved successfully')),
                     );
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const OrganizerEventsScreen(),
