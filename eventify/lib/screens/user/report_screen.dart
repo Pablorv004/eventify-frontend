@@ -37,7 +37,6 @@ class _ReportScreenState extends State<ReportScreen> {
     final pdfFile = await writePdf(pdfDocument);
 
     final smtpServer = SmtpServer('smtp.gmail.com', username: dotenv.env['GMAIL_USERNAME'], password: dotenv.env['GMAIL_PASSWORD']);
-    print(userProvider.currentUser!.email);
     final message = Message()
       ..from = const Address('rafael.bcauth@gmail.com', 'Rafael')
       ..recipients.add(userProvider.currentUser!.email)

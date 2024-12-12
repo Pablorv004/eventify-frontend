@@ -95,16 +95,13 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         notifyListeners();
         return;
       }
-
       FetchResponse fetchResponse = await eventsService.fetchEventsByOrganizer(token, organizerId);
-
       if (fetchResponse.success) {
         organizerEventList = fetchResponse.data
             .map((event) => Event.fromFetchEventsByOrganizerJson(event))
             .where((event) => event.startTime.isAfter(DateTime.now()))
-            .where((event) => event.deleted == false) //TODO: Tell raul
+            .where((event) => event.deleted == false)
             .toList();
-
         fetchErrorMessage = null;
         sortEventsByTime();
       } else {
@@ -268,7 +265,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
     }
   }
 
-  Future<void> updateEvent(Event event) async { //TODO: Tell raul
+  Future<void> updateEvent(Event event) async {
     try {
       String? token = await authService.getToken();
       if (token == null) {

@@ -153,9 +153,9 @@ class EventService {
         'end_time': event.endTime!.toIso8601String(),
         'location': event.location,
         'price': event.price.toString(),
-        'latitude': '0',
-        'longitude': '0',
-        'max_attendees': '0',
+        'latitude': event.latitude.toString(),
+        'longitude': event.longitude.toString(),
+        'max_attendees': event.maxAttendees.toString(),
         'image_url': event.imageUrl,
       },
     );
