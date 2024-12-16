@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/category.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -24,14 +27,12 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 110, left: 40, right: 40),
+          padding: const EdgeInsets.only(left: 40, right: 40),
           child: DropdownButtonFormField(
             decoration: InputDecoration(
-              labelText: 'Category',
-              labelStyle: const TextStyle(
-                  color: Colors.black, fontWeight: FontWeight.bold),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -58,83 +59,155 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
             hint: Text(categorySelected),
           ),
         ),
+
         Container(
-          padding: const EdgeInsets.only(right: 38),
           margin: const EdgeInsets.only(top: 20),
-          height: 300,
-          child: BarChart(
-            BarChartData(
-              backgroundColor: Colors.white,
-              barGroups: [
-                BarChartGroupData(
-                  x: 0,
-                  barRods: [
-                    BarChartRodData(
-                      toY: 3,
-                      color: Colors.blue,
-                    ),
-                  ],
-                ),
-                BarChartGroupData(
-                  x: 1,
-                  barRods: [
-                    BarChartRodData(
-                      toY: 1,
-                      color: Colors.green,
-                    ),
-                  ],
-                ),
-                BarChartGroupData(
-                  x: 2,
-                  barRods: [
-                    BarChartRodData(
-                      toY: 2,
-                      color: Colors.red,
-                    ),
-                  ],
-                ),
-                BarChartGroupData(
-                  x: 3,
-                  barRods: [
-                    BarChartRodData(
-                      toY: 4,
-                      color: Colors.yellow,
-                    ),
-                  ],
-                ),
-              ],
-              titlesData: FlTitlesData(
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (double value, TitleMeta meta) {
-                      switch (value.toInt()) {
-                        case 0:
-                          return const Text('Bar 1');
-                        case 1:
-                          return const Text('Bar 2');
-                        case 2:
-                          return const Text('Bar 3');
-                        case 3:
-                          return const Text('Bar 4');
-                        default:
-                          return const Text('');
-                      }
-                    },
+          child: const Text(
+            'Attendance per month',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+        ),
+
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
+          child: Card(
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(color: AppColors.deepOrange, width: 1),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            elevation: 4,
+            child: Container(
+              padding: const EdgeInsets.only(bottom: 20),
+              margin: const EdgeInsets.only(top: 20),
+              height: 300,
+              child: Expanded(
+                child: BarChart(
+                  BarChartData(
+                    maxY: 8,
+                    barTouchData: barTouchData,
+                    backgroundColor: Colors.white,
+                    borderData: FlBorderData(show: false),
+                    barGroups: [
+                      BarChartGroupData(
+                        x: 0,
+                        barRods: [createBarChartRodData(1)],
+                        showingTooltipIndicators: [0],
+                      ),
+                      BarChartGroupData(
+                        x: 1,
+                        barRods: [createBarChartRodData(2)],
+                        showingTooltipIndicators: [0],
+                      ),
+                      BarChartGroupData(
+                        x: 2,
+                        barRods: [createBarChartRodData(3)],
+                        showingTooltipIndicators: [0],
+                      ),
+                      BarChartGroupData(
+                        x: 3,
+                        barRods: [createBarChartRodData(4)],
+                        showingTooltipIndicators: [0],
+                      ),
+                    ],
+                    titlesData: getTitlesData(),
+                    gridData: const FlGridData(show: false),
                   ),
-                ),
-                topTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                rightTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
+                  duration: const Duration(milliseconds: 150),
                 ),
               ),
             ),
-            duration: const Duration(milliseconds: 150),
           ),
         ),
       ],
+    );
+  }
+
+  FlTitlesData getTitlesData() {
+    return FlTitlesData(
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: true, getTitlesWidget: getTitles),
+        ),
+        topTitles: const AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        rightTitles: const AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        leftTitles: const AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ));
+  }
+
+  Widget getTitles(double value, TitleMeta meta) {
+    const TextStyle style = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 14,
+    );
+
+    String title;
+    switch (value.toInt()) {
+      case 0:
+        title = 'Month 1';
+        break;
+      case 1:
+        title = 'Month 2';
+        break;
+      case 2:
+        title = 'Month 3';
+        break;
+      case 3:
+        title = 'Month 4';
+        break;
+      default:
+        title = '';
+        break;
+    }
+
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      space: 7,
+      child: Text(title, style: style),
+    );
+  }
+
+  LinearGradient get _barsGradient => const LinearGradient(
+        colors: [
+          AppColors.darkOrange,
+          AppColors.softOrange,
+        ],
+        begin: Alignment.bottomCenter,
+        end: Alignment.topCenter,
+      );
+
+  BarTouchData get barTouchData => BarTouchData(
+        enabled: false,
+        touchTooltipData: BarTouchTooltipData(
+          getTooltipColor: (group) => Colors.transparent,
+          tooltipPadding: EdgeInsets.zero,
+          tooltipMargin: 8,
+          getTooltipItem: (
+            BarChartGroupData group,
+            int groupIndex,
+            BarChartRodData rod,
+            int rodIndex,
+          ) {
+            return BarTooltipItem(
+              rod.toY.round().toString(),
+              const TextStyle(
+                color: AppColors.darkOrange,
+                fontWeight: FontWeight.bold,
+              ),
+            );
+          },
+        ),
+      );
+
+  BarChartRodData createBarChartRodData(int position) {
+    return BarChartRodData(
+      toY: Random().nextInt(7) +
+          1, // Here must go the number of users that attended
+      width: 15,
+      gradient: _barsGradient,
     );
   }
 }
