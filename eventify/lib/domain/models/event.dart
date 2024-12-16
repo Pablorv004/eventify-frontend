@@ -71,6 +71,7 @@ class Event {
       imageUrl: json['image_url'],
       location: json['location'],
       price: json['price'] != null ? double.parse(json['price'].toString()) : null,
+      deleted: json['deleted'] == 1,
     );
   }
 }
