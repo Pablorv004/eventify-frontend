@@ -53,12 +53,12 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
     }
   }
 
-  /// Fetches the amount of attendees per month of all events from the last duration months.
+  /// Fetches the amount of attendees per month of all events from the last 4 months excluding this one.
   /// This method calls the `fetchEventsByOrganizer` method from `eventsService` to retrieve the list of events made by the organizer.
   /// This method will be compared with the `fetchEventsByUser` method which will be inside a loop for each user using `fetchAllUsers` method from `userService`.
-  /// If the fetching is successful, it'll return a map with the amount of attendees per month of all events by the organizer from the last duration months.
+  /// If the fetching is successful, it'll return a map with the amount of attendees per month of all events by the organizer from the last 4 months excluding this one.
   Future<Map<String, int>> fetchAttendeesPerMonth(
-      int organizerId, int duration, UserProvider userProvider, String category) async {
+      int organizerId, UserProvider userProvider, String category) async {
     try {
       String? token = await authService.getToken();
       if (token == null) {
@@ -73,16 +73,14 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
       if (fetchResponse.success) {
         List<Event> eventsFromOrganizer = fetchResponse.data
             .map((event) => Event.fromFetchEventsByOrganizerJson(event))
-            .where((event) => event.startTime
-                .isAfter(DateTime.now().subtract(Duration(days: duration))))
+            .where((event) => event.startTime.isAfter(DateTime(DateTime.now().year, DateTime.now().month - 4, 1)) &&
+                              event.startTime.isBefore(DateTime(DateTime.now().year, DateTime.now().month, 1)))
             .toList();
         Map<String, int> attendeesPerMonth = {};
-        // Initialize the map with 0 attendees for the last x months
-        for (int i = 0; i < (duration / 30).round(); i++) {
-          attendeesPerMonth[DateTime.now()
-              .subtract(Duration(days: 30 * i))
-              .month
-              .toString()] = 0;
+        // Initialize the map with 0 attendees for the last 4 months excluding this one
+        for (int i = 1; i <= 4; i++) {
+          DateTime month = DateTime(DateTime.now().year, DateTime.now().month - i, 1);
+          attendeesPerMonth[month.month.toString()] = 0;
         }
         // Retrieve fetchAllUsers from userProvider and loop through each user's registered events with the fetchEventsByUser method.
         await userProvider.fetchAllUsers();

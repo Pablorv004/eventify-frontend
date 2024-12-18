@@ -18,6 +18,7 @@ class OrganizerGraphScreen extends StatefulWidget {
 class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
   String categorySelected = 'Select a category';
   Map<String, int> attendeesPerMonth = {};
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -27,11 +28,18 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
   }
 
   Future<void> fetchAttendeesData() async {
+    setState(() {
+      isLoading = true;
+    });
     final eventProvider = context.read<EventProvider>();
     final userProvider = context.read<UserProvider>();
     attendeesPerMonth = await eventProvider.fetchAttendeesPerMonth(
-        userProvider.currentUser!.id, /* duration */ 120, userProvider, categorySelected);
-    setState(() {});
+        userProvider.currentUser!.id, userProvider, categorySelected);
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -59,7 +67,7 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
                 child: Text(category.name),
               );
             }).toList(),
-            onChanged: (String? newValue) {
+            onChanged: isLoading ? null : (String? newValue) {
               setState(() {
                 categorySelected = newValue!;
               });
@@ -69,6 +77,7 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
                 ? null
                 : categorySelected,
             hint: Text(categorySelected),
+            disabledHint: Text(categorySelected),
           ),
         ),
 
