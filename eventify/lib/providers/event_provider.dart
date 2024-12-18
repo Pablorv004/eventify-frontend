@@ -16,6 +16,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   List<Event> organizerEventList = [];
   List<Category> categoryList = [];
   String? fetchErrorMessage;
+  Map<String, Map<String, int>> attendeesDataByCategory = {};
 
   EventProvider(this.eventsService, this.authService);
 
@@ -57,15 +58,16 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   /// This method calls the `fetchEventsByOrganizer` method from `eventsService` to retrieve the list of events made by the organizer.
   /// This method will be compared with the `fetchEventsByUser` method which will be inside a loop for each user using `fetchAllUsers` method from `userService`.
   /// If the fetching is successful, it'll return a map with the amount of attendees per month of all events by the organizer from the last 4 months excluding this one.
-  Future<Map<String, int>> fetchAttendeesPerMonth(
-      int organizerId, UserProvider userProvider, String category) async {
+  Future<void> fetchAttendeesPerMonth(int organizerId, UserProvider userProvider) async {
     try {
       String? token = await authService.getToken();
       if (token == null) {
         fetchErrorMessage = 'Token not found';
         notifyListeners();
-        return {};
+        return;
       }
+
+      await initializeAttendeesDataByCategory();
 
       FetchResponse fetchResponse =
           await eventsService.fetchEventsByOrganizer(token, organizerId);
@@ -76,37 +78,49 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
             .where((event) => event.startTime.isAfter(DateTime(DateTime.now().year, DateTime.now().month - 4, 1)) &&
                               event.startTime.isBefore(DateTime(DateTime.now().year, DateTime.now().month, 1)))
             .toList();
-        Map<String, int> attendeesPerMonth = {};
-        // Initialize the map with 0 attendees for the last 4 months excluding this one
-        for (int i = 1; i <= 4; i++) {
-          DateTime month = DateTime(DateTime.now().year, DateTime.now().month - i, 1);
-          attendeesPerMonth[month.month.toString()] = 0;
-        }
-        // Retrieve fetchAllUsers from userProvider and loop through each user's registered events with the fetchEventsByUser method.
+
         await userProvider.fetchAllUsers();
         for (User user in userProvider.userList) {
           await fetchEventsByUser(user.id);
           for (Event eventFromUser in userEventList) {
             for (Event eventFromOrganizer in eventsFromOrganizer) {
               if (eventFromUser.id == eventFromOrganizer.id) {
-                if(category != 'Select a category' && eventFromOrganizer.category != category) {
-                  continue;
-                }
-                attendeesPerMonth[eventFromOrganizer.startTime.month.toString()] =
-                    attendeesPerMonth[eventFromOrganizer.startTime.month.toString()]! + 1;
+                String category = eventFromOrganizer.category!;
+                if (category == 'Select a category') continue;
+                attendeesDataByCategory[category]![eventFromOrganizer.startTime.month.toString()] =
+                    attendeesDataByCategory[category]![eventFromOrganizer.startTime.month.toString()]! + 1;
               }
             }
           }
         }
         fetchErrorMessage = null;
-        return attendeesPerMonth;
       } else {
         fetchErrorMessage = fetchResponse.message;
       }
     } catch (error) {
       fetchErrorMessage = 'Fetching error: ${error.toString()}';
+    } finally {
+      notifyListeners();
     }
-    return {};
+  }
+
+  Future<void> initializeAttendeesDataByCategory() async {
+    await fetchCategories();
+    for (Category category in categoryList) {
+      if (category.name == 'Select a category') continue;
+      attendeesDataByCategory[category.name] = {};
+      for (int i = 1; i <= 4; i++) {
+        DateTime month = DateTime(DateTime.now().year, DateTime.now().month - i, 1);
+        attendeesDataByCategory[category.name]![month.month.toString()] = 0;
+      }
+    }
+  }
+
+  Map<String, int> getAttendeesDataForCategory(String category) {
+    if (!attendeesDataByCategory.containsKey(category)) {
+      return {};
+    }
+    return attendeesDataByCategory[category]!;
   }
 
   /// Fetches events by user.

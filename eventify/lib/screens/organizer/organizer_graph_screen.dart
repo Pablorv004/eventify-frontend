@@ -18,13 +18,23 @@ class OrganizerGraphScreen extends StatefulWidget {
 class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
   String categorySelected = 'Select a category';
   Map<String, int> attendeesPerMonth = {};
-  bool isLoading = false;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    context.read<EventProvider>().fetchCategories();
-    fetchAttendeesData();
+    fetchInitialData();
+  }
+
+  Future<void> fetchInitialData() async {
+    await context.read<EventProvider>().fetchCategories();
+    await context.read<EventProvider>().fetchAttendeesPerMonth(
+        context.read<UserProvider>().currentUser!.id,
+        context.read<UserProvider>());
+    await fetchAttendeesData();
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> fetchAttendeesData() async {
@@ -32,11 +42,12 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
       isLoading = true;
     });
     final eventProvider = context.read<EventProvider>();
-    final userProvider = context.read<UserProvider>();
-    attendeesPerMonth = await eventProvider.fetchAttendeesPerMonth(
-        userProvider.currentUser!.id, userProvider, categorySelected);
+    final fetchedData = categorySelected == 'Select a category'
+        ? {}
+        : eventProvider.getAttendeesDataForCategory(categorySelected);
     if (mounted) {
       setState(() {
+        attendeesPerMonth = Map<String, int>.from(fetchedData);
         isLoading = false;
       });
     }
@@ -44,12 +55,27 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        buildContent(),
+        if (isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.5),
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget buildContent() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 40, right: 40),
+          padding: const EdgeInsets.only(left: 40, right: 40, top: 200),
           child: DropdownButtonFormField(
             decoration: InputDecoration(
               border: OutlineInputBorder(
@@ -67,20 +93,18 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
                 child: Text(category.name),
               );
             }).toList(),
-            onChanged: isLoading ? null : (String? newValue) {
-              setState(() {
-                categorySelected = newValue!;
-              });
-              fetchAttendeesData();
-            },
-            value: categorySelected == 'Select a category'
+            onChanged: isLoading
                 ? null
-                : categorySelected,
+                : (String? newValue) async {
+                    setState(() {
+                      categorySelected = newValue!;
+                    });
+                    await fetchAttendeesData();
+                  },
             hint: Text(categorySelected),
             disabledHint: Text(categorySelected),
           ),
         ),
-
         Container(
           margin: const EdgeInsets.only(top: 20),
           child: const Text(
@@ -88,7 +112,6 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
         ),
-
         Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
           child: Card(
@@ -152,49 +175,49 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
     String title;
     switch (value.toInt()) {
       case 1:
-      title = 'Jan';
-      break;
+        title = 'Jan';
+        break;
       case 2:
-      title = 'Feb';
-      break;
+        title = 'Feb';
+        break;
       case 3:
-      title = 'Mar';
-      break;
+        title = 'Mar';
+        break;
       case 4:
-      title = 'Apr';
-      break;
+        title = 'Apr';
+        break;
       case 5:
-      title = 'May';
-      break;
+        title = 'May';
+        break;
       case 6:
-      title = 'Jun';
-      break;
+        title = 'Jun';
+        break;
       case 7:
-      title = 'Jul';
-      break;
+        title = 'Jul';
+        break;
       case 8:
-      title = 'Aug';
-      break;
+        title = 'Aug';
+        break;
       case 9:
-      title = 'Sep';
-      break;
+        title = 'Sep';
+        break;
       case 10:
-      title = 'Oct';
-      break;
+        title = 'Oct';
+        break;
       case 11:
-      title = 'Nov';
-      break;
+        title = 'Nov';
+        break;
       case 12:
-      title = 'Dec';
-      break;
+        title = 'Dec';
+        break;
       default:
-      title = '';
-      break;
+        title = '';
+        break;
     }
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
-      space: 7,
+      space: 3,
       child: Text(title, style: style),
     );
   }
