@@ -35,7 +35,8 @@ class EventListCard extends StatelessWidget {
           },
           backgroundColor: const Color.fromARGB(255, 29, 101, 255),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+          borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
           autoClose: true,
           icon: Icons.edit,
         ),
@@ -71,9 +72,8 @@ class EventListCard extends StatelessWidget {
               },
             );
           },
-            backgroundColor: const Color.fromARGB(255, 255, 0, 0),
+          backgroundColor: const Color.fromARGB(255, 255, 0, 0),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
           autoClose: true,
           icon: Icons.delete,
         ),
@@ -95,7 +95,8 @@ class EventListCard extends StatelessWidget {
                     event.imageUrl!,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return Image.asset('assets/images/app_logo.png', fit: BoxFit.cover);
+                      return Image.asset('assets/images/app_logo.png',
+                          fit: BoxFit.cover);
                     },
                   )
                 : Image.asset('assets/images/app_logo.png', fit: BoxFit.cover),
