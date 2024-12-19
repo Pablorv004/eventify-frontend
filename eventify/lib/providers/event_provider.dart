@@ -1,9 +1,11 @@
-import 'package:eventify/domain/models/event.dart';
 import 'package:eventify/domain/models/category.dart';
+import 'package:eventify/domain/models/event.dart';
 import 'package:eventify/domain/models/http_responses/auth_response.dart';
 import 'package:eventify/domain/models/http_responses/fetch_response.dart';
-import 'package:eventify/services/event_service.dart';
+import 'package:eventify/domain/models/user.dart';
+import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/services/auth_service.dart';
+import 'package:eventify/services/event_service.dart';
 import 'package:flutter/foundation.dart' as flutter_foundation;
 
 class EventProvider extends flutter_foundation.ChangeNotifier {
@@ -11,8 +13,10 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   final AuthService authService;
   List<Event> eventList = [];
   List<Event> userEventList = [];
+  List<Event> organizerEventList = [];
   List<Category> categoryList = [];
   String? fetchErrorMessage;
+  Map<String, Map<String, int>> attendeesDataByCategory = {};
 
   EventProvider(this.eventsService, this.authService);
 
@@ -35,8 +39,9 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         eventList = fetchResponse.data
             .map((event) => Event.fromFetchEventsJson(event))
             .where((event) => event.startTime.isAfter(DateTime.now()))
+            .where((event) =>
+                !userEventList.any((userEvent) => userEvent.id == event.id))
             .toList();
-        removeUserEvents();
         fetchErrorMessage = null;
         sortEventsByTime();
       } else {
@@ -47,6 +52,75 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
     } finally {
       notifyListeners();
     }
+  }
+
+  /// Fetches the amount of attendees per month of all events from the last 4 months excluding this one.
+  /// This method calls the `fetchEventsByOrganizer` method from `eventsService` to retrieve the list of events made by the organizer.
+  /// This method will be compared with the `fetchEventsByUser` method which will be inside a loop for each user using `fetchAllUsers` method from `userService`.
+  /// If the fetching is successful, it'll return a map with the amount of attendees per month of all events by the organizer from the last 4 months excluding this one.
+  Future<void> fetchAttendeesPerMonth(int organizerId, UserProvider userProvider) async {
+    try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+
+      await initializeAttendeesDataByCategory();
+
+      FetchResponse fetchResponse =
+          await eventsService.fetchEventsByOrganizer(token, organizerId);
+
+      if (fetchResponse.success) {
+        List<Event> eventsFromOrganizer = fetchResponse.data
+            .map((event) => Event.fromFetchEventsByOrganizerJson(event))
+            .where((event) => event.startTime.isAfter(DateTime(DateTime.now().year, DateTime.now().month - 4, 1)) &&
+                              event.startTime.isBefore(DateTime(DateTime.now().year, DateTime.now().month, 1)))
+            .toList();
+
+        await userProvider.fetchAllUsers();
+        for (User user in userProvider.userList) {
+          await fetchEventsByUser(user.id);
+          for (Event eventFromUser in userEventList) {
+            for (Event eventFromOrganizer in eventsFromOrganizer) {
+              if (eventFromUser.id == eventFromOrganizer.id) {
+                String category = eventFromOrganizer.category!;
+                if (category == 'Select a category') continue;
+                attendeesDataByCategory[category]![eventFromOrganizer.startTime.month.toString()] =
+                    attendeesDataByCategory[category]![eventFromOrganizer.startTime.month.toString()]! + 1;
+              }
+            }
+          }
+        }
+        fetchErrorMessage = null;
+      } else {
+        fetchErrorMessage = fetchResponse.message;
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Fetching error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> initializeAttendeesDataByCategory() async {
+    await fetchCategories();
+    for (Category category in categoryList) {
+      if (category.name == 'Select a category') continue;
+      attendeesDataByCategory[category.name] = {};
+      for (int i = 1; i <= 4; i++) {
+        DateTime month = DateTime(DateTime.now().year, DateTime.now().month - i, 1);
+        attendeesDataByCategory[category.name]![month.month.toString()] = 0;
+      }
+    }
+  }
+
+  Map<String, int> getAttendeesDataForCategory(String category) {
+    if (!attendeesDataByCategory.containsKey(category)) {
+      return {};
+    }
+    return attendeesDataByCategory[category]!;
   }
 
   /// Fetches events by user.
@@ -81,6 +155,39 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
     }
   }
 
+  /// Fetches events organized by a specific organizer.
+  ///
+  /// This method retrieves events for a given organizer by their ID. It first
+  /// attempts to get an authentication token. If the token is not found, it sets
+  /// an error message and notifies listeners.
+  Future<void> fetchEventsByOrganizer(int organizerId) async {
+    try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+      FetchResponse fetchResponse =
+          await eventsService.fetchEventsByOrganizer(token, organizerId);
+      if (fetchResponse.success) {
+        organizerEventList = fetchResponse.data
+            .map((event) => Event.fromFetchEventsByOrganizerJson(event))
+            .where((event) => event.startTime.isAfter(DateTime.now()))
+            .where((event) => event.deleted == false)
+            .toList();
+        fetchErrorMessage = null;
+        sortEventsByTime();
+      } else {
+        fetchErrorMessage = fetchResponse.message;
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Fetching error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+  }
+
   /// Fetches upcoming events.
   ///
   /// This method filters the `eventList` to only include events that have not happened yet
@@ -89,21 +196,6 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
     fetchEvents();
     sortEventsByTime();
     notifyListeners();
-  }
-
-  /// Removes user events from the filtered event list.
-  /// This method removes events that the user has already registered to from the `filteredEventList`.
-  /// This is to prevent the user from registering to the same event multiple times.
-  void removeUserEvents() {
-    List<Event> eventsToRemove = [];
-    for (Event event in eventList) {
-      for (Event userEvent in userEventList) {
-        if (event.id == userEvent.id) {
-          eventsToRemove.add(event);
-        }
-      }
-    }
-    eventList.removeWhere((event) => eventsToRemove.contains(event));
   }
 
   /// Fetches events by category.
@@ -116,7 +208,6 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   void fetchEventsByCategory(String category) async {
     await fetchEvents();
     eventList = eventList.where((event) => event.category == category).toList();
-    removeUserEvents();
     sortEventsByTime();
     notifyListeners();
   }
@@ -183,7 +274,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
 
       if (authResponse.success) {
         await fetchEventsByUser(userId);
-        removeUserEvents();
+        await fetchEvents();
         sortEventsByTime();
         fetchErrorMessage = null;
       } else {
@@ -214,13 +305,82 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
 
       if (authResponse.success) {
         await fetchEventsByUser(userId);
-        removeUserEvents();
+        await fetchEvents();
         fetchErrorMessage = null;
       } else {
         fetchErrorMessage = authResponse.message;
       }
     } catch (error) {
       fetchErrorMessage = 'Unregistration error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> createEvent(Event event) async {
+    try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+      AuthResponse authResponse = await eventsService.createEvent(token, event);
+      if (authResponse.success) {
+        await fetchEventsByOrganizer(event.organizerId!);
+        fetchErrorMessage = null;
+      } else {
+        fetchErrorMessage = authResponse.message;
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateEvent(Event event) async {
+    try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+      AuthResponse authResponse = await eventsService.updateEvent(token, event);
+      if (authResponse.success) {
+        await fetchEventsByOrganizer(event.organizerId!);
+        fetchErrorMessage = null;
+      } else {
+        fetchErrorMessage = authResponse.message;
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteEvent(Event event) async {
+    try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+
+      FetchResponse authResponse =
+          await eventsService.deleteEvent(token, event.id);
+
+      if (authResponse.success) {
+        await fetchEventsByOrganizer(event.organizerId!);
+        fetchErrorMessage = null;
+      } else {
+        fetchErrorMessage = authResponse.message;
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Error: ${error.toString()}';
     } finally {
       notifyListeners();
     }

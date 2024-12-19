@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:eventify/domain/models/event.dart';
 import 'package:eventify/domain/models/http_responses/auth_response.dart';
 import 'package:eventify/domain/models/http_responses/fetch_response.dart';
 import 'package:http/http.dart' as http;
@@ -32,7 +33,8 @@ class EventService {
   }
 
   Future<FetchResponse> fetchEventsByUser(String token, int userId) async {
-    final url = Uri.parse('https://eventify.allsites.es/public/api/eventsByUser?id=$userId');
+    final url = Uri.parse(
+        'https://eventify.allsites.es/public/api/eventsByUser?id=$userId');
     final response = await http.post(
       url,
       headers: {
@@ -43,8 +45,24 @@ class EventService {
     return FetchResponse.fromJson(json.decode(response.body));
   }
 
-  Future<AuthResponse> registerUserToEvent(String token, int userId, int eventId) async{
-    final url = Uri.parse('https://eventify.allsites.es/public/api/registerEvent');
+  Future<FetchResponse> fetchEventsByOrganizer(
+      String token, int organizerId) async {
+    final url = Uri.parse(
+        'https://eventify.allsites.es/public/api/eventsByOrganizer?id=$organizerId');
+    final response = await http.post(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    return FetchResponse.fromJson(json.decode(response.body));
+  }
+
+  Future<AuthResponse> registerUserToEvent(
+      String token, int userId, int eventId) async {
+    final url =
+        Uri.parse('https://eventify.allsites.es/public/api/registerEvent');
     final response = await http.post(
       url,
       headers: {
@@ -58,10 +76,12 @@ class EventService {
       },
     );
     return AuthResponse.fromJson(json.decode(response.body));
-}
+  }
 
-  Future<AuthResponse> unregisterUserFromEvent(String token, int userId, int eventId) async{
-    final url = Uri.parse('https://eventify.allsites.es/public/api/unregisterEvent');
+  Future<AuthResponse> unregisterUserFromEvent(
+      String token, int userId, int eventId) async {
+    final url =
+        Uri.parse('https://eventify.allsites.es/public/api/unregisterEvent');
     final response = await http.post(
       url,
       headers: {
@@ -71,6 +91,72 @@ class EventService {
       body: {
         'user_id': userId.toString(),
         'event_id': eventId.toString(),
+      },
+    );
+    return AuthResponse.fromJson(json.decode(response.body));
+  }
+
+  Future<AuthResponse> createEvent(String token, Event event) async {
+    final url = Uri.parse('https://eventify.allsites.es/public/api/events');
+    final response = await http.post(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: {
+        'organizer_id': event.organizerId.toString(),
+        'title': event.title,
+        'description': event.description,
+        'category_id': event.category,
+        'start_time': event.startTime.toIso8601String(),
+        'end_time': event.endTime?.toIso8601String(),
+        'location': event.location,
+        'price': event.price.toString(),
+        'image_url': event.imageUrl,
+      },
+    );
+    return AuthResponse.fromJson(json.decode(response.body));
+  }
+
+  Future<FetchResponse> deleteEvent(String token, int eventId) async {
+    final url =
+        Uri.parse('https://eventify.allsites.es/public/api/eventDelete');
+    final response = await http.post(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: {
+        'id': eventId.toString(),
+      },
+    );
+    return FetchResponse.fromJson(json.decode(response.body));
+  }
+
+  Future<AuthResponse> updateEvent(String token, Event event) async {
+    final url = Uri.parse('https://eventify.allsites.es/public/api/eventUpdate');
+    final response = await http.post(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: {
+        'id': event.id.toString(),
+        'organizer_id': event.organizerId.toString(),
+        'title': event.title,
+        'description': event.description,
+        'category_id': event.category,
+        'start_time': event.startTime.toIso8601String(),
+        'end_time': event.endTime!.toIso8601String(),
+        'location': event.location,
+        'price': event.price.toString(),
+        'latitude': event.latitude.toString(),
+        'longitude': event.longitude.toString(),
+        'max_attendees': event.maxAttendees.toString(),
+        'image_url': event.imageUrl,
       },
     );
     return AuthResponse.fromJson(json.decode(response.body));
