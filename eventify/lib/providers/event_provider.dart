@@ -86,23 +86,19 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         print(token);
         await userProvider.fetchAllUsers();
         for (User curruser in userProvider.userList) {
-          userEventList.clear(); // Clear the userEventList before fetching events for each user
           await fetchEventsByUser(curruser.id);
-          print("Accessing User: " + curruser.id.toString());
+          print("Accessing User: ${curruser.id}");
           for (Event eventFromOrganizer in eventsFromOrganizer) {
             for (Event eventFromUser in userEventList) {
               print("User Event ID: ${eventFromUser.id}, Organizer Event ID: ${eventFromOrganizer.id}. Are they the same?: ${eventFromUser.id == eventFromOrganizer.id}");
               if (eventFromUser.id == eventFromOrganizer.id) {
-                print("Event that matches found for category: " +
-                    eventFromOrganizer.category!);
+                print("Event that matches found for category: ${eventFromOrganizer.category!}");
                 String category = eventFromOrganizer.category!;
                 attendeesDataByCategory[category]![
                         eventFromOrganizer.startTime.month.toString()] =
                     attendeesDataByCategory[category]![
                             eventFromOrganizer.startTime.month.toString()]! +
                         1;
-                print(attendeesDataByCategory[category]![
-                    eventFromOrganizer.startTime.month.toString()]);
               }
             }
           }
