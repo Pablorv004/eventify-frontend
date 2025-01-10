@@ -118,7 +118,6 @@ class _MapScreenState extends State<MapScreen> {
                   child: FlutterMap(
                     options: MapOptions(
                       initialCenter: _currentLocation ?? const LatLng(36.512521, -6.278430),
-                      zoomLevel: _zoomLevel,
                       onTap: (tapPosition, point) {
                         setState(() {
                           _selectedLocation = point;
