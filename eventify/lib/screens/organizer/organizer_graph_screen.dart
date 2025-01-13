@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/category.dart';
 import 'package:eventify/providers/event_provider.dart';
+import 'package:eventify/providers/user_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,21 +17,65 @@ class OrganizerGraphScreen extends StatefulWidget {
 
 class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
   String categorySelected = 'Select a category';
+  Map<String, int> attendeesPerMonth = {};
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    context.read<EventProvider>().fetchCategories();
+    fetchInitialData();
+  }
+
+  Future<void> fetchInitialData() async {
+    await context.read<EventProvider>().fetchCategories();
+    await context.read<EventProvider>().fetchAttendeesPerMonth(
+        context.read<UserProvider>().currentUser!.id,
+        context.read<UserProvider>());
+    await fetchAttendeesData();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> fetchAttendeesData() async {
+    setState(() {
+      isLoading = true;
+    });
+    final eventProvider = context.read<EventProvider>();
+    final fetchedData = categorySelected == 'Select a category'
+        ? {}
+        : eventProvider.getAttendeesDataForCategory(categorySelected);
+    if (mounted) {
+      setState(() {
+        attendeesPerMonth = Map<String, int>.from(fetchedData);
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        buildContent(),
+        if (isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.5),
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget buildContent() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 40, right: 40),
+          padding: const EdgeInsets.only(left: 40, right: 40, top: 200),
           child: DropdownButtonFormField(
             decoration: InputDecoration(
               border: OutlineInputBorder(
@@ -48,18 +93,18 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
                 child: Text(category.name),
               );
             }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                categorySelected = newValue!;
-              });
-            },
-            value: categorySelected == 'Select a category'
+            onChanged: isLoading
                 ? null
-                : categorySelected,
+                : (String? newValue) async {
+                    setState(() {
+                      categorySelected = newValue!;
+                    });
+                    await fetchAttendeesData();
+                  },
             hint: Text(categorySelected),
+            disabledHint: Text(categorySelected),
           ),
         ),
-
         Container(
           margin: const EdgeInsets.only(top: 20),
           child: const Text(
@@ -67,7 +112,6 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
         ),
-
         Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
           child: Card(
@@ -80,40 +124,25 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
               padding: const EdgeInsets.only(bottom: 20),
               margin: const EdgeInsets.only(top: 20),
               height: 300,
-              child: Expanded(
-                child: BarChart(
-                  BarChartData(
-                    maxY: 8,
-                    barTouchData: barTouchData,
-                    backgroundColor: Colors.white,
-                    borderData: FlBorderData(show: false),
-                    barGroups: [
-                      BarChartGroupData(
-                        x: 0,
-                        barRods: [createBarChartRodData(1)],
-                        showingTooltipIndicators: [0],
-                      ),
-                      BarChartGroupData(
-                        x: 1,
-                        barRods: [createBarChartRodData(2)],
-                        showingTooltipIndicators: [0],
-                      ),
-                      BarChartGroupData(
-                        x: 2,
-                        barRods: [createBarChartRodData(3)],
-                        showingTooltipIndicators: [0],
-                      ),
-                      BarChartGroupData(
-                        x: 3,
-                        barRods: [createBarChartRodData(4)],
-                        showingTooltipIndicators: [0],
-                      ),
-                    ],
-                    titlesData: getTitlesData(),
-                    gridData: const FlGridData(show: false),
-                  ),
-                  duration: const Duration(milliseconds: 150),
+              child: BarChart(
+                BarChartData(
+                  maxY: attendeesPerMonth.values.isNotEmpty
+                      ? attendeesPerMonth.values.reduce(max).toDouble() + 1
+                      : 8,
+                  barTouchData: barTouchData,
+                  backgroundColor: Colors.white,
+                  borderData: FlBorderData(show: false),
+                  barGroups: attendeesPerMonth.entries
+                      .map((entry) => BarChartGroupData(
+                            x: int.parse(entry.key),
+                            barRods: [createBarChartRodData(entry.value)],
+                            showingTooltipIndicators: [0],
+                          ))
+                      .toList(),
+                  titlesData: getTitlesData(),
+                  gridData: const FlGridData(show: false),
                 ),
+                duration: const Duration(milliseconds: 150),
               ),
             ),
           ),
@@ -143,20 +172,43 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
       fontWeight: FontWeight.bold,
       fontSize: 14,
     );
-
     String title;
     switch (value.toInt()) {
-      case 0:
-        title = 'Month 1';
-        break;
       case 1:
-        title = 'Month 2';
+        title = 'Jan';
         break;
       case 2:
-        title = 'Month 3';
+        title = 'Feb';
         break;
       case 3:
-        title = 'Month 4';
+        title = 'Mar';
+        break;
+      case 4:
+        title = 'Apr';
+        break;
+      case 5:
+        title = 'May';
+        break;
+      case 6:
+        title = 'Jun';
+        break;
+      case 7:
+        title = 'Jul';
+        break;
+      case 8:
+        title = 'Aug';
+        break;
+      case 9:
+        title = 'Sep';
+        break;
+      case 10:
+        title = 'Oct';
+        break;
+      case 11:
+        title = 'Nov';
+        break;
+      case 12:
+        title = 'Dec';
         break;
       default:
         title = '';
@@ -165,7 +217,7 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
-      space: 7,
+      space: 3,
       child: Text(title, style: style),
     );
   }
@@ -202,10 +254,9 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
         ),
       );
 
-  BarChartRodData createBarChartRodData(int position) {
+  BarChartRodData createBarChartRodData(int value) {
     return BarChartRodData(
-      toY: Random().nextInt(7) +
-          1, // Here must go the number of users that attended
+      toY: value.toDouble(),
       width: 15,
       gradient: _barsGradient,
     );

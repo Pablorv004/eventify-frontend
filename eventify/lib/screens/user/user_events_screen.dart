@@ -36,9 +36,13 @@ class _UserEventsScreenState extends State<UserEventsScreen> {
       child: RefreshIndicator(
         onRefresh: () { return eventProvider.fetchEventsByUser(userId); },
         child: ListView.builder(
-          itemCount: eventProvider.userEventList.length,
+          itemCount: eventProvider.userEventList
+              .where((event) => event.startTime.isAfter(DateTime.now()))
+              .length,
           itemBuilder: (context, index) {
-            final event = eventProvider.userEventList[index];
+            final event = eventProvider.userEventList
+                .where((event) => event.startTime.isAfter(DateTime.now()))
+                .toList()[index];
             return EventCard(event: event, eventProvider: eventProvider,);
           },
         ),
