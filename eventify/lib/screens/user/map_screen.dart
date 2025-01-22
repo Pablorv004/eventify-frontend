@@ -16,7 +16,6 @@ class _MapScreenState extends State<MapScreen> {
   LatLng? _selectedLocation;
   bool _isLoading = true;
   bool _permissionDenied = false;
-  double _zoomLevel = 15.0;
 
   @override
   void initState() {
@@ -147,32 +146,6 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
             ),
-          // Zoom in and out buttons
-          Positioned(
-            bottom: 80,
-            right: 20,
-            child: Column(
-              children: [
-                FloatingActionButton(
-                  onPressed: () {
-                    setState(() {
-                      _zoomLevel++;
-                    });
-                  },
-                  child: const Icon(Icons.zoom_in),
-                ),
-                const SizedBox(height: 10),
-                FloatingActionButton(
-                  onPressed: () {
-                    setState(() {
-                      _zoomLevel--;
-                    });
-                  },
-                  child: const Icon(Icons.zoom_out),
-                ),
-              ],
-            ),
-          ),
           // "Go" button at the bottom of the page
           Positioned(
             bottom: 20,
