@@ -7,8 +7,11 @@ Future<pw.Document> generatePdf(DateTime? startDate, DateTime? endDate,
   List<String> eventTypes, EventProvider eventProvider) async {
   final pdf = pw.Document();
 
-  // Fetch events from the provider
-  final events = eventProvider.eventList.where((event) {
+  // Combine eventList and userEventList
+  final combinedEvents = [...eventProvider.eventList, ...eventProvider.userEventList];
+
+  // Fetch events from the combined list
+  final events = combinedEvents.where((event) {
   final matchesDateRange =
     (startDate == null || event.startTime.isAfter(startDate)) &&
       (endDate == null || event.startTime.isBefore(endDate));

@@ -6,6 +6,7 @@ import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/screens/user/events_screen.dart';
 import 'package:eventify/screens/user/report_screen.dart';
 import 'package:eventify/screens/user/user_events_screen.dart';
+import 'package:eventify/screens/user/map_screen.dart';
 import 'package:eventify/widgets/dialogs/_show_logout_confirmation_dialog.dart';
 import 'package:eventify/widgets/expandable_fab_button.dart';
 import 'package:eventify/widgets/filter_button.dart';
@@ -22,7 +23,12 @@ class UserScreen extends StatefulWidget {
 
 class _UserScreenState extends State<UserScreen> {
   final PageController _pageController = PageController(initialPage: 0);
-  final List<Widget> screenList = [const EventsScreen(), const UserEventsScreen(), const ReportScreen()];
+  final List<Widget> screenList = [
+    const EventsScreen(),
+    const UserEventsScreen(),
+    const ReportScreen(),
+    const MapScreen()
+  ];
   int currentScreenIndex = 0;
 
   @override
@@ -113,7 +119,8 @@ class _UserScreenState extends State<UserScreen> {
                 items: [
                   createNavigationBarItem('Upcoming Events', 0),
                   createNavigationBarItem('My Events', 1),
-                  createNavigationBarItem('Report', 2)
+                  createNavigationBarItem('Report', 2),
+                  createNavigationBarItem('Map', 3)
                 ],
                 currentIndex: currentScreenIndex,
                 onTap: (index) {
@@ -156,6 +163,8 @@ IconData getIcon(int index) {
       return Icons.event_available;
     case 2:
       return Icons.description;
+    case 3:
+      return Icons.map;
     default:
       return Icons.text_format;
   }

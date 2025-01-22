@@ -70,7 +70,8 @@ class Event {
       endTime: DateTime.parse(json['end_time']),
       imageUrl: json['image_url'],
       location: json['location'],
-      price: json['price'],
+      price: json['price'] != null ? double.parse(json['price'].toString()) : null,
+      deleted: json['deleted'] == 1,
     );
   }
 }
