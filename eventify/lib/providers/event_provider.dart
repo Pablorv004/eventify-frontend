@@ -7,11 +7,13 @@ import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/services/auth_service.dart';
 import 'package:eventify/services/event_service.dart';
 import 'package:flutter/foundation.dart' as flutter_foundation;
+import 'package:latlong2/latlong.dart';
 
 class EventProvider extends flutter_foundation.ChangeNotifier {
   final EventService eventsService;
   final AuthService authService;
   List<Event> eventList = [];
+  List<Event> eventListByRadius = [];
   List<Event> userEventList = [];
   List<Event> organizerEventList = [];
   List<Category> categoryList = [];
@@ -39,8 +41,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         eventList = fetchResponse.data
             .map((event) => Event.fromFetchEventsJson(event))
             .where((event) => event.startTime.isAfter(DateTime.now()))
-            .where((event) =>
-                !userEventList.any((userEvent) => userEvent.id == event.id))
+            .where((event) => !userEventList.any((userEvent) => userEvent.id == event.id))
             .toList();
         fetchErrorMessage = null;
         sortEventsByTime();
@@ -54,12 +55,50 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
     }
   }
 
+  /// Fetches all events including those the user is registered to and filters them by radius
+  ///
+  /// This method is mainly used for the map screen, as we need to continue showing all the events
+  Future<void> fetchEventsWithinRadius(LatLng userLocation, double radiusKm) async {
+    try {
+      String? token = await authService.getToken();
+      if (token == null) {
+        fetchErrorMessage = 'Token not found';
+        notifyListeners();
+        return;
+      }
+
+      FetchResponse fetchResponse = await eventsService.fetchEvents(token);
+
+      if (fetchResponse.success) {
+        const Distance distance = Distance();
+
+        eventListByRadius = fetchResponse.data
+            .map((event) => Event.fromFetchEventsJson(event))
+            .where((event) => event.startTime.isAfter(DateTime.now()))
+            .where((event) => event.latitude != null && event.longitude != null)
+            .where((event) {
+              final eventLocation = LatLng(event.latitude!, event.longitude!);
+              final double eventDistance = distance.as(LengthUnit.Kilometer, userLocation, eventLocation);
+              return eventDistance <= radiusKm;
+            }).toList();
+
+        fetchErrorMessage = null;
+      } else {
+        fetchErrorMessage = fetchResponse.message;
+      }
+    } catch (error) {
+      fetchErrorMessage = 'Fetching error: ${error.toString()}';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+
   /// Fetches the amount of attendees per month of all events from the last 4 months excluding this one.
   /// This method calls the `fetchEventsByOrganizer` method from `eventsService` to retrieve the list of events made by the organizer.
   /// This method will be compared with the `fetchEventsByUser` method which will be inside a loop for each user using `fetchAllUsers` method from `userService`.
   /// If the fetching is successful, it'll return a map with the amount of attendees per month of all events by the organizer from the last 4 months excluding this one.
-  Future<void> fetchAttendeesPerMonth(
-      int organizerId, UserProvider userProvider) async {
+  Future<void> fetchAttendeesPerMonth(int organizerId, UserProvider userProvider) async {
     try {
       String? token = await authService.getToken();
       if (token == null) {
@@ -70,17 +109,12 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
 
       await initializeAttendeesDataByCategory();
 
-      FetchResponse fetchResponse =
-          await eventsService.fetchEventsByOrganizer(token, organizerId);
+      FetchResponse fetchResponse = await eventsService.fetchEventsByOrganizer(token, organizerId);
 
       if (fetchResponse.success) {
         List<Event> eventsFromOrganizer = fetchResponse.data
             .map((event) => Event.fromFetchEventsByOrganizerJson(event))
-            .where((event) =>
-                event.startTime.isAfter(DateTime(
-                    DateTime.now().year, DateTime.now().month - 4, 1)) &&
-                event.startTime.isBefore(
-                    DateTime(DateTime.now().year, DateTime.now().month, 1)))
+            .where((event) => event.startTime.isAfter(DateTime(DateTime.now().year, DateTime.now().month - 4, 1)) && event.startTime.isBefore(DateTime(DateTime.now().year, DateTime.now().month, 1)))
             .toList();
         print(eventsFromOrganizer);
         print(token);
@@ -94,11 +128,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
               if (eventFromUser.id == eventFromOrganizer.id) {
                 print("Event that matches found for category: ${eventFromOrganizer.category!}");
                 String category = eventFromOrganizer.category!;
-                attendeesDataByCategory[category]![
-                        eventFromOrganizer.startTime.month.toString()] =
-                    attendeesDataByCategory[category]![
-                            eventFromOrganizer.startTime.month.toString()]! +
-                        1;
+                attendeesDataByCategory[category]![eventFromOrganizer.startTime.month.toString()] = attendeesDataByCategory[category]![eventFromOrganizer.startTime.month.toString()]! + 1;
               }
             }
           }
@@ -120,8 +150,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
       if (category.name == 'Select a category') continue;
       attendeesDataByCategory[category.name] = {};
       for (int i = 1; i <= 4; i++) {
-        DateTime month =
-            DateTime(DateTime.now().year, DateTime.now().month - i, 1);
+        DateTime month = DateTime(DateTime.now().year, DateTime.now().month - i, 1);
         attendeesDataByCategory[category.name]![month.month.toString()] = 0;
       }
     }
@@ -143,12 +172,9 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         notifyListeners();
         return;
       }
-      FetchResponse fetchResponse =
-          await eventsService.fetchEventsByUser(token, userId);
+      FetchResponse fetchResponse = await eventsService.fetchEventsByUser(token, userId);
       if (fetchResponse.success) {
-        userEventList = fetchResponse.data
-            .map((event) => Event.fromFetchEventsByUserJson(event))
-            .toList();
+        userEventList = fetchResponse.data.map((event) => Event.fromFetchEventsByUserJson(event)).toList();
 
         fetchErrorMessage = null;
         sortEventsByTime();
@@ -175,12 +201,9 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         notifyListeners();
         return;
       }
-      FetchResponse fetchResponse =
-          await eventsService.fetchEventsByOrganizer(token, organizerId);
+      FetchResponse fetchResponse = await eventsService.fetchEventsByOrganizer(token, organizerId);
       if (fetchResponse.success) {
-        organizerEventList = fetchResponse.data
-            .map((event) => Event.fromFetchEventsByOrganizerJson(event))
-            .toList();
+        organizerEventList = fetchResponse.data.map((event) => Event.fromFetchEventsByOrganizerJson(event)).toList();
         fetchErrorMessage = null;
         sortEventsByTime();
       } else {
@@ -247,9 +270,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
       FetchResponse fetchResponse = await eventsService.fetchCategories(token);
 
       if (fetchResponse.success) {
-        categoryList = fetchResponse.data
-            .map((category) => Category.fromFetchCategoriesJson(category))
-            .toList();
+        categoryList = fetchResponse.data.map((category) => Category.fromFetchCategoriesJson(category)).toList();
         fetchErrorMessage = null;
       } else {
         fetchErrorMessage = fetchResponse.message;
@@ -274,8 +295,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         return;
       }
 
-      AuthResponse authResponse =
-          await eventsService.registerUserToEvent(token, userId, eventId);
+      AuthResponse authResponse = await eventsService.registerUserToEvent(token, userId, eventId);
 
       if (authResponse.success) {
         await fetchEventsByUser(userId);
@@ -305,8 +325,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         return;
       }
 
-      AuthResponse authResponse =
-          await eventsService.unregisterUserFromEvent(token, userId, eventId);
+      AuthResponse authResponse = await eventsService.unregisterUserFromEvent(token, userId, eventId);
 
       if (authResponse.success) {
         await fetchEventsByUser(userId);
@@ -375,8 +394,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
         return;
       }
 
-      FetchResponse authResponse =
-          await eventsService.deleteEvent(token, event.id);
+      FetchResponse authResponse = await eventsService.deleteEvent(token, event.id);
 
       if (authResponse.success) {
         await fetchEventsByOrganizer(event.organizerId!);
