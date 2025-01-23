@@ -23,6 +23,129 @@ class _MapScreenState extends State<MapScreen> {
     _initializeLocation();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
+      backgroundColor: const Color.fromARGB(255, 240, 240, 240),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Background image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/no-filter-events-background-image.jpg',
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          // Widgets inside SingleChildScrollView
+          Padding(
+            padding: const EdgeInsets.only(top: 120, bottom: 70),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_isLoading)
+                    const Center(child: CircularProgressIndicator())
+                  else if (_permissionDenied)
+                    Center(
+                      child: AlertDialog(
+                        title: const Text('Location Permission Denied'),
+                        content: const Text('Location permissions are not granted. Please enable them in the settings.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    createMapWidget(context),
+            
+                  // "Go" button at the bottom of the page
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: ElevatedButton(
+                      onPressed: _selectedLocation != null ? () {} : null,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.deepOrange,
+                        disabledBackgroundColor: Colors.grey,
+                        disabledForegroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      child: const Text('Go'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Center createMapWidget(BuildContext context) {
+    return Center(
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.63,
+              width: MediaQuery.of(context).size.width * 0.9,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: FlutterMap(
+                  options: MapOptions(
+                    initialCenter: _currentLocation ?? const LatLng(36.512521, -6.278430),
+                    onTap: (tapPosition, point) {
+                      setState(() {
+                        _selectedLocation = point;
+                      });
+                    },
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      subdomains: const ['a', 'b', 'c'],
+                    ),
+                    if (_selectedLocation != null)
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: _selectedLocation!,
+                            child: const Icon(
+                              Icons.location_pin,
+                              color: Colors.red,
+                              size: 40,
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          );
+  }
+
   Future<void> _initializeLocation() async {
     Location location = Location();
     await location.changeSettings(
@@ -61,112 +184,5 @@ class _MapScreenState extends State<MapScreen> {
       _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
       _isLoading = false;
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      backgroundColor: const Color.fromARGB(255, 240, 240, 240),
-      body: Stack(
-        children: [
-          // Background image
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/no-filter-events-background-image.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-          // Map in the middle of the screen
-          if (_isLoading)
-            const Center(child: CircularProgressIndicator())
-          else if (_permissionDenied)
-            Center(
-              child: AlertDialog(
-                title: const Text('Location Permission Denied'),
-                content: const Text('Location permissions are not granted. Please enable them in the settings.'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            )
-          else
-            Center(
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.6,
-                width: MediaQuery.of(context).size.width * 0.8,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: FlutterMap(
-                    options: MapOptions(
-                      initialCenter: _currentLocation ?? const LatLng(36.512521, -6.278430),
-                      onTap: (tapPosition, point) {
-                        setState(() {
-                          _selectedLocation = point;
-                        });
-                      },
-                    ),
-                    children: [
-                      TileLayer(
-                        urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        subdomains: const ['a', 'b', 'c'],
-                      ),
-                      if (_selectedLocation != null)
-                        MarkerLayer(
-                          markers: [
-                            Marker(
-                              point: _selectedLocation!,
-                              child: const Icon(
-                                Icons.location_pin,
-                                color: Colors.red,
-                                size: 40,
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          // "Go" button at the bottom of the page
-          Positioned(
-            bottom: 20,
-            left: MediaQuery.of(context).size.width * 0.1,
-            right: MediaQuery.of(context).size.width * 0.1,
-            child: ElevatedButton(
-              onPressed: _selectedLocation != null ? () {} : null,
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: AppColors.deepOrange,
-                disabledBackgroundColor: Colors.grey,
-                disabledForegroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Go'),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
