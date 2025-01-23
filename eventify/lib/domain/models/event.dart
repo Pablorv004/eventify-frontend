@@ -40,6 +40,7 @@ class Event {
       endTime: DateTime.parse(json['end_time']),
       imageUrl: json['image_url'],
       category: json['category'],
+      location: json['location'],
       latitude: json['latitude'] != null ? double.tryParse(json['latitude'].toString()) : null,
       longitude: json['longitude'] != null ? double.tryParse(json['longitude'].toString()) : null,
     );

@@ -1,5 +1,7 @@
 import 'package:eventify/config/app_colors.dart';
+import 'package:eventify/domain/models/event.dart';
 import 'package:eventify/providers/event_provider.dart';
+import 'package:eventify/widgets/dialogs/_show_marker_event_info_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -69,25 +71,6 @@ class _MapScreenState extends State<MapScreen> {
                     )
                   else
                     createMapWidget(context),
-
-                  // "Go" button at the bottom of the page
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: ElevatedButton(
-                      onPressed: _selectedLocation != null ? () {} : null,
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: AppColors.deepOrange,
-                        disabledBackgroundColor: Colors.grey,
-                        disabledForegroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      child: const Text('Go'),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -100,7 +83,7 @@ class _MapScreenState extends State<MapScreen> {
   Center createMapWidget(BuildContext context) {
     return Center(
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.63,
+        height: MediaQuery.of(context).size.height * 0.7,
         width: MediaQuery.of(context).size.width * 0.9,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -126,28 +109,26 @@ class _MapScreenState extends State<MapScreen> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                subdomains: const ['a', 'b', 'c'],
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               ),
               MarkerLayer(
-                  markers: [
-                    // User selected location marker (disabled for now, as the map must only show events)
-                    // if (_selectedLocation != null)
-                    //   Marker(
-                    //     point: _selectedLocation!,
-                    //     child: const Icon(
-                    //       Icons.location_pin,
-                    //       color: Colors.red,
-                    //       size: 40,
-                    //     ),
-                    //   ),
+                markers: [
+                  // User selected location marker (disabled for now, as the map must only show events)
+                  // if (_selectedLocation != null)
+                  //   Marker(
+                  //     point: _selectedLocation!,
+                  //     child: const Icon(
+                  //       Icons.location_pin,
+                  //       color: Colors.red,
+                  //       size: 40,
+                  //     ),
+                  //   ),
 
-                    // Event markers
+                  // Event markers
 
-                    ..._eventMarkers,
-                  ],
-                ),
-                
+                  ..._eventMarkers,
+                ],
+              ),
             ],
           ),
         ),
@@ -172,15 +153,23 @@ class _MapScreenState extends State<MapScreen> {
         _eventMarkers = eventProvider.eventListByRadius.map((event) {
           return Marker(
             point: LatLng(event.latitude!, event.longitude!),
-            child: const Icon(
-              Icons.event,
-              color: Colors.blue,
-              size: 30,
+            child: Builder(
+              builder: (context) => GestureDetector(
+                onTap: () {
+                  // PABLO
+                  // INSIDE THIS DIALOG YOU HAVE TO IMPLEMENT THE FUNCTIONALITY OF THE "GO" BUTTON
+                  showMarkerEventDialogInfo(context, event);
+                },
+                child: const Icon(
+                  Icons.location_pin,
+                  color: Colors.blue,
+                  size: 30,
+                ),
+              ),
             ),
           );
         }).toList();
       });
-      print('_eventMarkers content (map_screen.dart): $_eventMarkers');
     }
   }
 
