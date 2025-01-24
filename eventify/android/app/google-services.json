@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "456631169941",
+    "project_id": "eventify-mobile",
+    "storage_bucket": "eventify-mobile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:456631169941:android:5faa845827abedd47a7c9c",
+        "android_client_info": {
+          "package_name": "com.example.eventify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwFrWk8UbXYL-l6SIxpp1GrCPBkcucvI8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

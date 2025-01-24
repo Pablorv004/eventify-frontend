@@ -1,16 +1,23 @@
 import 'package:eventify/config/app_colors.dart';
+import 'package:eventify/firebase_options.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/screens/login/login_screen.dart';
 import 'package:eventify/services/auth_service.dart';
 import 'package:eventify/services/event_service.dart';
+import 'package:eventify/services/firebase_service.dart';
 import 'package:eventify/services/user_service.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await dotenv.load(fileName: '.env');
   runApp(const MyApp());
 }
@@ -21,13 +28,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider( create: (_) => UserProvider(UserService(), AuthService())),
-        ChangeNotifierProvider( create: (_) => EventProvider(EventService(), AuthService())),
+        ChangeNotifierProvider(create: (_) => UserProvider(UserService(), AuthService())),
+        ChangeNotifierProvider(create: (_) => EventProvider(EventService(), AuthService(), FirebaseService())),
       ],
       child: MaterialApp(
         theme: ThemeData(
@@ -42,9 +49,7 @@ class MyApp extends StatelessWidget {
         ),
         title: 'Eventify',
         debugShowCheckedModeBanner: false,
-        home: const Scaffold(
-          body: LoginScreen()
-        ),
+        home: const Scaffold(body: LoginScreen()),
       ),
     );
   }

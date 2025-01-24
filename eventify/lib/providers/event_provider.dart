@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:eventify/domain/models/category.dart';
 import 'package:eventify/domain/models/event.dart';
 import 'package:eventify/domain/models/http_responses/auth_response.dart';
@@ -6,12 +8,14 @@ import 'package:eventify/domain/models/user.dart';
 import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/services/auth_service.dart';
 import 'package:eventify/services/event_service.dart';
+import 'package:eventify/services/firebase_service.dart';
 import 'package:flutter/foundation.dart' as flutter_foundation;
 import 'package:latlong2/latlong.dart';
 
 class EventProvider extends flutter_foundation.ChangeNotifier {
   final EventService eventsService;
   final AuthService authService;
+  final FirebaseService firebaseService;
   List<Event> eventList = [];
   List<Event> eventListByRadius = [];
   List<Event> userEventList = [];
@@ -20,7 +24,7 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
   String? fetchErrorMessage;
   Map<String, Map<String, int>> attendeesDataByCategory = {};
 
-  EventProvider(this.eventsService, this.authService);
+  EventProvider(this.eventsService, this.authService, this.firebaseService);
 
   /// Fetches all events.
   ///
@@ -77,10 +81,10 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
             .where((event) => event.startTime.isAfter(DateTime.now()))
             .where((event) => event.latitude != null && event.longitude != null)
             .where((event) {
-              final eventLocation = LatLng(event.latitude!, event.longitude!);
-              final double eventDistance = distance.as(LengthUnit.Kilometer, userLocation, eventLocation);
-              return eventDistance <= radiusKm;
-            }).toList();
+          final eventLocation = LatLng(event.latitude!, event.longitude!);
+          final double eventDistance = distance.as(LengthUnit.Kilometer, userLocation, eventLocation);
+          return eventDistance <= radiusKm;
+        }).toList();
 
         fetchErrorMessage = null;
       } else {
@@ -92,7 +96,6 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
       notifyListeners();
     }
   }
-
 
   /// Fetches the amount of attendees per month of all events from the last 4 months excluding this one.
   /// This method calls the `fetchEventsByOrganizer` method from `eventsService` to retrieve the list of events made by the organizer.
@@ -298,6 +301,10 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
       AuthResponse authResponse = await eventsService.registerUserToEvent(token, userId, eventId);
 
       if (authResponse.success) {
+        // Register user registration to event to firebase store
+        Event event = eventList.firstWhere((event) => event.id == eventId);
+        await firebaseService.registerUserToEventInFirebase(userId, eventId, event.startTime);
+
         await fetchEventsByUser(userId);
         await fetchEvents();
         sortEventsByTime();
@@ -328,6 +335,9 @@ class EventProvider extends flutter_foundation.ChangeNotifier {
       AuthResponse authResponse = await eventsService.unregisterUserFromEvent(token, userId, eventId);
 
       if (authResponse.success) {
+        // Unregister user registration to event from firebase store
+        await firebaseService.unregisterUserFromEventInFirebase(userId, eventId);
+
         await fetchEventsByUser(userId);
         await fetchEvents();
         fetchErrorMessage = null;
