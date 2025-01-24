@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "eventify-mobile"
-  }
+    "default": "eventify-mobile-b78b5",
+    "eventify-mobile-2": "eventify-mobile-b78b5"
+  },
+  "targets": {},
+  "etags": {}
 }

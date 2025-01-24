@@ -41,48 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDGq_DxzMYt4rfg56Z-IH_N8dv6hfkzMvk',
-    appId: '1:456631169941:web:23c208144fad37617a7c9c',
-    messagingSenderId: '456631169941',
-    projectId: 'eventify-mobile',
-    authDomain: 'eventify-mobile.firebaseapp.com',
-    storageBucket: 'eventify-mobile.firebasestorage.app',
-    measurementId: 'G-XFWEV6FDYX',
+    apiKey: 'AIzaSyCRokFMzU4KkwSlqyzKs_ARY90EwRYh0pQ',
+    appId: '1:1072277627373:web:099c8dd45f61dc151287e4',
+    messagingSenderId: '1072277627373',
+    projectId: 'eventify-mobile-b78b5',
+    authDomain: 'eventify-mobile-b78b5.firebaseapp.com',
+    storageBucket: 'eventify-mobile-b78b5.firebasestorage.app',
+    measurementId: 'G-974C3E8YLQ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAwFrWk8UbXYL-l6SIxpp1GrCPBkcucvI8',
-    appId: '1:456631169941:android:5faa845827abedd47a7c9c',
-    messagingSenderId: '456631169941',
-    projectId: 'eventify-mobile',
-    storageBucket: 'eventify-mobile.firebasestorage.app',
+    apiKey: 'AIzaSyBboMX_t0gAebbI5btNIsaNmwASa941yHk',
+    appId: '1:1072277627373:android:1164236e82fadf9f1287e4',
+    messagingSenderId: '1072277627373',
+    projectId: 'eventify-mobile-b78b5',
+    storageBucket: 'eventify-mobile-b78b5.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyC9lqxmstg_ua9RT3behXyginyW8W1FxTY',
-    appId: '1:456631169941:ios:57052ad2c71b159b7a7c9c',
-    messagingSenderId: '456631169941',
-    projectId: 'eventify-mobile',
-    storageBucket: 'eventify-mobile.firebasestorage.app',
+    apiKey: 'AIzaSyAqB2cdjt67wiw-MmTG7Gu89RRQ-sNOjfY',
+    appId: '1:1072277627373:ios:9e49d06adbf4860f1287e4',
+    messagingSenderId: '1072277627373',
+    projectId: 'eventify-mobile-b78b5',
+    storageBucket: 'eventify-mobile-b78b5.firebasestorage.app',
     iosBundleId: 'com.example.eventify',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyC9lqxmstg_ua9RT3behXyginyW8W1FxTY',
-    appId: '1:456631169941:ios:57052ad2c71b159b7a7c9c',
-    messagingSenderId: '456631169941',
-    projectId: 'eventify-mobile',
-    storageBucket: 'eventify-mobile.firebasestorage.app',
+    apiKey: 'AIzaSyAqB2cdjt67wiw-MmTG7Gu89RRQ-sNOjfY',
+    appId: '1:1072277627373:ios:9e49d06adbf4860f1287e4',
+    messagingSenderId: '1072277627373',
+    projectId: 'eventify-mobile-b78b5',
+    storageBucket: 'eventify-mobile-b78b5.firebasestorage.app',
     iosBundleId: 'com.example.eventify',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDGq_DxzMYt4rfg56Z-IH_N8dv6hfkzMvk',
-    appId: '1:456631169941:web:4665b21016bf1fce7a7c9c',
-    messagingSenderId: '456631169941',
-    projectId: 'eventify-mobile',
-    authDomain: 'eventify-mobile.firebaseapp.com',
-    storageBucket: 'eventify-mobile.firebasestorage.app',
-    measurementId: 'G-3W3MT0Z0H0',
+    apiKey: 'AIzaSyCRokFMzU4KkwSlqyzKs_ARY90EwRYh0pQ',
+    appId: '1:1072277627373:web:18afa92d42f212c31287e4',
+    messagingSenderId: '1072277627373',
+    projectId: 'eventify-mobile-b78b5',
+    authDomain: 'eventify-mobile-b78b5.firebaseapp.com',
+    storageBucket: 'eventify-mobile-b78b5.firebasestorage.app',
+    measurementId: 'G-8BJEYMPXH3',
   );
+
 }
