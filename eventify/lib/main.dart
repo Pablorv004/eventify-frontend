@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
     ]);
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => UserProvider(UserService(), AuthService())),
+        ChangeNotifierProvider(create: (_) => UserProvider(UserService(), AuthService(), FirebaseService())),
         ChangeNotifierProvider(create: (_) => EventProvider(EventService(), AuthService(), FirebaseService())),
       ],
       child: MaterialApp(
