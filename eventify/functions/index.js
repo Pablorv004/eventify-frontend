@@ -9,7 +9,13 @@ admin.initializeApp();
 exports.sendEventReminderNotification = functions.pubsub
   .schedule('every 10 minutes')
   .onRun(async (context) => {
-    const currentTime = new Date().getTime();
+    // Get the current UTC time
+    const currentTimeUTC = new Date().getTime();
+
+    // Adjust to UTC+1 (adding 1 hour in milliseconds)
+    const currentTimeInSpain = currentTimeUTC + 60 * 60 * 1000;
+
+    // Define one hour before the event in milliseconds
     const oneHourBeforeEvent = 60 * 60 * 1000;
 
     try {
@@ -17,7 +23,7 @@ exports.sendEventReminderNotification = functions.pubsub
       const eventRegistrationsSnapshot = await admin
         .firestore()
         .collection('event_registrations')
-        .where('eventStartTime', '<=', currentTime + oneHourBeforeEvent)
+        .where('eventStartTime', '<=', currentTimeInSpain + oneHourBeforeEvent)
         .get();
 
       // Loop through each event registration document
@@ -39,21 +45,21 @@ exports.sendEventReminderNotification = functions.pubsub
           // Send the push notification to the user
           const message = {
             notification: {
-              title: 'Remember! The event is going to start soon!',
-              body: 'The event is going to start in 1 hour. Don\'t miss it!',
+              title: '¡Remember! The event is about to start!',
+              body: 'The event you registered for is starting in 1 hour.',
             },
             token: fcmToken,
           };
 
           try {
             await admin.messaging().send(message);
-            console.log(`Notification sent to the user: ${userId}`);
+            console.log(`Notification sent to the user with ID: ${userId}`);
           } catch (error) {
-            console.error('Error sending the notification:', error);
+            console.error('Error while sending notification:', error);
           }
         }
       }
     } catch (error) {
-      console.error('Error getting event registrations:', error);
+      console.error('Error obtaining events info:', error);
     }
   });
