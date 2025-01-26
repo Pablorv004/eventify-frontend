@@ -6,7 +6,6 @@ import 'package:eventify/providers/user_provider.dart';
 import 'package:eventify/widgets/dialogs/_show_event_info_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:validators/validators.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;

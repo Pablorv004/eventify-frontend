@@ -1,12 +1,13 @@
-import 'package:eventify/config/app_colors.dart';
-import 'package:eventify/domain/models/event.dart';
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/widgets/dialogs/_show_marker_event_info_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -17,10 +18,10 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   LatLng? _currentLocation;
-  LatLng? _selectedLocation;
   bool _isLoading = true;
   bool _permissionDenied = false;
   List<Marker> _eventMarkers = [];
+  List<LatLng> _routePoints = [];
 
   @override
   void initState() {
@@ -101,11 +102,6 @@ class _MapScreenState extends State<MapScreen> {
           child: FlutterMap(
             options: MapOptions(
               initialCenter: _currentLocation ?? const LatLng(36.512521, -6.278430),
-              onTap: (tapPosition, point) {
-                setState(() {
-                  _selectedLocation = point;
-                });
-              },
             ),
             children: [
               TileLayer(
@@ -113,22 +109,30 @@ class _MapScreenState extends State<MapScreen> {
               ),
               MarkerLayer(
                 markers: [
-                  // User selected location marker (disabled for now, as the map must only show events)
-                  // if (_selectedLocation != null)
-                  //   Marker(
-                  //     point: _selectedLocation!,
-                  //     child: const Icon(
-                  //       Icons.location_pin,
-                  //       color: Colors.red,
-                  //       size: 40,
-                  //     ),
-                  //   ),
-
+                  // User location marker
+                  if (_currentLocation != null)
+                    Marker(
+                      point: _currentLocation!,
+                      child: const Icon(
+                        Icons.my_location,
+                        color: Colors.red,
+                        size: 30,
+                      ),
+                    ),
                   // Event markers
-
                   ..._eventMarkers,
                 ],
               ),
+              if (_routePoints.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: _routePoints,
+                      strokeWidth: 4.0,
+                      color: Colors.blue,
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
@@ -149,27 +153,29 @@ class _MapScreenState extends State<MapScreen> {
       final eventProvider = context.read<EventProvider>();
       await eventProvider.fetchEventsWithinRadius(_currentLocation!, 2.0);
 
-      setState(() {
-        _eventMarkers = eventProvider.eventListByRadius.map((event) {
-          return Marker(
-            point: LatLng(event.latitude!, event.longitude!),
-            child: Builder(
-              builder: (context) => GestureDetector(
-                onTap: () {
-                  // PABLO
-                  // INSIDE THIS DIALOG YOU HAVE TO IMPLEMENT THE FUNCTIONALITY OF THE "GO" BUTTON
-                  showMarkerEventDialogInfo(context, event);
-                },
-                child: const Icon(
-                  Icons.location_pin,
-                  color: Colors.blue,
-                  size: 30,
+      if (mounted) {
+        setState(() {
+          _eventMarkers = eventProvider.eventListByRadius.map((event) {
+            return Marker(
+              point: LatLng(event.latitude!, event.longitude!),
+              child: Builder(
+                builder: (context) => GestureDetector(
+                  onTap: () {
+                    showMarkerEventDialogInfo(context, event, (LatLng eventLocation, String travelMode) {
+                      _drawRouteToEvent(eventLocation, travelMode);
+                    });
+                  },
+                  child: const Icon(
+                    Icons.location_pin,
+                    color: Colors.blue,
+                    size: 30,
+                  ),
                 ),
               ),
-            ),
-          );
-        }).toList();
-      });
+            );
+          }).toList();
+        });
+      }
     }
   }
 
@@ -189,18 +195,61 @@ class _MapScreenState extends State<MapScreen> {
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
       if (permissionGranted != PermissionStatus.granted) {
-        setState(() {
-          _permissionDenied = true;
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _permissionDenied = true;
+            _isLoading = false;
+          });
+        }
         return;
       }
     }
 
     final userLocation = await location.getLocation();
-    setState(() {
-      _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _drawRouteToEvent(LatLng eventLocation, String travelMode) async {
+    var apiKey = dotenv.env['ORS_KEY'];
+    final start = '${_currentLocation!.longitude},${_currentLocation!.latitude}';
+    final end = '${eventLocation.longitude},${eventLocation.latitude}';
+    final url = 'https://api.openrouteservice.org/v2/directions/$travelMode?api_key=$apiKey&start=$start&end=$end';
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final coordinates = data['features'][0]['geometry']['coordinates'];
+      final summary = data['features'][0]['properties']['summary'];
+      final distance = (summary['distance'] / 1000).toStringAsFixed(2); // in km
+      final duration = (summary['duration'] / 60).toStringAsFixed(0); // in minutes
+
+      setState(() {
+        _routePoints = coordinates.map<LatLng>((coord) => LatLng(coord[1], coord[0])).toList();
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Distance: $distance km, Duration: $duration minutes'),
+          backgroundColor: Colors.blue,
+          duration: const Duration(days: 1),
+          action: SnackBarAction(
+            label: 'Dismiss',
+            textColor: Colors.white,
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+        ),
+      );
+    } else {
+      // Handle error
+    }
   }
 }

@@ -1,8 +1,9 @@
 import 'package:eventify/config/app_colors.dart';
 import 'package:eventify/domain/models/event.dart';
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 
-void showMarkerEventDialogInfo(BuildContext context, Event event) {
+void showMarkerEventDialogInfo(BuildContext context, Event event, Function(LatLng, String) onGoPressed) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -115,17 +116,54 @@ void showMarkerEventDialogInfo(BuildContext context, Event event) {
               ),
             ),
 
-            // IMPLEMENT GO BUTTON HERE
-            FilledButton(
-              style: FilledButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+            // IMPLEMENT GO BUTTONS HERE
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    FilledButton.icon(
+                      icon: const Icon(Icons.directions_car),
+                      label: const Text('Go!'),
+                      style: FilledButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        onGoPressed(LatLng(event.latitude!, event.longitude!), 'driving-car');
+                      },
+                    ),
+                    FilledButton.icon(
+                      icon: const Icon(Icons.directions_walk),
+                      label: const Text('Go!'),
+                      style: FilledButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        onGoPressed(LatLng(event.latitude!, event.longitude!), 'foot-walking');
+                      },
+                    ),
+                  ],
                 ),
-              ),
-              onPressed: () {
-                // GO BUTTON FUNCTIONALITY
-              },
-              child: const Text('Go!'),
+                const SizedBox(height: 10),
+                FilledButton.icon(
+                  icon: const Icon(Icons.cancel),
+                  label: const Text('Cancel'),
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             )
           ],
         ),
