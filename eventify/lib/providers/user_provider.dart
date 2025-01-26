@@ -2,6 +2,7 @@ import 'package:eventify/domain/models/http_responses/auth_response.dart';
 import 'package:eventify/domain/models/http_responses/fetch_response.dart';
 import 'package:eventify/domain/models/user.dart';
 import 'package:eventify/services/auth_service.dart';
+import 'package:eventify/services/firebase_service.dart';
 import 'package:eventify/services/user_service.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 class UserProvider extends ChangeNotifier {
   final AuthService authService;
   final UserService userService;
+  final FirebaseService firebaseService;
   List<User> userList = [];
   User? currentUser;
   String? loginErrorMessage;
@@ -19,7 +21,7 @@ class UserProvider extends ChangeNotifier {
   String? deleteErrorMessage;
 
 
-  UserProvider(this.userService, this.authService);
+  UserProvider(this.userService, this.authService, this.firebaseService);
 
   /// Attempts to log in a user using the provided email and password credentials.
   ///
@@ -37,6 +39,10 @@ class UserProvider extends ChangeNotifier {
       if (loginResponse.success) {
         currentUser = User.fromLoginJson(loginResponse.data);
         authService.saveToken(currentUser!.rememberToken ?? '');
+
+        // Save the FCM token to Firestore
+        await firebaseService.getFCMToken(currentUser!.id);
+
         loginErrorMessage = null;
       } else {
         loginErrorMessage = loginResponse.data['error'] ?? 'Login Failed';

@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "eslint": "^9.19.0"
+  },
+  "dependencies": {
+    "firebase-functions": "^6.2.0"
+  }
+}

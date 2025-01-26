@@ -1,0 +1,28 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "eventify-mobile-b78b5",
+                    "appId": "1:1072277627373:android:1164236e82fadf9f1287e4",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "eventify-mobile-b78b5",
+                    "configurations": {
+                        "android": "1:1072277627373:android:1164236e82fadf9f1287e4",
+                        "ios": "1:1072277627373:ios:9e49d06adbf4860f1287e4",
+                        "macos": "1:1072277627373:ios:9e49d06adbf4860f1287e4",
+                        "web": "1:1072277627373:web:099c8dd45f61dc151287e4",
+                        "windows": "1:1072277627373:web:18afa92d42f212c31287e4"
+                    }
+                }
+            }
+        }
+    },
+    "functions": {
+        "source": "functions"
+    }
+}
