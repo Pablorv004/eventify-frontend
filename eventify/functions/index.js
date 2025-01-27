@@ -5,26 +5,39 @@ const admin = require('firebase-admin');
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
-// Execute this function every 10 minutes
+// Execute this function every minute
 exports.sendEventReminderNotification = functions.pubsub
   .schedule('every 10 minutes')
   .onRun(async (context) => {
-    // Get the current UTC time
-    const currentTimeUTC = new Date().getTime();
+    const currentTimeUTC = new Date().getTime(); // Get current time in UTC
 
-    // Adjust to UTC+1 (adding 1 hour in milliseconds)
-    const currentTimeInSpain = currentTimeUTC + 60 * 60 * 1000;
+    // Adjust to UTC+1 for reference if necessary (just for logging)
+    const currentTimeInSpain = currentTimeUTC + 60 * 60 * 1000; // 1 hour ahead for Spain (UTC+1)
+    const oneHourFromNow = currentTimeInSpain + 60 * 60 * 1000;
 
-    // Define one hour before the event in milliseconds
-    const oneHourBeforeEvent = 60 * 60 * 1000;
+    console.log(`Current server time (UTC): ${new Date(currentTimeUTC).toISOString()}`);
+    console.log(`Adjusted time (UTC+1): ${new Date(currentTimeInSpain).toISOString()}`);
+    console.log(`Query range (UTC+1): [${new Date(currentTimeInSpain).toISOString()} - ${new Date(oneHourFromNow).toISOString()}]`);
 
+    // Query range should be in UTC (not UTC+1)
+    const currentTimeInUTC = currentTimeUTC; // Current time in UTC
+    const oneHourFromNowInUTC = currentTimeInUTC + 60 * 60 * 1000;
+
+    // Query for events happening in the next hour in UTC time
     try {
-      // Obtain all event registrations that are 1 hour before the event
       const eventRegistrationsSnapshot = await admin
         .firestore()
         .collection('event_registrations')
-        .where('eventStartTime', '<=', currentTimeInSpain + oneHourBeforeEvent)
+        .where('eventStartTime', '>=', admin.firestore.Timestamp.fromMillis(currentTimeInUTC))
+        .where('eventStartTime', '<=', admin.firestore.Timestamp.fromMillis(oneHourFromNowInUTC))
         .get();
+
+      if (eventRegistrationsSnapshot.empty) {
+        console.log('No events found in the specified time range.');
+        return null;
+      }
+
+      console.log(`Found ${eventRegistrationsSnapshot.size} events.`);
 
       // Loop through each event registration document
       for (const doc of eventRegistrationsSnapshot.docs) {
@@ -57,9 +70,11 @@ exports.sendEventReminderNotification = functions.pubsub
           } catch (error) {
             console.error('Error while sending notification:', error);
           }
+        } else {
+          console.log(`User with ID ${userId} does not exist in the database.`);
         }
       }
     } catch (error) {
-      console.error('Error obtaining events info:', error);
+      console.error('Error obtaining event registrations:', error);
     }
   });
