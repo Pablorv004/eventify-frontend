@@ -32,23 +32,25 @@ class _OrganizerGraphScreenState extends State<OrganizerGraphScreen> {
         context.read<UserProvider>().currentUser!.id,
         context.read<UserProvider>());
     await fetchAttendeesData();
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> fetchAttendeesData() async {
-    setState(() {
-      isLoading = true;
-    });
-    final eventProvider = context.read<EventProvider>();
-    final fetchedData = categorySelected == 'Select a category'
-        ? {}
-        : eventProvider.getAttendeesDataForCategory(categorySelected);
     if (mounted) {
       setState(() {
-        attendeesPerMonth = Map<String, int>.from(fetchedData);
-        isLoading = false;
+        isLoading = true;
+        final eventProvider = context.read<EventProvider>();
+        final fetchedData = categorySelected == 'Select a category'
+            ? {}
+            : eventProvider.getAttendeesDataForCategory(categorySelected);
+        setState(() {
+          attendeesPerMonth = Map<String, int>.from(fetchedData);
+          isLoading = false;
+        });
       });
     }
   }

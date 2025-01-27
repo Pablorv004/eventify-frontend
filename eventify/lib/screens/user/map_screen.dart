@@ -1,8 +1,13 @@
-import 'package:eventify/config/app_colors.dart';
+import 'package:eventify/providers/event_provider.dart';
+import 'package:eventify/widgets/dialogs/_show_marker_event_info_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:provider/provider.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -13,14 +18,15 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   LatLng? _currentLocation;
-  LatLng? _selectedLocation;
   bool _isLoading = true;
   bool _permissionDenied = false;
+  List<Marker> _eventMarkers = [];
+  List<LatLng> _routePoints = [];
 
   @override
   void initState() {
     super.initState();
-    _initializeLocation();
+    _initializeLocationAndLoadMarkers();
   }
 
   @override
@@ -66,25 +72,6 @@ class _MapScreenState extends State<MapScreen> {
                     )
                   else
                     createMapWidget(context),
-            
-                  // "Go" button at the bottom of the page
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: ElevatedButton(
-                      onPressed: _selectedLocation != null ? () {} : null,
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: AppColors.deepOrange,
-                        disabledBackgroundColor: Colors.grey,
-                        disabledForegroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      child: const Text('Go'),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -96,63 +83,100 @@ class _MapScreenState extends State<MapScreen> {
 
   Center createMapWidget(BuildContext context) {
     return Center(
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.63,
-              width: MediaQuery.of(context).size.width * 0.9,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: const Offset(0, 3),
-                  ),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        width: MediaQuery.of(context).size.width * 0.9,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: FlutterMap(
+            options: MapOptions(
+              initialCenter: _currentLocation ?? const LatLng(36.512521, -6.278430),
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              ),
+              MarkerLayer(
+                markers: [
+                  // User location marker
+                  if (_currentLocation != null)
+                    Marker(
+                      point: _currentLocation!,
+                      child: const Icon(
+                        Icons.my_location,
+                        color: Colors.red,
+                        size: 30,
+                      ),
+                    ),
+                  // Event markers
+                  ..._eventMarkers,
                 ],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: FlutterMap(
-                  options: MapOptions(
-                    initialCenter: _currentLocation ?? const LatLng(36.512521, -6.278430),
-                    onTap: (tapPosition, point) {
-                      setState(() {
-                        _selectedLocation = point;
-                      });
-                    },
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: const ['a', 'b', 'c'],
+              if (_routePoints.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: _routePoints,
+                      strokeWidth: 4.0,
+                      color: Colors.blue,
                     ),
-                    if (_selectedLocation != null)
-                      MarkerLayer(
-                        markers: [
-                          Marker(
-                            point: _selectedLocation!,
-                            child: const Icon(
-                              Icons.location_pin,
-                              color: Colors.red,
-                              size: 40,
-                            ),
-                          ),
-                        ],
-                      ),
                   ],
                 ),
-              ),
-            ),
-          );
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
-  Future<void> _initializeLocation() async {
+  Future<void> _initializeLocationAndLoadMarkers() async {
     Location location = Location();
     await location.changeSettings(
       accuracy: LocationAccuracy.high,
       interval: 1000,
     );
-    _fetchUserLocation(location);
+    await _fetchUserLocation(location);
+
+    if (_currentLocation != null) {
+      // ignore: use_build_context_synchronously
+      final eventProvider = context.read<EventProvider>();
+      await eventProvider.fetchEventsWithinRadius(_currentLocation!, 2.0);
+
+      if (mounted) {
+        setState(() {
+          _eventMarkers = eventProvider.eventListByRadius.map((event) {
+            return Marker(
+              point: LatLng(event.latitude!, event.longitude!),
+              child: Builder(
+                builder: (context) => GestureDetector(
+                  onTap: () {
+                    showMarkerEventDialogInfo(context, event, (LatLng eventLocation, String travelMode) {
+                      _drawRouteToEvent(eventLocation, travelMode);
+                    });
+                  },
+                  child: const Icon(
+                    Icons.location_pin,
+                    color: Colors.blue,
+                    size: 30,
+                  ),
+                ),
+              ),
+            );
+          }).toList();
+        });
+      }
+    }
   }
 
   Future<void> _fetchUserLocation(Location location) async {
@@ -171,18 +195,61 @@ class _MapScreenState extends State<MapScreen> {
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
       if (permissionGranted != PermissionStatus.granted) {
-        setState(() {
-          _permissionDenied = true;
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _permissionDenied = true;
+            _isLoading = false;
+          });
+        }
         return;
       }
     }
 
     final userLocation = await location.getLocation();
-    setState(() {
-      _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _drawRouteToEvent(LatLng eventLocation, String travelMode) async {
+    var apiKey = dotenv.env['ORS_KEY'];
+    final start = '${_currentLocation!.longitude},${_currentLocation!.latitude}';
+    final end = '${eventLocation.longitude},${eventLocation.latitude}';
+    final url = 'https://api.openrouteservice.org/v2/directions/$travelMode?api_key=$apiKey&start=$start&end=$end';
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final coordinates = data['features'][0]['geometry']['coordinates'];
+      final summary = data['features'][0]['properties']['summary'];
+      final distance = (summary['distance'] / 1000).toStringAsFixed(2); // in km
+      final duration = (summary['duration'] / 60).toStringAsFixed(0); // in minutes
+
+      setState(() {
+        _routePoints = coordinates.map<LatLng>((coord) => LatLng(coord[1], coord[0])).toList();
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Distance: $distance km, Duration: $duration minutes'),
+          backgroundColor: Colors.blue,
+          duration: const Duration(days: 1),
+          action: SnackBarAction(
+            label: 'Dismiss',
+            textColor: Colors.white,
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+        ),
+      );
+    } else {
+      // Handle error
+    }
   }
 }

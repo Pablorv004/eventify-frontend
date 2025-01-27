@@ -14,8 +14,8 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [ Card(
+    return Stack(children: [
+      Card(
         color: Colors.white,
         elevation: 10,
         shape: RoundedRectangleBorder(
@@ -44,15 +44,23 @@ class EventCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
                   child: Image.network(
-                    event.imageUrl??'https://via.placeholder.com/150',
+                    event.imageUrl ?? '',
                     height: 200,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      // Mostrar una imagen de respaldo si ocurre un error
+                      return Image.network(
+                        'https://www.cea.es/wp-content/uploads/2023/01/el-lugar-donde-se-viven-los-grandes-eventos-26-de-abril-1.png',
+                        height: 200,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      );
+                    },
                   ),
                 ),
               ),
             ),
-            
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
@@ -78,9 +86,9 @@ class EventCard extends StatelessWidget {
                           ),
                         ),
                       ]),
-              
+
                       const Spacer(),
-              
+
                       // Time row
                       Row(children: [
                         const Icon(Icons.access_time, size: 25),
@@ -97,7 +105,6 @@ class EventCard extends StatelessWidget {
                 ],
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
@@ -112,35 +119,31 @@ class EventCard extends StatelessWidget {
                       backgroundColor: eventProvider.userEventList.contains(event) ? const Color.fromARGB(255, 241, 84, 97) : const Color.fromARGB(255, 114, 145, 247),
                     ),
                     onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text(eventProvider.userEventList.contains(event) ? 'Unregister from Event' : 'Register for Event'),
-                          content: Text(eventProvider.userEventList.contains(event)
-                              ? 'Are you sure you want to unregister from this event?'
-                              : 'Are you sure you want to register for this event?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                User user = context.read<UserProvider>().currentUser!;
-                                eventProvider.userEventList.contains(event)
-                                    ? eventProvider.unregisterUserFromEvent(user.id, event.id)
-                                    : eventProvider.registerUserToEvent(user.id, event.id);
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('Confirm'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(eventProvider.userEventList.contains(event) ? 'Unregister from Event' : 'Register for Event'),
+                            content: Text(eventProvider.userEventList.contains(event) ? 'Are you sure you want to unregister from this event?' : 'Are you sure you want to register for this event?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  User user = context.read<UserProvider>().currentUser!;
+                                  eventProvider.userEventList.contains(event) ? eventProvider.unregisterUserFromEvent(user.id, event.id) : eventProvider.registerUserToEvent(user.id, event.id);
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Confirm'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -151,32 +154,27 @@ class EventCard extends StatelessWidget {
                       ],
                     ),
                   ),
-            
                   const SizedBox(width: 5),
-                  
-                  if(eventProvider.userEventList.contains(event))
+                  if (eventProvider.userEventList.contains(event))
                     FilledButton(
-                      style: FilledButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                        style: FilledButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 5,
+                          backgroundColor: const Color.fromARGB(255, 114, 145, 247),
                         ),
-                        elevation: 5,
-                        backgroundColor: const Color.fromARGB(255, 114, 145, 247),
-                      ),
-                      onPressed: (){
-                        showEventDialogInfo(context, event);
-                      },
-                      child: const Text('More Info')
-                    ),
+                        onPressed: () {
+                          showEventDialogInfo(context, event);
+                        },
+                        child: const Text('More Info')),
                 ],
               ),
             ),
-
             const SizedBox(height: 10),
           ],
         ),
       ),
-
       Align(
         alignment: Alignment.topRight,
         child: Container(
@@ -209,7 +207,7 @@ class EventCard extends StatelessWidget {
       return const Color.fromARGB(255, 168, 168, 168);
     }
   }
-  
+
   IconData? chooseIcon() {
     if (event.category == 'Music') {
       return Icons.music_note;
