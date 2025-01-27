@@ -155,21 +155,28 @@ class _MapScreenState extends State<MapScreen> {
 
       if (mounted) {
         setState(() {
+          Map<String, int> locationCount = {};
           _eventMarkers = eventProvider.eventListByRadius.map((event) {
+            String key = '${event.latitude!},${event.longitude!}';
+            if (locationCount.containsKey(key)) {
+              locationCount[key] = locationCount[key]! + 1;
+            } else {
+              locationCount[key] = 0;
+            }
+
+            double offset = locationCount[key]! * 0.0002;
             return Marker(
-              point: LatLng(event.latitude!, event.longitude!),
-              child: Builder(
-                builder: (context) => GestureDetector(
-                  onTap: () {
-                    showMarkerEventDialogInfo(context, event, (LatLng eventLocation, String travelMode) {
-                      _drawRouteToEvent(eventLocation, travelMode);
-                    });
-                  },
-                  child: const Icon(
-                    Icons.location_pin,
-                    color: Colors.blue,
-                    size: 30,
-                  ),
+              point: LatLng(event.latitude! + offset, event.longitude! + offset),
+              child: GestureDetector(
+                onTap: () {
+                  showMarkerEventDialogInfo(context, event, (LatLng eventLocation, String travelMode) {
+                    _drawRouteToEvent(eventLocation, travelMode);
+                  });
+                },
+                child: const Icon(
+                  Icons.location_pin,
+                  color: Colors.blue,
+                  size: 30,
                 ),
               ),
             );
