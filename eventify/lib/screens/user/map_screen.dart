@@ -22,11 +22,24 @@ class _MapScreenState extends State<MapScreen> {
   bool _permissionDenied = false;
   List<Marker> _eventMarkers = [];
   List<LatLng> _routePoints = [];
+  late ScaffoldMessengerState scaffoldMessenger;
 
   @override
   void initState() {
     super.initState();
     _initializeLocationAndLoadMarkers();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    scaffoldMessenger = ScaffoldMessenger.of(context);
+  }
+
+  @override
+  void dispose() {
+    scaffoldMessenger.hideCurrentSnackBar();
+    super.dispose();
   }
 
   @override
@@ -249,7 +262,7 @@ class _MapScreenState extends State<MapScreen> {
     final url =
         'https://api.openrouteservice.org/v2/directions/$travelMode?api_key=$apiKey&start=$start&end=$end';
 
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    scaffoldMessenger.hideCurrentSnackBar();
 
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
@@ -266,7 +279,7 @@ class _MapScreenState extends State<MapScreen> {
             .toList();
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text('Distance: $distance km, Duration: $duration minutes'),
           backgroundColor: Colors.blue,
@@ -275,7 +288,10 @@ class _MapScreenState extends State<MapScreen> {
             label: 'Dismiss',
             textColor: Colors.white,
             onPressed: () {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              scaffoldMessenger.hideCurrentSnackBar();
+              setState(() {
+                _routePoints.clear();
+              });
             },
           ),
         ),

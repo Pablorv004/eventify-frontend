@@ -77,7 +77,7 @@ void showMarkerEventDialogInfo(BuildContext context, Event event, Function(LatLn
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
                         const Text('Starts at:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.amberOrange)),
                         Text(
-                          '${event.startTime.toLocal().day}/${event.startTime.toLocal().month}/${event.startTime.toLocal().year} - ${event.startTime.toLocal().hour}:${event.startTime.toLocal().minute}',
+                          '${event.endTime?.toLocal().day.toString().padLeft(2, '0')}/${event.endTime?.toLocal().month.toString().padLeft(2, '0')}/${event.endTime?.toLocal().year} - ${event.endTime?.toLocal().hour.toString().padLeft(2, '0')}:${event.endTime?.toLocal().minute.toString().padLeft(2, '0')}',
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                       ]),
@@ -89,7 +89,7 @@ void showMarkerEventDialogInfo(BuildContext context, Event event, Function(LatLn
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
                         const Text('Ends at:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.amberOrange)),
                         Text(
-                          '${event.endTime?.toLocal().day}/${event.endTime?.toLocal().month}/${event.endTime?.toLocal().year} - ${event.endTime?.toLocal().hour}:${event.endTime?.toLocal().minute}',
+                            '${event.endTime?.toLocal().day.toString().padLeft(2, '0')}/${event.endTime?.toLocal().month.toString().padLeft(2, '0')}/${event.endTime?.toLocal().year} - ${event.endTime?.toLocal().hour.toString().padLeft(2, '0')}:${event.endTime?.toLocal().minute.toString().padLeft(2, '0')}',
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                       ]),
