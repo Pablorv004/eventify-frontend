@@ -8,6 +8,7 @@ import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -136,6 +137,19 @@ class _MapScreenState extends State<MapScreen> {
                   ..._eventMarkers,
                 ],
               ),
+              MarkerClusterLayerWidget(
+                options: MarkerClusterLayerOptions(
+                  maxClusterRadius: 45,
+                  size: const Size(40, 40),
+                  markers: _eventMarkers,
+                  builder: (context, markers) {
+                    return FloatingActionButton(
+                      onPressed: null,
+                      child: Text(markers.length.toString()),
+                    );
+                  },
+                ),
+              ),
               if (_routePoints.isNotEmpty)
                 PolylineLayer(
                   polylines: [
@@ -168,18 +182,9 @@ class _MapScreenState extends State<MapScreen> {
 
       if (mounted) {
         setState(() {
-          Map<String, int> locationCount = {};
           _eventMarkers = eventProvider.eventListByRadius.map((event) {
-            String key = '${event.latitude!},${event.longitude!}';
-            if (locationCount.containsKey(key)) {
-              locationCount[key] = locationCount[key]! + 1;
-            } else {
-              locationCount[key] = 0;
-            }
-
-            double offset = locationCount[key]! * 0.0002;
             return Marker(
-              point: LatLng(event.latitude! + offset, event.longitude! + offset),
+              point: LatLng(event.latitude!, event.longitude!),
               child: GestureDetector(
                 onTap: () {
                   showMarkerEventDialogInfo(context, event, (LatLng eventLocation, String travelMode) {
