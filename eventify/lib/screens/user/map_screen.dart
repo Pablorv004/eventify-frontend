@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/widgets/dialogs/_show_marker_event_info_dialog.dart';
 import 'package:flutter/material.dart';
@@ -127,7 +129,7 @@ class _MapScreenState extends State<MapScreen> {
                     Marker(
                       point: _currentLocation!,
                       child: const Icon(
-                        Icons.my_location,
+                        Icons.location_history_sharp,
                         color: Colors.red,
                         size: 30,
                       ),
@@ -170,29 +172,34 @@ class _MapScreenState extends State<MapScreen> {
         setState(() {
           Map<String, int> locationCount = {};
           _eventMarkers = eventProvider.eventListByRadius.map((event) {
-            String key = '${event.latitude!},${event.longitude!}';
-            if (locationCount.containsKey(key)) {
-              locationCount[key] = locationCount[key]! + 1;
-            } else {
-              locationCount[key] = 0;
-            }
+        String key = '${event.latitude!},${event.longitude!}';
+        if (locationCount.containsKey(key)) {
+          locationCount[key] = locationCount[key]! + 1;
+        } else {
+          locationCount[key] = 0;
+        }
 
-            double offset = locationCount[key]! * 0.0002;
-            return Marker(
-              point: LatLng(event.latitude! + offset, event.longitude! + offset),
-              child: GestureDetector(
-                onTap: () {
-                  showMarkerEventDialogInfo(context, event, (LatLng eventLocation, String travelMode) {
-                    _drawRouteToEvent(eventLocation, travelMode);
-                  });
-                },
-                child: const Icon(
-                  Icons.location_pin,
-                  color: Colors.blue,
-                  size: 30,
-                ),
-              ),
-            );
+        int count = locationCount[key]!;
+        double angle = count * (360 / (locationCount[key]! + 1));
+        double offsetDistance = 0.0001;
+        double offsetLat = offsetDistance * cos(angle * pi / 180);
+        double offsetLng = offsetDistance * sin(angle * pi / 180);
+
+        return Marker(
+          point: LatLng(event.latitude! + offsetLat, event.longitude! + offsetLng),
+          child: GestureDetector(
+            onTap: () {
+          showMarkerEventDialogInfo(context, event, (LatLng eventLocation, String travelMode) {
+            _drawRouteToEvent(eventLocation, travelMode);
+          });
+            },
+            child: const Icon(
+          Icons.location_pin,
+          color: Colors.blue,
+          size: 30,
+            ),
+          ),
+        );
           }).toList();
         });
       }
