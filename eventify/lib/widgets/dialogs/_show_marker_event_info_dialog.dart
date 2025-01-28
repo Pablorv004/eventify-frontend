@@ -63,29 +63,22 @@ void showMarkerEventDialogInfo(BuildContext context, Event event, Function(LatLn
             ),
 
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.3,
+              height: MediaQuery.of(context).size.height * 0.15,
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // DESCRIPTION
-                    Padding(
-                      padding: const EdgeInsets.only(top: 15, bottom: 15),
-                      child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        const Text('What\'s this event about?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                        Text(
-                          event.description ?? 'No description provided',
-                        ),
-                      ]),
+                    const SizedBox(
+                      height: 10,
                     ),
-
                     // START DATE
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        const Text('When does it start?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                        const Text('Starts at:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.amberOrange)),
                         Text(
-                          '${event.startTime.toLocal().day}/${event.startTime.toLocal().month}/${event.startTime.toLocal().year}',
+                          '${event.startTime.toLocal().day}/${event.startTime.toLocal().month}/${event.startTime.toLocal().year} - ${event.startTime.toLocal().hour}:${event.startTime.toLocal().minute}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                       ]),
                     ),
@@ -94,9 +87,10 @@ void showMarkerEventDialogInfo(BuildContext context, Event event, Function(LatLn
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        const Text('When does it end?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                        const Text('Ends at:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.amberOrange)),
                         Text(
-                          '${event.endTime?.toLocal().day}/${event.endTime?.toLocal().month}/${event.endTime?.toLocal().year}',
+                          '${event.endTime?.toLocal().day}/${event.endTime?.toLocal().month}/${event.endTime?.toLocal().year} - ${event.endTime?.toLocal().hour}:${event.endTime?.toLocal().minute}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                       ]),
                     ),
