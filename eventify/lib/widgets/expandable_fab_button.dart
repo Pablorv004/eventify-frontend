@@ -40,6 +40,8 @@ class ExpandableFabButton extends StatelessWidget {
         return AppColors.sportColor;
       case 'Music':
         return AppColors.musicColor;
+      case 'Cultural':
+        return AppColors.culturalColor;
       default:
         return Colors.grey;
     }
@@ -55,6 +57,8 @@ class ExpandableFabButton extends StatelessWidget {
         return const Icon(Icons.sports_basketball);
       case 'Music':
         return const Icon(Icons.music_note);
+      case 'Cultural':
+        return const Icon(Icons.menu_book_rounded);
       default:
         return const Icon(Icons.question_mark_outlined);
     }
