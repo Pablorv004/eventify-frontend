@@ -53,23 +53,19 @@ class _MapScreenState extends State<MapScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (_isLoading)
-                    const Center(child: CircularProgressIndicator())
-                  else if (_permissionDenied)
-                    Center(
-                      child: AlertDialog(
-                        title: const Text('Location Permission Denied'),
-                        content: const Text('Location permissions are not granted. Please enable them in the settings.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
+                  if (_permissionDenied)
+                    const Center(
+                      child: Text(
+                        'Location permissions are not granted.',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     )
+                  else if (_isLoading)
+                    const Center(child: CircularProgressIndicator())
                   else
                     createMapWidget(context),
                 ],
@@ -101,7 +97,8 @@ class _MapScreenState extends State<MapScreen> {
           borderRadius: BorderRadius.circular(12),
           child: FlutterMap(
             options: MapOptions(
-              initialCenter: _currentLocation ?? const LatLng(36.512521, -6.278430),
+              initialCenter:
+                  _currentLocation ?? const LatLng(36.512521, -6.278430),
             ),
             children: [
               TileLayer(
@@ -166,10 +163,12 @@ class _MapScreenState extends State<MapScreen> {
 
             double offset = locationCount[key]! * 0.0002;
             return Marker(
-              point: LatLng(event.latitude! + offset, event.longitude! + offset),
+              point:
+                  LatLng(event.latitude! + offset, event.longitude! + offset),
               child: GestureDetector(
                 onTap: () {
-                  showMarkerEventDialogInfo(context, event, (LatLng eventLocation, String travelMode) {
+                  showMarkerEventDialogInfo(context, event,
+                      (LatLng eventLocation, String travelMode) {
                     _drawRouteToEvent(eventLocation, travelMode);
                   });
                 },
@@ -188,44 +187,67 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _fetchUserLocation(Location location) async {
     bool serviceEnabled;
-    PermissionStatus permissionGranted;
 
     serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
       if (!serviceEnabled) {
+        setState(() {
+          _permissionDenied = true;
+        });
+        _showPermissionDeniedDialog();
         return;
       }
     }
 
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        if (mounted) {
-          setState(() {
-            _permissionDenied = true;
-            _isLoading = false;
-          });
-        }
-        return;
+    try {
+      final userLocation = await location.getLocation();
+      if (mounted) {
+        setState(() {
+          _currentLocation =
+              LatLng(userLocation.latitude!, userLocation.longitude!);
+          _isLoading = false;
+        });
       }
-    }
-
-    final userLocation = await location.getLocation();
-    if (mounted) {
-      setState(() {
-        _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
-        _isLoading = false;
-      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
-  Future<void> _drawRouteToEvent(LatLng eventLocation, String travelMode) async {
+  void _showPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      useRootNavigator: true, // Importante para asegurar el contexto correcto
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Location Permission Denied'),
+          content: const Text(
+              'Location permissions are not granted. Please enable them in the settings.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _drawRouteToEvent(
+      LatLng eventLocation, String travelMode) async {
     var apiKey = dotenv.env['ORS_KEY'];
-    final start = '${_currentLocation!.longitude},${_currentLocation!.latitude}';
+    final start =
+        '${_currentLocation!.longitude},${_currentLocation!.latitude}';
     final end = '${eventLocation.longitude},${eventLocation.latitude}';
-    final url = 'https://api.openrouteservice.org/v2/directions/$travelMode?api_key=$apiKey&start=$start&end=$end';
+    final url =
+        'https://api.openrouteservice.org/v2/directions/$travelMode?api_key=$apiKey&start=$start&end=$end';
 
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
@@ -235,10 +257,13 @@ class _MapScreenState extends State<MapScreen> {
       final coordinates = data['features'][0]['geometry']['coordinates'];
       final summary = data['features'][0]['properties']['summary'];
       final distance = (summary['distance'] / 1000).toStringAsFixed(2); // in km
-      final duration = (summary['duration'] / 60).toStringAsFixed(0); // in minutes
+      final duration =
+          (summary['duration'] / 60).toStringAsFixed(0); // in minutes
 
       setState(() {
-        _routePoints = coordinates.map<LatLng>((coord) => LatLng(coord[1], coord[0])).toList();
+        _routePoints = coordinates
+            .map<LatLng>((coord) => LatLng(coord[1], coord[0]))
+            .toList();
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
