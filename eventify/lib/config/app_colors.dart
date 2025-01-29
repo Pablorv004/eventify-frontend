@@ -14,5 +14,6 @@ class AppColors {
   static const Color musicColor = Color.fromARGB(255, 232, 197, 0);
   static const Color sportColor = Color.fromARGB(255, 205, 48, 0);
   static const Color technologyColor = Color.fromARGB(255, 69, 159, 72);
+  static const Color culturalColor = Color.fromARGB(255, 117, 74, 36);
 
 }

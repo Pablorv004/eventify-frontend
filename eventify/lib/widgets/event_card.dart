@@ -49,7 +49,6 @@ class EventCard extends StatelessWidget {
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      // Mostrar una imagen de respaldo si ocurre un error
                       return Image.network(
                         'https://www.cea.es/wp-content/uploads/2023/01/el-lugar-donde-se-viven-los-grandes-eventos-26-de-abril-1.png',
                         height: 200,
@@ -95,7 +94,7 @@ class EventCard extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 5),
                           child: Text(
-                            'Starts at: ${event.startTime.toLocal().hour}:${event.startTime.toLocal().minute}',
+                            'Starts at: ${event.startTime.toLocal().hour.toString().padLeft(2, '0')}:${event.startTime.toLocal().minute.toString().padLeft(2, '0')}',
                             style: const TextStyle(fontSize: 18),
                           ),
                         ),
@@ -203,6 +202,8 @@ class EventCard extends StatelessWidget {
       return AppColors.sportColor;
     } else if (event.category == 'Technology') {
       return AppColors.technologyColor;
+    } else if (event.category == 'Cultural') {
+      return AppColors.culturalColor;
     } else {
       return const Color.fromARGB(255, 168, 168, 168);
     }
@@ -215,6 +216,8 @@ class EventCard extends StatelessWidget {
       return Icons.sports_basketball;
     } else if (event.category == 'Technology') {
       return Icons.tablet_android;
+    } else if (event.category == 'Cultural') {
+      return Icons.menu_book_rounded;
     } else {
       return Icons.question_mark_outlined;
     }
