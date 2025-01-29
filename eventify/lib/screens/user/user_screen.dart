@@ -91,6 +91,7 @@ class _UserScreenState extends State<UserScreen> {
 
               // PageView
               PageView(
+                physics: const NeverScrollableScrollPhysics(),
                 controller: _pageController,
                 onPageChanged: _onPageChanged,
                 children: screenList,
@@ -124,7 +125,7 @@ class _UserScreenState extends State<UserScreen> {
                 ],
                 currentIndex: currentScreenIndex,
                 onTap: (index) {
-                  _pageController.jumpToPage(index);
+                  _pageController.animateToPage(index, duration: const Duration(microseconds: 100), curve: Curves.easeInOut);
                 },
                 elevation: 20.0,
               ),
