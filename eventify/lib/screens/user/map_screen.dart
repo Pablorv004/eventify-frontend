@@ -95,7 +95,19 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     )
                   else if (_isLoading)
-                    const Center(child: CircularProgressIndicator())
+                    const Column(children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 10),
+                      Text(
+                        'If it takes too long to load, please reload the page',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ])
                   else
                     createMapWidget(context),
                 ],
@@ -229,7 +241,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> fetchUserLocation(bool serviceEnabled, locHandler.PermissionStatus permissionStatus, locHandler.LocationData userLocation) async {
-    if (mounted && serviceEnabled && permissionStatus == locHandler.PermissionStatus.granted) {
+    if (mounted) {
       setState(() {
         _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
         _isLoading = false;
