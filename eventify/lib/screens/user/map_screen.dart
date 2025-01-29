@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, library_prefixes, library_private_types_in_public_api
 
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/widgets/dialogs/_show_marker_event_info_dialog.dart';
@@ -63,56 +63,60 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // Widgets inside SingleChildScrollView
-          Padding(
-            padding: const EdgeInsets.only(top: 120, bottom: 70),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  if (_locationServiceDenied)
-                    const SizedBox(
-                      child: Text(
-                        'Location service is not activated. Please enable them and reload this page.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
-                  else if (_permissionDenied)
-                    const SizedBox(
-                      child: Text(
-                        'Location permissions are not granted. Please grant permissions to the app and reload this page.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
-                  else if (_isLoading)
-                    const Column(children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 10),
-                      Text(
-                        'If it takes too long to load, please reload the page',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ])
-                  else
-                    createMapWidget(context),
-                ],
-              ),
-            ),
+          Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_locationServiceDenied)
+                const SizedBox(
+                  child: Text(
+                    'Location service is not activated. Please enable them and reload this page.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
+              else if (_permissionDenied)
+                const SizedBox(
+                  child: Text(
+                    'Location permissions are not granted. Please grant permissions to the app and reload this page.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
+              else if (_isLoading)
+                const Column(children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 20),
+                  Text(
+                    'Loading map... Please wait',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'If it takes too long to load, please reload the page',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ])
+              else
+                createMapWidget(context),
+            ],
           ),
         ],
       ),
@@ -122,8 +126,8 @@ class _MapScreenState extends State<MapScreen> {
   Center createMapWidget(BuildContext context) {
     return Center(
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        width: MediaQuery.of(context).size.width * 0.9,
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
@@ -185,6 +189,9 @@ class _MapScreenState extends State<MapScreen> {
       // Verify if location services are enabled
       bool serviceEnabled = await location.serviceEnabled();
       if (!serviceEnabled) {
+        setState(() {
+          _locationServiceDenied = true;
+        });
         serviceEnabled = await location.requestService();
         if (!serviceEnabled) {
           setState(() {
@@ -219,7 +226,6 @@ class _MapScreenState extends State<MapScreen> {
       });
     } catch (e) {
       debugPrint('Error fetching location: $e');
-      _handleLocationError();
     }
   }
 
@@ -257,19 +263,6 @@ class _MapScreenState extends State<MapScreen> {
         });
       }
     }
-  }
-
-  void _handleLocationError() {
-    setState(() {
-      _isLoading = false;
-    });
-
-    scaffoldMessenger.showSnackBar(
-      const SnackBar(
-        content: Text('Error obtaining location. Please make sure your location service is on and location permissions are granted'),
-        backgroundColor: Colors.red,
-      ),
-    );
   }
 
   void _setEventMarkers(EventProvider eventProvider) {
