@@ -153,16 +153,42 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _initializeLocationAndLoadMarkers() async {
     Location location = Location();
+
+    // Configurar precisión e intervalo de ubicación
     await location.changeSettings(
       accuracy: LocationAccuracy.high,
       interval: 1000,
     );
-    await _fetchUserLocation(location);
 
-    if (_currentLocation != null) {
-      // ignore: use_build_context_synchronously
-      final eventProvider = context.read<EventProvider>();
-      await eventProvider.fetchEventsWithinRadius(_currentLocation!, 2.0);
+    // Verificar si el servicio de ubicación está habilitado
+    bool serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        setState(() {
+          _permissionDenied = true;
+        });
+        _showPermissionDeniedDialog();
+        return;
+      }
+    }
+
+    // Verificar permisos de ubicación
+    PermissionStatus permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        setState(() {
+          _permissionDenied = true;
+        });
+        _showPermissionDeniedDialog();
+        return;
+      }
+    }
+
+    // Intentar obtener la ubicación del usuario solo si los permisos fueron concedidos
+    try {
+      final userLocation = await location.getLocation();
 
       if (mounted) {
         setState(() {
@@ -199,7 +225,52 @@ class _MapScreenState extends State<MapScreen> {
           }).toList();
         });
       }
+    } on Exception catch (e) {
+      debugPrint('Error fetching location: $e');
+      _handleLocationError();
     }
+  }
+
+  void _handleLocationError() {
+    setState(() {
+      _isLoading = false;
+    });
+
+    scaffoldMessenger.showSnackBar(
+      const SnackBar(
+        content: Text('Error obtaining location. Please try again.'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void _setEventMarkers(EventProvider eventProvider) {
+    Map<String, int> locationCount = {};
+    _eventMarkers = eventProvider.eventListByRadius.map((event) {
+      String key = '${event.latitude!},${event.longitude!}';
+      if (locationCount.containsKey(key)) {
+        locationCount[key] = locationCount[key]! + 1;
+      } else {
+        locationCount[key] = 0;
+      }
+
+      double offset = locationCount[key]! * 0.0002;
+      return Marker(
+        point: LatLng(event.latitude! + offset, event.longitude! + offset),
+        child: GestureDetector(
+          onTap: () {
+            showMarkerEventDialogInfo(context, event, (LatLng eventLocation, String travelMode) {
+              _drawRouteToEvent(eventLocation, travelMode);
+            });
+          },
+          child: const Icon(
+            Icons.location_pin,
+            color: Colors.blue,
+            size: 30,
+          ),
+        ),
+      );
+    }).toList();
   }
 
   Future<void> _fetchUserLocation(Location location) async {
