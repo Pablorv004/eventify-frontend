@@ -28,7 +28,12 @@ class _OrganizerEventsScreenState extends State<OrganizerEventsScreen> {
   Widget build(BuildContext context) {
     EventProvider eventProvider = context.watch<EventProvider>();
 
-    if (eventProvider.organizerEventList.isEmpty) {
+    final filteredEvents = eventProvider.organizerEventList
+        .where((event) => event.startTime.isAfter(DateTime.now()))
+        .where((event) => event.deleted == false)
+        .toList();
+
+    if (filteredEvents.isEmpty) {
       return const Center(
           child: Text(
         'You\'re not organizing any events yet!',
@@ -38,9 +43,9 @@ class _OrganizerEventsScreenState extends State<OrganizerEventsScreen> {
     return SlidableAutoCloseBehavior(
       closeWhenOpened: true,
       child: ListView.builder(
-        itemCount: eventProvider.organizerEventList.length,
+        itemCount: filteredEvents.length,
         itemBuilder: (context, index) {
-          final event = eventProvider.organizerEventList[index];
+          final event = filteredEvents[index];
           return EventListCard(event: event);
         },
       ),
