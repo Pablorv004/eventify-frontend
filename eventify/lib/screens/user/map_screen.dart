@@ -1,10 +1,13 @@
+// ignore_for_file: avoid_print
+
 import 'package:eventify/providers/event_provider.dart';
 import 'package:eventify/widgets/dialogs/_show_marker_event_info_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:location/location.dart';
+import 'package:location/location.dart' as locHandler;
+import 'package:permission_handler/permission_handler.dart' as permHandler;
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -19,6 +22,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   LatLng? _currentLocation;
   bool _isLoading = true;
+  bool _locationServiceDenied = false;
   bool _permissionDenied = false;
   List<Marker> _eventMarkers = [];
   List<LatLng> _routePoints = [];
@@ -64,12 +68,25 @@ class _MapScreenState extends State<MapScreen> {
             padding: const EdgeInsets.only(top: 120, bottom: 70),
             child: SingleChildScrollView(
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max,
                 children: [
-                  if (_permissionDenied)
-                    const Center(
+                  if (_locationServiceDenied)
+                    const SizedBox(
                       child: Text(
-                        'Location permissions are not granted.',
+                        'Location service is not activated. Please enable them and reload this page.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
+                  else if (_permissionDenied)
+                    const SizedBox(
+                      child: Text(
+                        'Location permissions are not granted. Please grant permissions to the app and reload this page.',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.red,
                           fontSize: 18,
@@ -150,63 +167,83 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _initializeLocationAndLoadMarkers() async {
-    Location location = Location();
-
-    // Configurar precisión e intervalo de ubicación
-    await location.changeSettings(
-      accuracy: LocationAccuracy.high,
-      interval: 1000,
-    );
-
-    // Verificar si el servicio de ubicación está habilitado
-    bool serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        setState(() {
-          _permissionDenied = true;
-        });
-        _showPermissionDeniedDialog();
-        return;
-      }
-    }
-
-    // Verificar permisos de ubicación
-    PermissionStatus permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        setState(() {
-          _permissionDenied = true;
-        });
-        _showPermissionDeniedDialog();
-        return;
-      }
-    }
-
-    // Intentar obtener la ubicación del usuario solo si los permisos fueron concedidos
     try {
+      locHandler.Location location = locHandler.Location();
+
+      // Verify if location services are enabled
+      bool serviceEnabled = await location.serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await location.requestService();
+        if (!serviceEnabled) {
+          setState(() {
+            _locationServiceDenied = true;
+          });
+          _showLocationServiceDeniedDialog();
+          return;
+        }
+      }
+
+      // Verify application permissions
+      locHandler.PermissionStatus permissionStatus = await location.hasPermission();
+      if (!await _checkLocationPermissions(location, permissionStatus)) {
+        setState(() {
+          _permissionDenied = true;
+        });
+        return;
+      }
+
+      // Configure location settings
+      await location.changeSettings(
+        accuracy: locHandler.LocationAccuracy.high,
+        interval: 1000,
+      );
+
+      // Obtain user location
       final userLocation = await location.getLocation();
+      await fetchUserLocation(serviceEnabled, permissionStatus, userLocation);
+      setState(() {
+        _locationServiceDenied = false;
+        _permissionDenied = false;
+      });
+    } catch (e) {
+      debugPrint('Error fetching location: $e');
+      _handleLocationError();
+    }
+  }
+
+  Future<bool> _checkLocationPermissions(locHandler.Location location, locHandler.PermissionStatus permissionStatus) async {
+    if (permissionStatus == locHandler.PermissionStatus.denied) {
+      permissionStatus = await location.requestPermission();
+      if (permissionStatus == locHandler.PermissionStatus.denied) {
+        _showLocationPermissionDeniedDialog();
+      } else if (permissionStatus == locHandler.PermissionStatus.deniedForever) {
+        _showLocationPermissionDeniedDialog();
+      }
+    }
+
+    if (permissionStatus != locHandler.PermissionStatus.granted) {
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> fetchUserLocation(bool serviceEnabled, locHandler.PermissionStatus permissionStatus, locHandler.LocationData userLocation) async {
+    if (mounted && serviceEnabled && permissionStatus == locHandler.PermissionStatus.granted) {
+      setState(() {
+        _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
+        _isLoading = false;
+      });
+
+      // Fetch events within a 2km radius
+      final eventProvider = context.read<EventProvider>();
+      await eventProvider.fetchEventsWithinRadius(_currentLocation!, 2.0);
 
       if (mounted) {
         setState(() {
-          _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
-          _isLoading = false;
+          _setEventMarkers(eventProvider);
         });
-
-        // Cargar eventos cercanos si la ubicación está disponible
-        final eventProvider = context.read<EventProvider>();
-        await eventProvider.fetchEventsWithinRadius(_currentLocation!, 2.0);
-
-        if (mounted) {
-          setState(() {
-            _setEventMarkers(eventProvider);
-          });
-        }
       }
-    } on Exception catch (e) {
-      debugPrint('Error fetching location: $e');
-      _handleLocationError();
     }
   }
 
@@ -217,7 +254,7 @@ class _MapScreenState extends State<MapScreen> {
 
     scaffoldMessenger.showSnackBar(
       const SnackBar(
-        content: Text('Error obtaining location. Please try again.'),
+        content: Text('Error obtaining location. Please make sure your location service is on and location permissions are granted'),
         backgroundColor: Colors.red,
       ),
     );
@@ -252,66 +289,48 @@ class _MapScreenState extends State<MapScreen> {
     }).toList();
   }
 
-  Future<void> _fetchUserLocation(Location location) async {
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        setState(() {
-          _permissionDenied = true;
-        });
-        _showPermissionDeniedDialog();
-        return;
-      }
-    }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        setState(() {
-          _permissionDenied = true;
-        });
-        _showPermissionDeniedDialog();
-        return;
-      }
-    }
-
-    try {
-      final userLocation = await location.getLocation();
-      if (mounted) {
-        setState(() {
-          _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-      debugPrint('Error fetching location: $e');
-    }
-  }
-
-  void _showPermissionDeniedDialog() {
+  void _showLocationServiceDeniedDialog() {
     showDialog(
       context: context,
-      useRootNavigator: true, // Importante para asegurar el contexto correcto
+      useRootNavigator: true,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Location Permission Denied'),
-          content: const Text('Location permissions are not granted. Please enable them in the settings.'),
+          title: const Text('Location Service Denied'),
+          content: const Text('Location service is not activated. Please enable it to use the map.'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
               child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showLocationPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      useRootNavigator: true,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Location permissions denied'),
+          content: const Text('Location permissions were not granted. Do you want to open settings to enable them?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                permHandler.openAppSettings();
+              },
+              child: const Text('Yes'),
             ),
           ],
         );
