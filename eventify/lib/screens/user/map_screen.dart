@@ -112,8 +112,7 @@ class _MapScreenState extends State<MapScreen> {
           borderRadius: BorderRadius.circular(12),
           child: FlutterMap(
             options: MapOptions(
-              initialCenter:
-                  _currentLocation ?? const LatLng(36.512521, -6.278430),
+              initialCenter: _currentLocation ?? const LatLng(36.512521, -6.278430),
             ),
             children: [
               TileLayer(
@@ -205,6 +204,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _fetchUserLocation(Location location) async {
     bool serviceEnabled;
+    PermissionStatus permissionGranted;
 
     serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
@@ -218,12 +218,23 @@ class _MapScreenState extends State<MapScreen> {
       }
     }
 
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        setState(() {
+          _permissionDenied = true;
+        });
+        _showPermissionDeniedDialog();
+        return;
+      }
+    }
+
     try {
       final userLocation = await location.getLocation();
       if (mounted) {
         setState(() {
-          _currentLocation =
-              LatLng(userLocation.latitude!, userLocation.longitude!);
+          _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
           _isLoading = false;
         });
       }
@@ -233,6 +244,7 @@ class _MapScreenState extends State<MapScreen> {
           _isLoading = false;
         });
       }
+      debugPrint('Error fetching location: $e');
     }
   }
 
@@ -243,8 +255,7 @@ class _MapScreenState extends State<MapScreen> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Location Permission Denied'),
-          content: const Text(
-              'Location permissions are not granted. Please enable them in the settings.'),
+          content: const Text('Location permissions are not granted. Please enable them in the settings.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -258,14 +269,11 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Future<void> _drawRouteToEvent(
-      LatLng eventLocation, String travelMode) async {
+  Future<void> _drawRouteToEvent(LatLng eventLocation, String travelMode) async {
     var apiKey = dotenv.env['ORS_KEY'];
-    final start =
-        '${_currentLocation!.longitude},${_currentLocation!.latitude}';
+    final start = '${_currentLocation!.longitude},${_currentLocation!.latitude}';
     final end = '${eventLocation.longitude},${eventLocation.latitude}';
-    final url =
-        'https://api.openrouteservice.org/v2/directions/$travelMode?api_key=$apiKey&start=$start&end=$end';
+    final url = 'https://api.openrouteservice.org/v2/directions/$travelMode?api_key=$apiKey&start=$start&end=$end';
 
     scaffoldMessenger.hideCurrentSnackBar();
 
@@ -275,13 +283,10 @@ class _MapScreenState extends State<MapScreen> {
       final coordinates = data['features'][0]['geometry']['coordinates'];
       final summary = data['features'][0]['properties']['summary'];
       final distance = (summary['distance'] / 1000).toStringAsFixed(2); // in km
-      final duration =
-          (summary['duration'] / 60).toStringAsFixed(0); // in minutes
+      final duration = (summary['duration'] / 60).toStringAsFixed(0); // in minutes
 
       setState(() {
-        _routePoints = coordinates
-            .map<LatLng>((coord) => LatLng(coord[1], coord[0]))
-            .toList();
+        _routePoints = coordinates.map<LatLng>((coord) => LatLng(coord[1], coord[0])).toList();
       });
 
       scaffoldMessenger.showSnackBar(
