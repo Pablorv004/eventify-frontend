@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, library_prefixes, library_private_types_in_public_api
+
 import 'dart:math';
 
 import 'package:eventify/providers/event_provider.dart';
@@ -6,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:location/location.dart';
+import 'package:location/location.dart' as locHandler;
+import 'package:permission_handler/permission_handler.dart' as permHandler;
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -21,6 +24,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   LatLng? _currentLocation;
   bool _isLoading = true;
+  bool _locationServiceDenied = false;
   bool _permissionDenied = false;
   List<Marker> _eventMarkers = [];
   List<LatLng> _routePoints = [];
@@ -61,31 +65,60 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // Widgets inside SingleChildScrollView
-          Padding(
-            padding: const EdgeInsets.only(top: 120, bottom: 70),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_permissionDenied)
-                    const Center(
-                      child: Text(
-                        'Location permissions are not granted.',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
-                  else if (_isLoading)
-                    const Center(child: CircularProgressIndicator())
-                  else
-                    createMapWidget(context),
-                ],
-              ),
-            ),
+          Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_locationServiceDenied)
+                const SizedBox(
+                  child: Text(
+                    'Location service is not activated. Please enable them and reload this page.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
+              else if (_permissionDenied)
+                const SizedBox(
+                  child: Text(
+                    'Location permissions are not granted. Please grant permissions to the app and reload this page.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
+              else if (_isLoading)
+                const Column(children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 20),
+                  Text(
+                    'Loading map... Please wait',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'If it takes too long to load, please reload the page',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ])
+              else
+                createMapWidget(context),
+            ],
           ),
         ],
       ),
@@ -95,8 +128,8 @@ class _MapScreenState extends State<MapScreen> {
   Center createMapWidget(BuildContext context) {
     return Center(
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        width: MediaQuery.of(context).size.width * 0.9,
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
@@ -112,8 +145,7 @@ class _MapScreenState extends State<MapScreen> {
           borderRadius: BorderRadius.circular(12),
           child: FlutterMap(
             options: MapOptions(
-              initialCenter:
-                  _currentLocation ?? const LatLng(36.512521, -6.278430),
+              initialCenter: _currentLocation ?? const LatLng(36.512521, -6.278430),
             ),
             children: [
               TileLayer(
@@ -153,98 +185,130 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _initializeLocationAndLoadMarkers() async {
-    Location location = Location();
-    await location.changeSettings(
-      accuracy: LocationAccuracy.high,
-      interval: 1000,
-    );
-    await _fetchUserLocation(location);
+    try {
+      locHandler.Location location = locHandler.Location();
 
-    if (_currentLocation != null) {
-      // ignore: use_build_context_synchronously
+      // Verify if location services are enabled
+      bool serviceEnabled = await location.serviceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _locationServiceDenied = true;
+        });
+        serviceEnabled = await location.requestService();
+        if (!serviceEnabled) {
+          setState(() {
+            _locationServiceDenied = true;
+          });
+          _showLocationServiceDeniedDialog();
+          return;
+        }
+      }
+
+      // Verify application permissions
+      locHandler.PermissionStatus permissionStatus = await location.hasPermission();
+      if (!await _checkLocationPermissions(location, permissionStatus)) {
+        setState(() {
+          _permissionDenied = true;
+        });
+        return;
+      }
+
+      // Configure location settings
+      await location.changeSettings(
+        accuracy: locHandler.LocationAccuracy.high,
+        interval: 1000,
+      );
+
+      // Obtain user location
+      final userLocation = await location.getLocation();
+      await fetchUserLocation(serviceEnabled, permissionStatus, userLocation);
+      setState(() {
+        _locationServiceDenied = false;
+        _permissionDenied = false;
+      });
+    } catch (e) {
+      debugPrint('Error fetching location: $e');
+    }
+  }
+
+  Future<bool> _checkLocationPermissions(locHandler.Location location, locHandler.PermissionStatus permissionStatus) async {
+    if (permissionStatus == locHandler.PermissionStatus.denied) {
+      permissionStatus = await location.requestPermission();
+      if (permissionStatus == locHandler.PermissionStatus.denied) {
+        _showLocationPermissionDeniedDialog();
+      } else if (permissionStatus == locHandler.PermissionStatus.deniedForever) {
+        _showLocationPermissionDeniedDialog();
+      }
+    }
+
+    if (permissionStatus != locHandler.PermissionStatus.granted) {
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> fetchUserLocation(bool serviceEnabled, locHandler.PermissionStatus permissionStatus, locHandler.LocationData userLocation) async {
+    if (mounted) {
+      setState(() {
+        _currentLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
+        _isLoading = false;
+      });
+
+      // Fetch events within a 2km radius
       final eventProvider = context.read<EventProvider>();
       await eventProvider.fetchEventsWithinRadius(_currentLocation!, 2.0);
 
       if (mounted) {
         setState(() {
-          Map<String, int> locationCount = {};
-          _eventMarkers = eventProvider.eventListByRadius.map((event) {
-        String key = '${event.latitude!},${event.longitude!}';
-        if (locationCount.containsKey(key)) {
-          locationCount[key] = locationCount[key]! + 1;
-        } else {
-          locationCount[key] = 0;
+          _setEventMarkers(eventProvider);
+        });
+      }
         }
+      }
 
-        int count = locationCount[key]!;
-        double angle = count * (360 / (locationCount[key]! + 1));
-        double offsetDistance = 0.0001;
-        double offsetLat = offsetDistance * cos(angle * pi / 180);
-        double offsetLng = offsetDistance * sin(angle * pi / 180);
+      void _setEventMarkers(EventProvider eventProvider) {
+        Map<String, int> locationCount = {};
+        _eventMarkers = eventProvider.eventListByRadius.map((event) {
+      String key = '${event.latitude!},${event.longitude!}';
+      if (locationCount.containsKey(key)) {
+        locationCount[key] = locationCount[key]! + 1;
+      } else {
+        locationCount[key] = 0;
+      }
 
-        return Marker(
-          point: LatLng(event.latitude! + offsetLat, event.longitude! + offsetLng),
-          child: GestureDetector(
-            onTap: () {
-          showMarkerEventDialogInfo(context, event, (LatLng eventLocation, String travelMode) {
-            _drawRouteToEvent(eventLocation, travelMode);
-          });
-            },
-            child: const Icon(
-          Icons.location_pin,
-          color: Colors.blue,
-          size: 30,
-            ),
+      int count = locationCount[key]!;
+      double angle = count * (360 / (locationCount[key]! + 1));
+      double offsetDistance = 0.0001;
+      double offsetLat = offsetDistance * cos(angle * pi / 180);
+      double offsetLng = offsetDistance * sin(angle * pi / 180);
+
+      return Marker(
+        point: LatLng(event.latitude! + offsetLat, event.longitude! + offsetLng),
+        child: GestureDetector(
+          onTap: () {
+        showMarkerEventDialogInfo(context, event, (LatLng eventLocation, String travelMode) {
+          _drawRouteToEvent(eventLocation, travelMode);
+        });
+          },
+          child: const Icon(
+        Icons.location_pin,
+        color: Colors.blue,
+        size: 30,
           ),
-        );
-          }).toList();
-        });
+        ),
+      );
+        }).toList();
       }
-    }
-  }
 
-  Future<void> _fetchUserLocation(Location location) async {
-    bool serviceEnabled;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        setState(() {
-          _permissionDenied = true;
-        });
-        _showPermissionDeniedDialog();
-        return;
-      }
-    }
-
-    try {
-      final userLocation = await location.getLocation();
-      if (mounted) {
-        setState(() {
-          _currentLocation =
-              LatLng(userLocation.latitude!, userLocation.longitude!);
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  void _showPermissionDeniedDialog() {
+  void _showLocationServiceDeniedDialog() {
     showDialog(
       context: context,
-      useRootNavigator: true, // Importante para asegurar el contexto correcto
+      useRootNavigator: true,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Location Permission Denied'),
-          content: const Text(
-              'Location permissions are not granted. Please enable them in the settings.'),
+          title: const Text('Location Service Denied'),
+          content: const Text('Location service is not activated. Please enable it to use the map.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -258,14 +322,39 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Future<void> _drawRouteToEvent(
-      LatLng eventLocation, String travelMode) async {
+  void _showLocationPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      useRootNavigator: true,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Location permissions denied'),
+          content: const Text('Location permissions were not granted. Do you want to open settings to enable them?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                permHandler.openAppSettings();
+              },
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _drawRouteToEvent(LatLng eventLocation, String travelMode) async {
     var apiKey = dotenv.env['ORS_KEY'];
-    final start =
-        '${_currentLocation!.longitude},${_currentLocation!.latitude}';
+    final start = '${_currentLocation!.longitude},${_currentLocation!.latitude}';
     final end = '${eventLocation.longitude},${eventLocation.latitude}';
-    final url =
-        'https://api.openrouteservice.org/v2/directions/$travelMode?api_key=$apiKey&start=$start&end=$end';
+    final url = 'https://api.openrouteservice.org/v2/directions/$travelMode?api_key=$apiKey&start=$start&end=$end';
 
     scaffoldMessenger.hideCurrentSnackBar();
 
@@ -275,13 +364,10 @@ class _MapScreenState extends State<MapScreen> {
       final coordinates = data['features'][0]['geometry']['coordinates'];
       final summary = data['features'][0]['properties']['summary'];
       final distance = (summary['distance'] / 1000).toStringAsFixed(2); // in km
-      final duration =
-          (summary['duration'] / 60).toStringAsFixed(0); // in minutes
+      final duration = (summary['duration'] / 60).toStringAsFixed(0); // in minutes
 
       setState(() {
-        _routePoints = coordinates
-            .map<LatLng>((coord) => LatLng(coord[1], coord[0]))
-            .toList();
+        _routePoints = coordinates.map<LatLng>((coord) => LatLng(coord[1], coord[0])).toList();
       });
 
       scaffoldMessenger.showSnackBar(
